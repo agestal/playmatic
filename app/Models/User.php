@@ -4,8 +4,11 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Support\Tenancy\TenantContext;
 
 class User extends Authenticatable
 {
@@ -42,7 +45,46 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'is_superadmin' => 'boolean',
             'password' => 'hashed',
         ];
+    }
+
+    public function tenantMemberships(): HasMany
+    {
+        return $this->hasMany(TenantUser::class);
+    }
+
+    public function tenants(): BelongsToMany
+    {
+        return $this->belongsToMany(Tenant::class, 'tenant_users')
+            ->withPivot(['role_id', 'status'])
+            ->withTimestamps();
+    }
+
+    public function activeMembershipForTenant(?int $tenantId = null): ?TenantUser
+    {
+        $tenantId ??= app(TenantContext::class)->tenantId();
+
+        if (! $tenantId) {
+            return null;
+        }
+
+        return $this->tenantMemberships()
+            ->where('tenant_id', $tenantId)
+            ->where('status', 'active')
+            ->with('role.permissions')
+            ->first();
+    }
+
+    public function hasTenantPermission(string $permission, ?int $tenantId = null): bool
+    {
+        if ((bool) $this->is_superadmin) {
+            return true;
+        }
+
+        $membership = $this->activeMembershipForTenant($tenantId);
+
+        return (bool) $membership?->role?->hasPermissionTo($permission);
     }
 }

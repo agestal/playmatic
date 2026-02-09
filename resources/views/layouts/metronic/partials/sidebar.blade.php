@@ -17,27 +17,53 @@
      <div class="kt-scrollable-y-hover grow shrink-0 flex ps-2 lg:ps-5 pe-1 lg:pe-3" data-kt-scrollable="true" data-kt-scrollable-dependencies="#sidebar_header" data-kt-scrollable-height="auto" data-kt-scrollable-offset="0px" data-kt-scrollable-wrappers="#sidebar_content" id="sidebar_scrollable">
       <!-- Sidebar Menu -->
       <div class="kt-menu flex flex-col grow gap-1" data-kt-menu="true" data-kt-menu-accordion-expand-all="false" id="sidebar_menu">
-       <div class="kt-menu-item" data-kt-menu-item-toggle="accordion" data-kt-menu-item-trigger="click">
-        <div class="kt-menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] ps-[10px] pe-[10px] py-[6px]" tabindex="0">
+       <div class="kt-menu-item">
+        <a class="kt-menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] ps-[10px] pe-[10px] py-[6px] {{ request()->routeIs('dashboard') ? 'bg-primary/10 text-primary rounded-md' : '' }}" href="{{ route('dashboard') }}">
          <span class="kt-menu-icon items-start text-muted-foreground w-[20px]">
-          <i class="ki-filled ki-element-11 text-lg">
-          </i>
+          <i class="ki-filled ki-element-11 text-lg"></i>
          </span>
-         <span class="kt-menu-title text-sm font-medium text-foreground kt-menu-item-active:text-primary kt-menu-link-hover:!text-primary">
-          Dashboards
-         </span>
-         <span class="kt-menu-arrow text-muted-foreground w-[20px] shrink-0 justify-end ms-1 me-[-10px]">
-          <span class="inline-flex kt-menu-item-show:hidden">
-           <i class="ki-filled ki-plus text-[11px]">
-           </i>
-          </span>
-          <span class="hidden kt-menu-item-show:inline-flex">
-           <i class="ki-filled ki-minus text-[11px]">
-           </i>
-          </span>
-         </span>
-        </div>
+         <span class="kt-menu-title text-sm font-medium">Dashboard</span>
+        </a>
        </div>
+
+       @can('tenant.users.manage')
+        <div class="kt-menu-item">
+         <a class="kt-menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] ps-[10px] pe-[10px] py-[6px] {{ request()->routeIs('users.*') ? 'bg-primary/10 text-primary rounded-md' : '' }}" href="{{ route('users.index') }}">
+          <span class="kt-menu-icon items-start text-muted-foreground w-[20px]">
+           <i class="ki-filled ki-profile-user text-lg"></i>
+          </span>
+          <span class="kt-menu-title text-sm font-medium">Usuarios</span>
+         </a>
+        </div>
+       @endcan
+
+       @can('tenant.roles.manage')
+        <div class="kt-menu-item">
+         <a class="kt-menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] ps-[10px] pe-[10px] py-[6px] {{ request()->routeIs('access.roles.*') ? 'bg-primary/10 text-primary rounded-md' : '' }}" href="{{ route('access.roles.index') }}">
+          <span class="kt-menu-icon items-start text-muted-foreground w-[20px]">
+           <i class="ki-filled ki-setting-4 text-lg"></i>
+          </span>
+          <span class="kt-menu-title text-sm font-medium">Roles y permisos</span>
+         </a>
+        </div>
+       @endcan
+
+       @can('tenant.users.manage')
+        <div class="kt-menu-item">
+         <a class="kt-menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] ps-[10px] pe-[10px] py-[6px] {{ request()->routeIs('access.users.*') ? 'bg-primary/10 text-primary rounded-md' : '' }}" href="{{ route('access.users.index') }}">
+          <span class="kt-menu-icon items-start text-muted-foreground w-[20px]">
+           <i class="ki-filled ki-shield-tick text-lg"></i>
+          </span>
+          <span class="kt-menu-title text-sm font-medium">Acceso de usuarios</span>
+         </a>
+        </div>
+       @endcan
+
+       @isset($currentTenant)
+       <div class="mt-4 px-[10px] py-2 text-xs text-gray-500 border-t border-gray-200">
+        Empresa activa: <span class="font-semibold text-gray-700">{{ $currentTenant->name }}</span>
+       </div>
+       @endisset
       </div>
       <!-- End of Sidebar Menu -->
      </div>

@@ -2,11 +2,12 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
-use Spatie\Permission\Models\Role;
+use App\Support\Authorization\PermissionCatalog;
 
 class DevSeeder extends Seeder
 {
@@ -31,58 +32,147 @@ class DevSeeder extends Seeder
          | 2. Tenant de ejemplo
          |------------------------------------------------------------
          */
-        $tenantId = DB::table('tenants')->insertGetId([
-            'name'       => 'Playmatic Demo',
-            'slug'       => 'playmatic-demo',
-            'branding'   => json_encode([
-                'logo' => null,
-                'primary_color' => '#111827',
-            ]),
-            'features'   => json_encode([]),
-            'created_at'=> now(),
-            'updated_at'=> now(),
-        ]);
+        $tenantSlug = 'playmatic-demo';
+        $now = now();
+
+        $tenant = DB::table('tenants')
+            ->where('slug', $tenantSlug)
+            ->first();
+
+        if ($tenant) {
+            DB::table('tenants')
+                ->where('id', $tenant->id)
+                ->update([
+                    'name' => 'Playmatic Demo',
+                    'branding' => json_encode([
+                        'logo' => null,
+                        'primary_color' => '#111827',
+                    ]),
+                    'features' => json_encode([]),
+                    'updated_at' => $now,
+                ]);
+
+            $tenantId = (int) $tenant->id;
+        } else {
+            $tenantId = DB::table('tenants')->insertGetId([
+                'name' => 'Playmatic Demo',
+                'slug' => $tenantSlug,
+                'branding' => json_encode([
+                    'logo' => null,
+                    'primary_color' => '#111827',
+                ]),
+                'features' => json_encode([]),
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+        }
 
         /*
          |------------------------------------------------------------
          | 3. Dominio del tenant
          |------------------------------------------------------------
          */
-        DB::table('tenant_domains')->insert([
-            'tenant_id'  => $tenantId,
-            'domain'     => 'playmatic.local',
-            'is_primary' => true,
-            'created_at'=> now(),
-            'updated_at'=> now(),
-        ]);
+        $domain = DB::table('tenant_domains')
+            ->where('domain', 'playmatic.local')
+            ->first();
 
-        /*
-         |------------------------------------------------------------
-         | 4. Rol tenant_admin (Spatie)
-         |------------------------------------------------------------
-         */
-        $role = Role::where('name', 'tenant_admin')->first();
-
-        if (!$role) {
-            throw new \RuntimeException('El rol tenant_admin no existe. Ejecuta primero el RbacSeeder.');
+        if ($domain) {
+            DB::table('tenant_domains')
+                ->where('id', $domain->id)
+                ->update([
+                    'tenant_id' => $tenantId,
+                    'is_primary' => true,
+                    'updated_at' => $now,
+                ]);
+        } else {
+            DB::table('tenant_domains')->insert([
+                'tenant_id' => $tenantId,
+                'domain' => 'playmatic.local',
+                'is_primary' => true,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
         }
+
+        $roles = collect(['tenant_admin', 'tenant_manager', 'tenant_viewer'])
+            ->mapWithKeys(function (string $roleName) use ($tenantId) {
+                $role = Role::query()->firstOrCreate([
+                    'tenant_id' => $tenantId,
+                    'name' => $roleName,
+                    'guard_name' => 'web',
+                ]);
+
+                $role->syncPermissions(PermissionCatalog::defaultsForRole($roleName));
+
+                return [$roleName => $role];
+            });
+
+        $adminRole = $roles['tenant_admin'];
 
         /*
          |------------------------------------------------------------
          | 5. Relación user ↔ tenant con role_id
          |------------------------------------------------------------
          */
-        DB::table('tenant_users')->updateOrInsert(
-            [
+        $tenantUser = DB::table('tenant_users')
+            ->where('tenant_id', $tenantId)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if ($tenantUser) {
+            DB::table('tenant_users')
+                ->where('id', $tenantUser->id)
+                ->update([
+                    'role_id' => $adminRole->id,
+                    'status' => 'active',
+                    'updated_at' => $now,
+                ]);
+        } else {
+            DB::table('tenant_users')->insert([
                 'tenant_id' => $tenantId,
-                'user_id'   => $user->id,
+                'user_id' => $user->id,
+                'role_id' => $adminRole->id,
+                'status' => 'active',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+        }
+
+        $samples = [
+            [
+                'email' => 'manager@playmatic.local',
+                'name' => 'Manager Playmatic',
+                'role' => 'tenant_manager',
             ],
             [
-                'role_id'   => $role->id,
-                'status'    => 'active',
-                'created_at'=> now(),
-                'updated_at'=> now(),
-            ]
-        );
+                'email' => 'viewer@playmatic.local',
+                'name' => 'Viewer Playmatic',
+                'role' => 'tenant_viewer',
+            ],
+        ];
+
+        foreach ($samples as $sample) {
+            $sampleUser = User::firstOrCreate(
+                ['email' => $sample['email']],
+                [
+                    'name' => $sample['name'],
+                    'password' => Hash::make('admin12345'),
+                    'is_superadmin' => false,
+                ]
+            );
+
+            DB::table('tenant_users')->updateOrInsert(
+                [
+                    'tenant_id' => $tenantId,
+                    'user_id' => $sampleUser->id,
+                ],
+                [
+                    'role_id' => $roles[$sample['role']]->id,
+                    'status' => 'active',
+                    'updated_at' => $now,
+                    'created_at' => $now,
+                ]
+            );
+        }
     }
 }

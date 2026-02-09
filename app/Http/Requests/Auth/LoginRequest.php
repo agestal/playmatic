@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\TenantUser;
+use App\Support\Tenancy\TenantContext;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -46,6 +48,26 @@ class LoginRequest extends FormRequest
 
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
+            ]);
+        }
+
+        $user = Auth::user();
+        $tenantId = app(TenantContext::class)->tenantId();
+
+        if (
+            $user
+            && ! (bool) $user->is_superadmin
+            && $tenantId
+            && ! TenantUser::query()
+                ->where('tenant_id', $tenantId)
+                ->where('user_id', $user->id)
+                ->where('status', 'active')
+                ->exists()
+        ) {
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'email' => 'Tu usuario no tiene acceso a esta empresa en este dominio.',
             ]);
         }
 

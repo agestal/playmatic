@@ -4,4 +4,7 @@
 {{-- opcionales pero típicos en demo1 --}}
 <script src="{{ asset('assets/js/widgets/general.js') }}"></script>
 <script src="{{ asset('assets/js/layouts/demo1.js') }}"></script>
+
+@livewireScripts
+<script src="{{ asset('assets/vendors/livewire-powergrid/powergrid.js') }}"></script>
 @stack('scripts')

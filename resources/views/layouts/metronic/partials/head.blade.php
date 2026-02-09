@@ -12,3 +12,7 @@
 <link rel="stylesheet" href="{{ asset('assets/vendors/apexcharts/apexcharts.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/vendors/keenicons/styles.bundle.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/styles.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/powergrid-theme.css') }}">
+
+@livewireStyles
+@stack('styles')

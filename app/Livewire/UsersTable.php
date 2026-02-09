@@ -36,8 +36,8 @@ class UsersTable extends BaseTable
                 'field' => 'is_superadmin',
                 'sortable' => true,
                 'format' => fn($row) => $row->is_superadmin
-                    ? '<span class="badge badge-light-success fs-7 fw-semibold">Yes</span>'
-                    : '<span class="badge badge-light-secondary fs-7 fw-semibold">No</span>',
+                    ? '<span class="kt-badge kt-badge-success kt-badge-sm">Yes</span>'
+                    : '<span class="kt-badge kt-badge-sm">No</span>',
             ],
             [
                 'label' => 'Created',

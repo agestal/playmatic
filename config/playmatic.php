@@ -1,7 +1,5 @@
 <?php
 
 return [
-    'roles' => [
-        'tenant_admin' => ['*'], // acceso total dentro del tenant
-    ],
+    'allow_unknown_domains_in_local' => env('PLAYMATIC_ALLOW_UNKNOWN_DOMAINS_LOCAL', true),
 ];

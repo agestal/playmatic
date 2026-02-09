@@ -45,6 +45,9 @@
             "npm install",
             "npm run build"
         ],
+        "sync-powergrid-assets": [
+            "@php -r \"if (is_file('vendor/power-components/livewire-powergrid/dist/powergrid.js')) { is_dir('public/assets/vendors/livewire-powergrid') || mkdir('public/assets/vendors/livewire-powergrid', 0777, true); copy('vendor/power-components/livewire-powergrid/dist/powergrid.js', 'public/assets/vendors/livewire-powergrid/powergrid.js'); }\""
+        ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
             "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1 --timeout=0\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite --kill-others"
@@ -55,10 +58,12 @@
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover --ansi"
+            "@php artisan package:discover --ansi",
+            "@sync-powergrid-assets"
         ],
         "post-update-cmd": [
-            "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
+            "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
+            "@sync-powergrid-assets"
         ],
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""

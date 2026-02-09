@@ -2,36 +2,34 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Tables\BasePowerGridTable;
+use App\Models\TenantUser;
 use App\Models\User;
-use Illuminate\Support\Carbon;
+use App\Support\Tenancy\TenantContext;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
-final class UserTable extends PowerGridComponent
+final class UserTable extends BasePowerGridTable
 {
-    public string $tableName = 'userTable';
+    public string $tableName = 'usersTable';
 
-    public function setUp(): array
-    {
-        $this->showCheckBox();
-
-        return [
-            PowerGrid::header()
-                ->showSearchInput(),
-            PowerGrid::footer()
-                ->showPerPage()
-                ->showRecordCount(),
-        ];
-    }
+    protected bool $withCheckbox = true;
 
     public function datasource(): Builder
     {
-        return User::query();
+        $query = User::query();
+
+        $tenantId = app(TenantContext::class)->tenantId();
+
+        if ($tenantId) {
+            $query->whereHas('tenantMemberships', fn (Builder $membershipQuery) => $membershipQuery
+                ->where('tenant_id', $tenantId));
+        }
+
+        return $query;
     }
 
     public function relationSearch(): array
@@ -45,14 +43,21 @@ final class UserTable extends PowerGridComponent
             ->add('id')
             ->add('name')
             ->add('email')
-            ->add('created_at');
+            ->add('is_superadmin_badge', fn (User $user): string => $user->is_superadmin
+                ? '<span class="kt-badge kt-badge-sm kt-badge-light kt-badge-success">Si</span>'
+                : '<span class="kt-badge kt-badge-sm kt-badge-light">No</span>')
+            ->add('created_at_formatted', fn (User $user): string => $user->created_at
+                ? $user->created_at->format('d/m/Y H:i')
+                : '-');
     }
 
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
-            Column::make('Name', 'name')
+            Column::make('ID', 'id')
+                ->sortable(),
+
+            Column::make('Nombre', 'name')
                 ->sortable()
                 ->searchable(),
 
@@ -60,49 +65,50 @@ final class UserTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Created at', 'created_at_formatted', 'created_at')
-                ->sortable(),
-
-            Column::make('Created at', 'created_at')
+            Column::make('Superadmin', 'is_superadmin_badge', 'is_superadmin')
                 ->sortable()
                 ->searchable(),
 
-            Column::action('Action')
+            Column::make('Creado', 'created_at_formatted', 'created_at')
+                ->sortable()
+                ->searchable(),
+
+            Column::action('Acciones')
         ];
     }
 
-    public function filters(): array
+    #[\Livewire\Attributes\On('delete-user')]
+    public function deleteUser(int $rowId): void
     {
-        return [
-        ];
-    }
+        $tenantId = app(TenantContext::class)->tenantId();
 
-    #[\Livewire\Attributes\On('edit')]
-    public function edit($rowId): void
-    {
-        $this->js('alert('.$rowId.')');
+        if (! $tenantId) {
+            return;
+        }
+
+        if ((int) auth()->id() === $rowId && ! (bool) auth()->user()?->is_superadmin) {
+            return;
+        }
+
+        TenantUser::query()
+            ->where('tenant_id', $tenantId)
+            ->where('user_id', $rowId)
+            ->delete();
     }
 
     public function actions(User $row): array
     {
         return [
             Button::add('edit')
-                ->slot('Edit: '.$row->id)
-                ->id()
-                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $row->id])
-        ];
-    }
+                ->slot('<i class="ki-outline ki-notepad-edit"></i>')
+                ->class('kt-btn kt-btn-sm kt-btn-icon kt-btn-light')
+                ->route('users.edit', ['user' => $row->id]),
 
-    /*
-    public function actionRules($row): array
-    {
-       return [
-            // Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
-                ->hide(),
+            Button::add('delete')
+                ->slot('<i class="ki-outline ki-trash"></i>')
+                ->class('kt-btn kt-btn-sm kt-btn-icon kt-btn-light-danger')
+                ->dispatch('delete-user', ['rowId' => $row->id])
+                ->confirm('¿Quitar acceso de este usuario en la empresa actual?'),
         ];
     }
-    */
 }
