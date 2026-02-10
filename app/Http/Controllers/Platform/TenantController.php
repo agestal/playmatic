@@ -59,11 +59,11 @@ class TenantController extends Controller
         });
 
         return redirect()
-            ->route('platform.tenants.edit', $tenant)
-            ->with('status', 'Tenant creado correctamente.');
+            ->route('platform.tenants.edit', ['tenant' => $tenant])
+            ->with('status', __('Tenant created successfully.'));
     }
 
-    public function edit(Tenant $tenant): View
+    public function edit(string $locale, Tenant $tenant): View
     {
         $tenant->load([
             'domains' => fn ($query) => $query
@@ -94,7 +94,7 @@ class TenantController extends Controller
         ]);
     }
 
-    public function update(Request $request, Tenant $tenant): RedirectResponse
+    public function update(Request $request, string $locale, Tenant $tenant): RedirectResponse
     {
         $validated = $this->validatePayload($request, $tenant);
 
@@ -115,11 +115,11 @@ class TenantController extends Controller
         });
 
         return redirect()
-            ->route('platform.tenants.edit', $tenant)
-            ->with('status', 'Tenant actualizado correctamente.');
+            ->route('platform.tenants.edit', ['tenant' => $tenant])
+            ->with('status', __('Tenant updated successfully.'));
     }
 
-    public function destroy(Tenant $tenant): RedirectResponse
+    public function destroy(string $locale, Tenant $tenant): RedirectResponse
     {
         $tenantName = $tenant->name;
 
@@ -127,7 +127,7 @@ class TenantController extends Controller
 
         return redirect()
             ->route('platform.tenants.index')
-            ->with('status', 'Tenant '.$tenantName.' eliminado correctamente.');
+            ->with('status', __('Tenant :name deleted successfully.', ['name' => $tenantName]));
     }
 
     /**
@@ -152,7 +152,7 @@ class TenantController extends Controller
 
         if (! $this->isValidDomain($normalizedDomain)) {
             throw ValidationException::withMessages([
-                'primary_domain' => 'El dominio indicado no es valido.',
+                'primary_domain' => __('The provided domain is not valid.'),
             ]);
         }
 
@@ -165,7 +165,7 @@ class TenantController extends Controller
 
         if ($domainQuery->exists()) {
             throw ValidationException::withMessages([
-                'primary_domain' => 'Ese dominio ya esta asignado a otro tenant.',
+                'primary_domain' => __('That domain is already assigned to another tenant.'),
             ]);
         }
 

@@ -17,7 +17,7 @@ class EnsureSuperadmin
         }
 
         if (! (bool) $user->is_superadmin) {
-            abort(403, 'Solo usuarios superadmin pueden acceder a esta seccion.');
+            abort(403, __('Only superadmin users can access this section.'));
         }
 
         return $next($request);

@@ -33,7 +33,7 @@ return [
     /**
      * Use JSON Translations instead of PHP Array
      */
-    'use_json_translations' => false,
+    'use_json_translations' => true,
 
     /**
      * Customise Script & Styles Paths

@@ -4,9 +4,11 @@ use App\Http\Middleware\EnsureTenantMembership;
 use App\Http\Middleware\EnsureSuperadmin;
 use App\Http\Middleware\RequireTenantPermission;
 use App\Http\Middleware\ResolveTenantFromDomain;
+use App\Http\Middleware\SetLocaleFromRoute;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -18,12 +20,17 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('web', ResolveTenantFromDomain::class);
 
         $middleware->alias([
+            'set.locale' => SetLocaleFromRoute::class,
             'tenant.member' => EnsureTenantMembership::class,
             'tenant.permission' => RequireTenantPermission::class,
             'superadmin' => EnsureSuperadmin::class,
         ]);
 
-        $middleware->redirectGuestsTo('/login');
+        $middleware->redirectGuestsTo(function (Request $request): string {
+            return route('login', [
+                'locale' => $request->route('locale') ?? config('app.locale'),
+            ], absolute: false);
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

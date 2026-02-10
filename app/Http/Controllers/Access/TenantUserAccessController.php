@@ -44,10 +44,10 @@ class TenantUserAccessController extends Controller
 
         return redirect()
             ->route('access.users.index')
-            ->with('status', 'Acceso de usuario actualizado para esta empresa.');
+            ->with('status', __('User access was updated for this company.'));
     }
 
-    public function update(Request $request, TenantUser $tenantUser, TenantContext $tenantContext): RedirectResponse
+    public function update(Request $request, string $locale, TenantUser $tenantUser, TenantContext $tenantContext): RedirectResponse
     {
         $tenant = $this->tenantOrFail($tenantContext);
         $this->assertMembershipTenant($tenantUser, $tenant);
@@ -64,7 +64,7 @@ class TenantUserAccessController extends Controller
         if ((int) $request->user()->id === (int) $tenantUser->user_id && $validated['status'] === 'disabled') {
             return redirect()
                 ->route('access.users.index')
-                ->withErrors(['membership' => 'No puedes desactivar tu propio acceso en esta empresa.']);
+                ->withErrors(['membership' => __('You cannot disable your own access in this company.')]);
         }
 
         $tenantUser->update([
@@ -74,10 +74,10 @@ class TenantUserAccessController extends Controller
 
         return redirect()
             ->route('access.users.index')
-            ->with('status', 'Permisos de usuario actualizados.');
+            ->with('status', __('User permissions updated.'));
     }
 
-    public function destroy(Request $request, TenantUser $tenantUser, TenantContext $tenantContext): RedirectResponse
+    public function destroy(Request $request, string $locale, TenantUser $tenantUser, TenantContext $tenantContext): RedirectResponse
     {
         $tenant = $this->tenantOrFail($tenantContext);
         $this->assertMembershipTenant($tenantUser, $tenant);
@@ -85,14 +85,14 @@ class TenantUserAccessController extends Controller
         if ((int) $request->user()->id === (int) $tenantUser->user_id) {
             return redirect()
                 ->route('access.users.index')
-                ->withErrors(['membership' => 'No puedes eliminar tu propio acceso desde aqui.']);
+                ->withErrors(['membership' => __('You cannot remove your own access from here.')]);
         }
 
         $tenantUser->delete();
 
         return redirect()
             ->route('access.users.index')
-            ->with('status', 'Acceso eliminado correctamente.');
+            ->with('status', __('Access removed successfully.'));
     }
 
     /**
@@ -116,7 +116,7 @@ class TenantUserAccessController extends Controller
         $tenant = $tenantContext->tenant();
 
         if (! $tenant) {
-            abort(404, 'No hay empresa activa en este dominio.');
+            abort(404, __('There is no active company for this domain.'));
         }
 
         return $tenant;

@@ -44,8 +44,8 @@ final class UserTable extends BasePowerGridTable
             ->add('name')
             ->add('email')
             ->add('is_superadmin_badge', fn (User $user): string => $user->is_superadmin
-                ? '<span class="kt-badge kt-badge-sm kt-badge-light kt-badge-success">Si</span>'
-                : '<span class="kt-badge kt-badge-sm kt-badge-light">No</span>')
+                ? '<span class="kt-badge kt-badge-sm kt-badge-light kt-badge-success">'.e(__('Yes')).'</span>'
+                : '<span class="kt-badge kt-badge-sm kt-badge-light">'.e(__('No')).'</span>')
             ->add('created_at_formatted', fn (User $user): string => $user->created_at
                 ? $user->created_at->format('d/m/Y H:i')
                 : '-');
@@ -54,26 +54,26 @@ final class UserTable extends BasePowerGridTable
     public function columns(): array
     {
         return [
-            Column::make('ID', 'id')
+            Column::make(__('ID'), 'id')
                 ->sortable(),
 
-            Column::make('Nombre', 'name')
+            Column::make(__('Name'), 'name')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Email', 'email')
+            Column::make(__('Email'), 'email')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Superadmin', 'is_superadmin_badge', 'is_superadmin')
+            Column::make(__('Superadmin'), 'is_superadmin_badge', 'is_superadmin')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Creado', 'created_at_formatted', 'created_at')
+            Column::make(__('Created'), 'created_at_formatted', 'created_at')
                 ->sortable()
                 ->searchable(),
 
-            Column::action('Acciones')
+            Column::action(__('Actions'))
         ];
     }
 
@@ -108,7 +108,7 @@ final class UserTable extends BasePowerGridTable
                 ->slot('<i class="ki-outline ki-trash"></i>')
                 ->class('kt-btn kt-btn-sm kt-btn-icon kt-btn-light-danger')
                 ->dispatch('delete-user', ['rowId' => $row->id])
-                ->confirm('¿Quitar acceso de este usuario en la empresa actual?'),
+                ->confirm(__('Remove this user access from the current company?')),
         ];
     }
 }

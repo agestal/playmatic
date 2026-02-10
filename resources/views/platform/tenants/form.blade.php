@@ -1,15 +1,15 @@
 @extends('layouts.metronic.app')
 
-@section('title', $mode === 'create' ? 'Nuevo tenant' : 'Editar tenant')
+@section('title', $mode === 'create' ? __('New tenant') : __('Edit tenant'))
 
 @section('content')
     <x-tables.panel
-        :title="$mode === 'create' ? 'Nuevo tenant' : 'Editar tenant'"
-        description="Configuracion base del tenant: nombre, slug, dominio primario y owner."
+        :title="$mode === 'create' ? __('New tenant') : __('Edit tenant')"
+        :description="__('Tenant base configuration: name, slug, primary domain, and owner.')"
     >
         <x-slot:actions>
             <a href="{{ route('platform.tenants.index') }}" class="kt-btn kt-btn-sm kt-btn-light">
-                Volver
+                {{ __('Back') }}
             </a>
         </x-slot:actions>
 
@@ -28,7 +28,7 @@
 
             <form
                 method="POST"
-                action="{{ $mode === 'create' ? route('platform.tenants.store') : route('platform.tenants.update', $tenant) }}"
+                action="{{ $mode === 'create' ? route('platform.tenants.store') : route('platform.tenants.update', ['tenant' => $tenant]) }}"
                 class="grid grid-cols-1 lg:grid-cols-2 gap-4"
             >
                 @csrf
@@ -37,21 +37,21 @@
                 @endif
 
                 <div class="space-y-1">
-                    <label for="name" class="text-xs text-gray-600">Nombre visible</label>
+                    <label for="name" class="text-xs text-gray-600">{{ __('Display name') }}</label>
                     <input
                         id="name"
                         type="text"
                         name="name"
                         class="kt-input"
                         value="{{ old('name', $tenant?->name) }}"
-                        placeholder="Acme Corp"
+                        placeholder="{{ __('Acme Corp') }}"
                         maxlength="120"
                         required
                     >
                 </div>
 
                 <div class="space-y-1">
-                    <label for="slug" class="text-xs text-gray-600">Slug (unico)</label>
+                    <label for="slug" class="text-xs text-gray-600">{{ __('Slug (unique)') }}</label>
                     <input
                         id="slug"
                         type="text"
@@ -65,7 +65,7 @@
                 </div>
 
                 <div class="space-y-1">
-                    <label for="primary_domain" class="text-xs text-gray-600">Dominio primario</label>
+                    <label for="primary_domain" class="text-xs text-gray-600">{{ __('Primary domain') }}</label>
                     <input
                         id="primary_domain"
                         type="text"
@@ -75,11 +75,11 @@
                         placeholder="acme.playmatic.local"
                         required
                     >
-                    <p class="text-xs text-gray-500">Puedes poner solo host o URL completa; se normaliza automaticamente.</p>
+                    <p class="text-xs text-gray-500">{{ __('You can enter only the host or a full URL; it will be normalized automatically.') }}</p>
                 </div>
 
                 <div class="space-y-1">
-                    <label for="owner_email" class="text-xs text-gray-600">Owner email (usuario existente)</label>
+                    <label for="owner_email" class="text-xs text-gray-600">{{ __('Owner email (existing user)') }}</label>
                     <input
                         id="owner_email"
                         type="email"
@@ -89,17 +89,17 @@
                         placeholder="owner@empresa.com"
                         required
                     >
-                    <p class="text-xs text-gray-500">Se asignara rol <code>tenant_admin</code> y estado activo en este tenant.</p>
+                    <p class="text-xs text-gray-500">{{ __('The :role role and active status will be assigned in this tenant.', ['role' => 'tenant_admin']) }}</p>
                 </div>
 
                 <div class="lg:col-span-2 flex items-center gap-2">
                     <button type="submit" class="kt-btn kt-btn-primary kt-btn-sm">
-                        {{ $mode === 'create' ? 'Crear tenant' : 'Guardar cambios' }}
+                        {{ $mode === 'create' ? __('Create tenant') : __('Save changes') }}
                     </button>
 
                     @if ($mode === 'edit')
                         <a href="{{ route('platform.tenants.create') }}" class="kt-btn kt-btn-sm kt-btn-light">
-                            Nuevo tenant
+                            {{ __('New tenant') }}
                         </a>
                     @endif
                 </div>
@@ -107,17 +107,17 @@
 
             @if ($tenant)
                 <div class="rounded-lg border border-gray-200 p-4">
-                    <h4 class="text-sm font-semibold text-gray-900 mb-2">Dominios vinculados</h4>
+                    <h4 class="text-sm font-semibold text-gray-900 mb-2">{{ __('Linked domains') }}</h4>
                     <div class="flex flex-wrap gap-2">
                         @forelse ($tenant->domains as $domain)
                             <span class="kt-badge kt-badge-sm {{ $domain->is_primary ? 'kt-badge-light-primary' : 'kt-badge-light' }}">
                                 {{ $domain->domain }}
                                 @if ($domain->is_primary)
-                                    (primary)
+                                    ({{ __('primary') }})
                                 @endif
                             </span>
                         @empty
-                            <span class="text-sm text-gray-500">Sin dominios configurados.</span>
+                            <span class="text-sm text-gray-500">{{ __('No domains configured.') }}</span>
                         @endforelse
                     </div>
                 </div>

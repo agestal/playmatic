@@ -53,28 +53,28 @@ final class TenantTable extends BasePowerGridTable
     public function columns(): array
     {
         return [
-            Column::make('ID', 'id')
+            Column::make(__('ID'), 'id')
                 ->sortable(),
 
-            Column::make('Tenant', 'name')
+            Column::make(__('Tenant'), 'name')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Slug', 'slug')
+            Column::make(__('Slug'), 'slug')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Dominio primario', 'primary_domain')
+            Column::make(__('Primary domain'), 'primary_domain')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Usuarios', 'tenant_users_count_badge', 'tenant_users_count')
+            Column::make(__('Users'), 'tenant_users_count_badge', 'tenant_users_count')
                 ->sortable(),
 
-            Column::make('Creado', 'created_at_formatted', 'created_at')
+            Column::make(__('Created'), 'created_at_formatted', 'created_at')
                 ->sortable(),
 
-            Column::action('Acciones'),
+            Column::action(__('Actions')),
         ];
     }
 
@@ -102,7 +102,7 @@ final class TenantTable extends BasePowerGridTable
                 ->slot('<i class="ki-outline ki-trash"></i>')
                 ->class('kt-btn kt-btn-sm kt-btn-icon kt-btn-light-danger')
                 ->dispatch('delete-tenant', ['rowId' => $row->id])
-                ->confirm('¿Eliminar tenant y todos sus datos asociados?'),
+                ->confirm(__('Delete this tenant and all its associated data?')),
         ];
     }
 }

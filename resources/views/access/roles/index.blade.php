@@ -1,17 +1,17 @@
 @extends('layouts.metronic.app')
 
-@section('title', 'Roles')
+@section('title', __('Roles'))
 
 @section('content')
     <x-tables.panel
-        title="Roles"
-        description="Gestiona los roles de la empresa activa con filtros y acciones estandarizadas."
+        :title="__('Roles')"
+        :description="__('Manage roles for the active company with standardized filters and actions.')"
     >
         @if (filled(request('permission')) || session('status') || $errors->any())
             <div class="p-5 pb-0 space-y-4">
                 @if (filled(request('permission')))
                     <div class="kt-alert kt-alert-primary">
-                        Filtrado por permiso: <span class="font-semibold">{{ request('permission') }}</span>
+                        {{ __('Filtered by permission:') }} <span class="font-semibold">{{ request('permission') }}</span>
                     </div>
                 @endif
 

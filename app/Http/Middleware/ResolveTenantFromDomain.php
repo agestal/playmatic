@@ -6,6 +6,7 @@ use App\Models\TenantDomain;
 use App\Support\Tenancy\TenantContext;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\View;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -52,7 +53,7 @@ class ResolveTenantFromDomain
                 return $next($request);
             }
 
-            abort(404, 'No existe una empresa asociada al dominio '.$host.'.');
+            abort(404, __('No tenant is associated with the domain :domain.', ['domain' => $host]));
         }
 
         $this->tenantContext->setTenant($tenantDomain->tenant);
@@ -63,19 +64,33 @@ class ResolveTenantFromDomain
 
     protected function canProceedWithoutTenant(Request $request): bool
     {
-        return $request->routeIs('platform.*', 'login', 'logout', 'password.*', 'verification.*')
-            || $request->is(
-                'platform',
-                'platform/*',
-                'login',
-                'logout',
-                'forgot-password',
-                'reset-password',
-                'reset-password/*',
-                'verify-email',
-                'verify-email/*',
-                'email/verification-notification',
-                'confirm-password'
-            );
+        if ($request->routeIs('platform.*', 'login', 'logout', 'password.*', 'verification.*')) {
+            return true;
+        }
+
+        $normalizedPath = trim($request->path(), '/');
+        $locale = $request->route('locale');
+
+        if (is_string($locale) && $locale !== '') {
+            if ($normalizedPath === $locale) {
+                $normalizedPath = '';
+            } elseif (str_starts_with($normalizedPath, $locale.'/')) {
+                $normalizedPath = substr($normalizedPath, strlen($locale) + 1);
+            }
+        }
+
+        return Str::is([
+            'platform',
+            'platform/*',
+            'login',
+            'logout',
+            'forgot-password',
+            'reset-password',
+            'reset-password/*',
+            'verify-email',
+            'verify-email/*',
+            'email/verification-notification',
+            'confirm-password',
+        ], $normalizedPath);
     }
 }

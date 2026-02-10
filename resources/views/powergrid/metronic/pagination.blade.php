@@ -14,7 +14,7 @@
                 'pg-pagination-btn',
                 'is-disabled' => $paginator->onFirstPage(),
             ])
-            aria-label="Previous page"
+            aria-label="{{ __('Previous page') }}"
         >
             &lsaquo;
         </button>
@@ -34,7 +34,7 @@
                                 type="button"
                                 wire:click="gotoPage({{ $page }}, '{{ $paginator->getPageName() }}')"
                                 class="pg-pagination-btn"
-                                aria-label="Go to page {{ $page }}"
+                                aria-label="{{ __('Go to page :page', ['page' => $page]) }}"
                             >
                                 {{ $page }}
                             </button>
@@ -52,7 +52,7 @@
                 'pg-pagination-btn',
                 'is-disabled' => !$paginator->hasMorePages(),
             ])
-            aria-label="Next page"
+            aria-label="{{ __('Next page') }}"
         >
             &rsaquo;
         </button>

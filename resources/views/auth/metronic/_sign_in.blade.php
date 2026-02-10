@@ -56,11 +56,11 @@
             @csrf
 
             <div class="text-center mb-2.5">
-              <h3 class="text-lg font-medium text-mono leading-none mb-2.5">Sign in</h3>
+              <h3 class="text-lg font-medium text-mono leading-none mb-2.5">{{ __('Sign in') }}</h3>
 
               <div class="flex items-center justify-center font-medium">
-                <span class="text-sm text-secondary-foreground me-1.5">Need an account?</span>
-                <a class="text-sm link" href="#">Sign up</a>
+                <span class="text-sm text-secondary-foreground me-1.5">{{ __('Need an account?') }}</span>
+                <a class="text-sm link" href="#">{{ __('Sign up') }}</a>
               </div>
             </div>
 
@@ -77,27 +77,27 @@
             <div class="grid grid-cols-2 gap-2.5">
               <a class="kt-btn kt-btn-outline justify-center" href="#">
                 <img alt="" class="size-3.5 shrink-0" src="{{ asset('assets/media/brand-logos/google.svg') }}"/>
-                Use Google
+                {{ __('Use Google') }}
               </a>
               <a class="kt-btn kt-btn-outline justify-center" href="#">
                 <img alt="" class="size-3.5 shrink-0 dark:hidden" src="{{ asset('assets/media/brand-logos/apple-black.svg') }}"/>
                 <img alt="" class="size-3.5 shrink-0 light:hidden" src="{{ asset('assets/media/brand-logos/apple-white.svg') }}"/>
-                Use Apple
+                {{ __('Use Apple') }}
               </a>
             </div>
 
             <div class="flex items-center gap-2">
               <span class="border-t border-border w-full"></span>
-              <span class="text-xs text-muted-foreground font-medium uppercase">Or</span>
+              <span class="text-xs text-muted-foreground font-medium uppercase">{{ __('Or') }}</span>
               <span class="border-t border-border w-full"></span>
             </div>
 
             <div class="flex flex-col gap-1">
-              <label class="kt-form-label font-normal text-mono" for="email">Email</label>
+              <label class="kt-form-label font-normal text-mono" for="email">{{ __('Email') }}</label>
               <input
                 id="email"
                 class="kt-input"
-                placeholder="email@email.com"
+                placeholder="{{ __('email@example.com') }}"
                 type="email"
                 name="email"
                 value="{{ old('email') }}"
@@ -109,15 +109,15 @@
 
             <div class="flex flex-col gap-1">
               <div class="flex items-center justify-between gap-1">
-                <label class="kt-form-label font-normal text-mono" for="password">Password</label>
-                <a class="text-sm kt-link shrink-0" href="#">Forgot Password?</a>
+                <label class="kt-form-label font-normal text-mono" for="password">{{ __('Password') }}</label>
+                <a class="text-sm kt-link shrink-0" href="{{ route('password.request') }}">{{ __('Forgot password?') }}</a>
               </div>
 
               <div class="kt-input" data-kt-toggle-password="true">
                 <input
                   id="password"
                   name="password"
-                  placeholder="Enter Password"
+                  placeholder="{{ __('Enter password') }}"
                   type="password"
                   autocomplete="current-password"
                   required
@@ -137,11 +137,11 @@
 
             <label class="kt-label">
               <input class="kt-checkbox kt-checkbox-sm" name="remember" type="checkbox" value="1"/>
-              <span class="kt-checkbox-label">Remember me</span>
+              <span class="kt-checkbox-label">{{ __('Remember me') }}</span>
             </label>
 
             <button type="submit" class="kt-btn kt-btn-primary flex justify-center w-full">
-              Sign In
+              {{ __('Sign in') }}
             </button>
           </form>
         </div>

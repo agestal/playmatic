@@ -36,7 +36,7 @@
          <span class="kt-menu-icon items-start text-muted-foreground w-[20px]">
           <i class="ki-filled ki-element-11 text-lg"></i>
          </span>
-         <span class="kt-menu-title text-sm font-medium">Dashboard</span>
+         <span class="kt-menu-title text-sm font-medium">{{ __('Dashboard') }}</span>
         </a>
        </div>
 
@@ -46,7 +46,7 @@
          <span class="kt-menu-icon items-start text-muted-foreground w-[20px]">
           <i class="ki-filled ki-shield-tick text-lg"></i>
          </span>
-         <span class="kt-menu-title text-sm font-medium">Control de acceso</span>
+         <span class="kt-menu-title text-sm font-medium">{{ __('Access control') }}</span>
          <span class="kt-menu-arrow">
           <i class="ki-filled ki-right text-2xs"></i>
          </span>
@@ -59,7 +59,7 @@
            <span class="kt-menu-icon items-start text-muted-foreground w-[20px]">
             <i class="ki-filled ki-profile-user text-lg"></i>
            </span>
-           <span class="kt-menu-title text-sm font-medium">Usuarios</span>
+           <span class="kt-menu-title text-sm font-medium">{{ __('Users') }}</span>
           </a>
          </div>
          @endif
@@ -70,7 +70,7 @@
            <span class="kt-menu-icon items-start text-muted-foreground w-[20px]">
             <i class="ki-filled ki-setting-4 text-lg"></i>
            </span>
-           <span class="kt-menu-title text-sm font-medium">Roles</span>
+           <span class="kt-menu-title text-sm font-medium">{{ __('Roles') }}</span>
           </a>
          </div>
          @endif
@@ -81,7 +81,7 @@
            <span class="kt-menu-icon items-start text-muted-foreground w-[20px]">
             <i class="ki-filled ki-shield-tick text-lg"></i>
            </span>
-           <span class="kt-menu-title text-sm font-medium">Permisos</span>
+           <span class="kt-menu-title text-sm font-medium">{{ __('Permissions') }}</span>
           </a>
          </div>
          @endif
@@ -92,7 +92,7 @@
            <span class="kt-menu-icon items-start text-muted-foreground w-[20px]">
             <i class="ki-filled ki-setting text-lg"></i>
            </span>
-           <span class="kt-menu-title text-sm font-medium">Tenants</span>
+           <span class="kt-menu-title text-sm font-medium">{{ __('Tenants') }}</span>
           </a>
          </div>
          @endif
@@ -102,7 +102,7 @@
 
        @isset($currentTenant)
        <div class="mt-4 px-[10px] py-2 text-xs text-gray-500 border-t border-gray-200">
-        Empresa activa: <span class="font-semibold text-gray-700">{{ $currentTenant->name }}</span>
+        {{ __('Active company:') }} <span class="font-semibold text-gray-700">{{ $currentTenant->name }}</span>
        </div>
        @endisset
       </div>

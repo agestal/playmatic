@@ -17,7 +17,7 @@
                     type="button"
                     wire:click.prevent="$set('search', '')"
                     class="absolute inset-y-0 right-0 flex items-center pe-3"
-                    aria-label="Clear search"
+                    aria-label="{{ __('Clear search') }}"
                 >
                     <i class="ki-outline ki-cross text-xs {{ theme_style($theme, 'searchBox.iconClose') }}"></i>
                 </button>

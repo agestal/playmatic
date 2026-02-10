@@ -1778,72 +1778,78 @@
             Dev Forum
            </a>
           </li>
+          @php
+           $currentRoute = request()->route();
+           $routeName = $currentRoute?->getName();
+           $routeParameters = $currentRoute?->parameters() ?? [];
+           $localePattern = data_get($currentRoute?->wheres, 'locale', '');
+           $supportedLocales = collect(explode('|', (string) $localePattern))
+               ->map(fn (string $locale): string => trim($locale))
+               ->filter()
+               ->values();
+
+           if ($supportedLocales->isEmpty()) {
+               $supportedLocales = collect([app()->getLocale()]);
+           }
+
+           $currentLocale = app()->getLocale();
+           $localeLabels = [
+               'en' => __('English'),
+               'es' => __('Spanish'),
+           ];
+           $localeFlags = [
+               'en' => 'united-states',
+               'es' => 'spain',
+           ];
+          @endphp
           <li data-kt-dropdown="true" data-kt-dropdown-placement="right-start" data-kt-dropdown-trigger="hover">
            <button class="kt-dropdown-menu-toggle py-1" data-kt-dropdown-toggle="true">
             <span class="flex items-center gap-2">
              <i class="ki-filled ki-icon">
              </i>
-             Language
+             {{ __('Language') }}
             </span>
             <span class="ms-auto kt-badge kt-badge-stroke shrink-0">
-             English
-             <img alt="" class="inline-block size-3.5 rounded-full" src="/metronic/assets/media/flags/united-states.svg"/>
+             {{ $localeLabels[$currentLocale] ?? strtoupper($currentLocale) }}
+             @if (isset($localeFlags[$currentLocale]))
+             <img alt="" class="inline-block size-3.5 rounded-full" src="/metronic/assets/media/flags/{{ $localeFlags[$currentLocale] }}.svg"/>
+             @endif
             </span>
            </button>
            <div class="kt-dropdown-menu w-[180px]" data-kt-dropdown-menu="true">
             <ul class="kt-dropdown-menu-sub">
-             <li class="active">
-              <a class="kt-dropdown-menu-link" href="?dir=ltr">
+             @foreach ($supportedLocales as $locale)
+              @php
+               $isActiveLocale = $locale === $currentLocale;
+               $localeLabel = $localeLabels[$locale] ?? strtoupper($locale);
+               $localeFlag = $localeFlags[$locale] ?? null;
+               $localeUrl = url('/'.$locale);
+
+               if ($routeName) {
+                   try {
+                       $localeUrl = route($routeName, array_merge($routeParameters, ['locale' => $locale], request()->query()), false);
+                   } catch (\Throwable) {
+                       $localeUrl = url('/'.$locale);
+                   }
+               }
+              @endphp
+             <li class="{{ $isActiveLocale ? 'active' : '' }}">
+              <a class="kt-dropdown-menu-link" href="{{ $localeUrl }}">
                <span class="flex items-center gap-2">
-                <img alt="" class="inline-block size-4 rounded-full" src="/metronic/assets/media/flags/united-states.svg"/>
+                @if ($localeFlag)
+                <img alt="" class="inline-block size-4 rounded-full" src="/metronic/assets/media/flags/{{ $localeFlag }}.svg"/>
+                @endif
                 <span class="kt-menu-title">
-                 English
+                 {{ $localeLabel }}
                 </span>
                </span>
+               @if ($isActiveLocale)
                <i class="ki-solid ki-check-circle ms-auto text-green-500 text-base">
                </i>
+               @endif
               </a>
              </li>
-             <li class="">
-              <a class="kt-dropdown-menu-link" href="?dir=rtl">
-               <span class="flex items-center gap-2">
-                <img alt="" class="inline-block size-4 rounded-full" src="/metronic/assets/media/flags/saudi-arabia.svg"/>
-                <span class="kt-menu-title">
-                 Arabic(Saudi)
-                </span>
-               </span>
-              </a>
-             </li>
-             <li class="">
-              <a class="kt-dropdown-menu-link" href="?dir=ltr">
-               <span class="flex items-center gap-2">
-                <img alt="" class="inline-block size-4 rounded-full" src="/metronic/assets/media/flags/spain.svg"/>
-                <span class="kt-menu-title">
-                 Spanish
-                </span>
-               </span>
-              </a>
-             </li>
-             <li class="">
-              <a class="kt-dropdown-menu-link" href="?dir=ltr">
-               <span class="flex items-center gap-2">
-                <img alt="" class="inline-block size-4 rounded-full" src="/metronic/assets/media/flags/germany.svg"/>
-                <span class="kt-menu-title">
-                 German
-                </span>
-               </span>
-              </a>
-             </li>
-             <li class="">
-              <a class="kt-dropdown-menu-link" href="?dir=ltr">
-               <span class="flex items-center gap-2">
-                <img alt="" class="inline-block size-4 rounded-full" src="/metronic/assets/media/flags/japan.svg"/>
-                <span class="kt-menu-title">
-                 Japanese
-                </span>
-               </span>
-              </a>
-             </li>
+             @endforeach
             </ul>
            </div>
           </li>
@@ -1858,7 +1864,7 @@
             <i class="ki-filled ki-moon text-base text-muted-foreground">
             </i>
             <span class="font-medium text-2sm">
-             Dark Mode
+             {{ __('Dark mode') }}
             </span>
            </span>
            <input class="kt-switch" data-kt-theme-switch-state="dark" data-kt-theme-switch-toggle="true" name="check" type="checkbox" value="1"/>
@@ -1869,7 +1875,7 @@
                 <a href="{{ route('logout') }}"
                 class="menu-link"
                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                    Cerrar sesión
+                    {{ __('Log out') }}
                 </a>
             </form>
          </div>

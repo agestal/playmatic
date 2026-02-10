@@ -141,7 +141,7 @@ trait HasStandardFilters
         }
 
         return match ($type) {
-            'boolean' => Filter::boolean($field)->label('Si', 'No'),
+            'boolean' => Filter::boolean($field)->label(__('Yes'), __('No')),
             'number' => Filter::number($field),
             'date' => Filter::datepicker($field),
             'datetime' => Filter::datetimepicker($field),

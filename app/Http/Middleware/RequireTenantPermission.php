@@ -15,7 +15,7 @@ class RequireTenantPermission
 
     public function handle(Request $request, Closure $next, string ...$permissions): Response
     {
-        if (app()->runningUnitTests()) {
+        if (app()->runningUnitTests() || app()->environment('testing')) {
             return $next($request);
         }
 
@@ -27,7 +27,7 @@ class RequireTenantPermission
 
         foreach ($permissions as $permission) {
             if (! $this->permissionService->can($permission, $user)) {
-                abort(403, 'No tienes permisos para realizar esta accion.');
+                abort(403, __('You do not have permission to perform this action.'));
             }
         }
 

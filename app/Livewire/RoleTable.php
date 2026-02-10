@@ -68,27 +68,27 @@ final class RoleTable extends BasePowerGridTable
     public function columns(): array
     {
         return [
-            Column::make('ID', 'id')
+            Column::make(__('ID'), 'id')
                 ->sortable(),
 
-            Column::make('Rol', 'name')
+            Column::make(__('Role'), 'name')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Guard', 'guard_name')
+            Column::make(__('Guard'), 'guard_name')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Permisos', 'permissions_count_badge', 'permissions_count')
+            Column::make(__('Permissions'), 'permissions_count_badge', 'permissions_count')
                 ->sortable(),
 
-            Column::make('Usuarios', 'tenant_users_count_badge', 'tenant_users_count')
+            Column::make(__('Users'), 'tenant_users_count_badge', 'tenant_users_count')
                 ->sortable(),
 
-            Column::make('Creado', 'created_at_formatted', 'created_at')
+            Column::make(__('Created'), 'created_at_formatted', 'created_at')
                 ->sortable(),
 
-            Column::action('Acciones'),
+            Column::action(__('Actions')),
         ];
     }
 
@@ -128,7 +128,7 @@ final class RoleTable extends BasePowerGridTable
                 ->slot('<i class="ki-outline ki-trash"></i>')
                 ->class('kt-btn kt-btn-sm kt-btn-icon kt-btn-light-danger')
                 ->dispatch('delete-role', ['rowId' => $row->id])
-                ->confirm('¿Eliminar este rol?'),
+                ->confirm(__('Delete this role?')),
         ];
     }
 }

@@ -1,11 +1,11 @@
 @extends('layouts.metronic.app')
 
-@section('title', 'Usuarios')
+@section('title', __('Users'))
 
 @section('content')
     <x-tables.panel
-        title="Usuarios"
-        description="Listado de usuarios de la empresa activa con filtros colapsables y acciones estandarizadas."
+        :title="__('Users')"
+        :description="__('List of users for the active company with collapsible filters and standardized actions.')"
     >
         @if (session('status') || $errors->any())
             <div class="p-5 pb-0 space-y-4">

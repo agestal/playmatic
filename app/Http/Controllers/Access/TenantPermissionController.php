@@ -21,7 +21,7 @@ class TenantPermissionController extends Controller
         $tenant = $tenantContext->tenant();
 
         if (! $tenant) {
-            abort(404, 'No hay empresa activa en este dominio.');
+            abort(404, __('There is no active company for this domain.'));
         }
 
         return $tenant;

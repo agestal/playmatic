@@ -8,7 +8,7 @@
                 wire:model.live.debounce.300ms="search"
                 type="text"
                 class="kt-input ps-10 w-full"
-                placeholder="Search users..."
+                placeholder="{{ __('Search users...') }}"
             >
             @if($search)
                 <button
@@ -23,14 +23,14 @@
 
         {{-- Per page selector --}}
         <div class="flex items-center gap-2">
-            <span class="text-sm text-gray-600 font-medium">Show</span>
+            <span class="text-sm text-gray-600 font-medium">{{ __('Show') }}</span>
             <select wire:model.live="perPage" class="kt-input kt-input-sm w-20">
                 <option value="10">10</option>
                 <option value="25">25</option>
                 <option value="50">50</option>
                 <option value="100">100</option>
             </select>
-            <span class="text-sm text-gray-600 font-medium">entries</span>
+            <span class="text-sm text-gray-600 font-medium">{{ __('entries') }}</span>
         </div>
     </div>
 
@@ -62,7 +62,7 @@
                         </th>
                     @endforeach
                     @if(method_exists($this, 'actions'))
-                        <th class="text-end">Actions</th>
+                        <th class="text-end">{{ __('Actions') }}</th>
                     @endif
                 </tr>
             </thead>
@@ -91,9 +91,9 @@
                         <td colspan="{{ count($columns) + (method_exists($this, 'actions') ? 1 : 0) }}" class="text-center py-10">
                             <div class="flex flex-col items-center gap-3 py-8">
                                 <i class="ki-outline ki-file-sheet text-5xl text-gray-300"></i>
-                                <span class="text-gray-600 font-medium">No results found</span>
+                                <span class="text-gray-600 font-medium">{{ __('No results found') }}</span>
                                 @if($search)
-                                    <span class="text-gray-500 text-sm">Try adjusting your search</span>
+                                    <span class="text-gray-500 text-sm">{{ __('Try adjusting your search') }}</span>
                                 @endif
                             </div>
                         </td>
@@ -106,13 +106,13 @@
     {{-- Footer con paginación --}}
     <div class="flex items-center justify-between mt-5 pt-5 border-t border-gray-200">
         <div class="text-sm text-gray-600">
-            Showing
+            {{ __('Showing') }}
             <span class="font-semibold text-gray-900">{{ $rows->firstItem() ?? 0 }}</span>
-            to
+            {{ __('to') }}
             <span class="font-semibold text-gray-900">{{ $rows->lastItem() ?? 0 }}</span>
-            of
+            {{ __('of') }}
             <span class="font-semibold text-gray-900">{{ $rows->total() }}</span>
-            results
+            {{ __('results') }}
         </div>
         <div>
             {{ $rows->links() }}

@@ -60,7 +60,7 @@ class TenantManagementTest extends TestCase
 
         $this->assertNotNull($tenant);
 
-        $response->assertRedirect(route('platform.tenants.edit', $tenant));
+        $response->assertRedirect(route('platform.tenants.edit', ['tenant' => $tenant]));
 
         $this->assertDatabaseHas('tenant_domains', [
             'tenant_id' => $tenant->id,
@@ -111,14 +111,14 @@ class TenantManagementTest extends TestCase
 
         $response = $this
             ->actingAs($superadmin)
-            ->put(route('platform.tenants.update', $tenant), [
+            ->put(route('platform.tenants.update', ['tenant' => $tenant]), [
                 'name' => 'Acme Updated',
                 'slug' => 'acme',
                 'primary_domain' => 'new.playmatic.local',
                 'owner_email' => $newOwner->email,
             ]);
 
-        $response->assertRedirect(route('platform.tenants.edit', $tenant));
+        $response->assertRedirect(route('platform.tenants.edit', ['tenant' => $tenant]));
 
         $tenant->refresh();
 

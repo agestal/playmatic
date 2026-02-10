@@ -10,7 +10,7 @@
                         <input
                             wire:model.live.debounce.300ms="search"
                             type="text"
-                            placeholder="Search users..."
+                            placeholder="{{ __('Search users...') }}"
                             class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         >
                         @if($search)
@@ -29,7 +29,7 @@
             {{-- Per page selector --}}
             @if($this->paginationIsEnabled())
                 <div class="flex items-center gap-2">
-                    <span class="text-sm text-gray-600">Show</span>
+                    <span class="text-sm text-gray-600">{{ __('Show') }}</span>
                     <select
                         wire:model.live="perPage"
                         class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -38,7 +38,7 @@
                             <option value="{{ $item }}">{{ $item }}</option>
                         @endforeach
                     </select>
-                    <span class="text-sm text-gray-600">entries</span>
+                    <span class="text-sm text-gray-600">{{ __('entries') }}</span>
                 </div>
             @endif
         </div>
@@ -96,7 +96,7 @@
                                 <td colspan="{{ count($this->columns) }}" class="text-center py-12">
                                     <div class="d-flex flex-column align-items-center gap-3">
                                         <i class="ki-filled ki-file-sheet fs-3x text-gray-300"></i>
-                                        <p class="text-gray-600 fs-5 mb-0">No users found</p>
+                                        <p class="text-gray-600 fs-5 mb-0">{{ __('No users found') }}</p>
                                     </div>
                                 </td>
                             </tr>
@@ -110,9 +110,9 @@
         @if ($this->paginationIsEnabled() && $this->getRows()->hasPages())
             <div class="card-footer d-flex align-items-center justify-content-between py-4">
                 <div class="text-gray-600 fs-7">
-                    Showing <span class="fw-semibold">{{ $this->getRows()->firstItem() ?? 0 }}</span> to
-                    <span class="fw-semibold">{{ $this->getRows()->lastItem() ?? 0 }}</span> of
-                    <span class="fw-semibold">{{ $this->getRows()->total() }}</span> results
+                    {{ __('Showing') }} <span class="fw-semibold">{{ $this->getRows()->firstItem() ?? 0 }}</span> {{ __('to') }}
+                    <span class="fw-semibold">{{ $this->getRows()->lastItem() ?? 0 }}</span> {{ __('of') }}
+                    <span class="fw-semibold">{{ $this->getRows()->total() }}</span> {{ __('results') }}
                 </div>
                 <div>
                     {{ $this->getRows()->links() }}

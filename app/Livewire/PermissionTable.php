@@ -44,28 +44,28 @@ final class PermissionTable extends BasePowerGridTable
     public function columns(): array
     {
         return [
-            Column::make('ID', 'id')
+            Column::make(__('ID'), 'id')
                 ->sortable(),
 
-            Column::make('Permiso', 'name')
+            Column::make(__('Permission'), 'name')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Guard', 'guard_name')
+            Column::make(__('Guard'), 'guard_name')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Grupo', 'group_name'),
+            Column::make(__('Group'), 'group_name'),
 
-            Column::make('Etiqueta', 'label_name'),
+            Column::make(__('Label'), 'label_name'),
 
-            Column::make('Roles', 'roles_count_badge', 'roles_count')
+            Column::make(__('Roles'), 'roles_count_badge', 'roles_count')
                 ->sortable(),
 
-            Column::make('Creado', 'created_at_formatted', 'created_at')
+            Column::make(__('Created'), 'created_at_formatted', 'created_at')
                 ->sortable(),
 
-            Column::action('Acciones'),
+            Column::action(__('Actions')),
         ];
     }
 

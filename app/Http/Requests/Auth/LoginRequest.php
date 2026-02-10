@@ -67,7 +67,7 @@ class LoginRequest extends FormRequest
             Auth::logout();
 
             throw ValidationException::withMessages([
-                'email' => 'Tu usuario no tiene acceso a esta empresa en este dominio.',
+                'email' => __('Your user does not have access to this company on this domain.'),
             ]);
         }
 

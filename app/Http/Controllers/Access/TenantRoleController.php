@@ -50,10 +50,10 @@ class TenantRoleController extends Controller
 
         return redirect()
             ->route('access.roles.index')
-            ->with('status', 'Rol creado correctamente.');
+            ->with('status', __('Role created successfully.'));
     }
 
-    public function edit(Role $role, TenantContext $tenantContext): View
+    public function edit(string $locale, Role $role, TenantContext $tenantContext): View
     {
         $tenant = $this->tenantOrFail($tenantContext);
         $this->assertRoleTenant($role, $tenant);
@@ -67,7 +67,7 @@ class TenantRoleController extends Controller
         ]);
     }
 
-    public function update(Request $request, Role $role, TenantContext $tenantContext): RedirectResponse
+    public function update(Request $request, string $locale, Role $role, TenantContext $tenantContext): RedirectResponse
     {
         $tenant = $this->tenantOrFail($tenantContext);
         $this->assertRoleTenant($role, $tenant);
@@ -82,10 +82,10 @@ class TenantRoleController extends Controller
 
         return redirect()
             ->route('access.roles.index')
-            ->with('status', 'Rol actualizado correctamente.');
+            ->with('status', __('Role updated successfully.'));
     }
 
-    public function destroy(Role $role, TenantContext $tenantContext): RedirectResponse
+    public function destroy(string $locale, Role $role, TenantContext $tenantContext): RedirectResponse
     {
         $tenant = $this->tenantOrFail($tenantContext);
         $this->assertRoleTenant($role, $tenant);
@@ -98,14 +98,14 @@ class TenantRoleController extends Controller
         if ($isAssigned) {
             return redirect()
                 ->route('access.roles.index')
-                ->withErrors(['role' => 'No puedes eliminar un rol que ya esta asignado a usuarios.']);
+                ->withErrors(['role' => __('You cannot delete a role that is already assigned to users.')]);
         }
 
         $role->delete();
 
         return redirect()
             ->route('access.roles.index')
-            ->with('status', 'Rol eliminado correctamente.');
+            ->with('status', __('Role deleted successfully.'));
     }
 
     /**
@@ -134,7 +134,7 @@ class TenantRoleController extends Controller
         $tenant = $tenantContext->tenant();
 
         if (! $tenant) {
-            abort(404, 'No hay empresa activa en este dominio.');
+            abort(404, __('There is no active company for this domain.'));
         }
 
         return $tenant;

@@ -1,11 +1,11 @@
 @extends('layouts.metronic.app')
 
-@section('title', 'Permisos')
+@section('title', __('Permissions'))
 
 @section('content')
     <x-tables.panel
-        title="Permisos"
-        description="Catalogo de permisos disponibles con filtros colapsables y acciones estandarizadas."
+        :title="__('Permissions')"
+        :description="__('Permission catalog available with collapsible filters and standardized actions.')"
     >
         <livewire:permission-table />
     </x-tables.panel>

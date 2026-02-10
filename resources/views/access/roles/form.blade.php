@@ -1,22 +1,22 @@
 @extends('layouts.metronic.app')
 
-@section('title', $mode === 'create' ? 'Crear rol' : 'Editar rol')
+@section('title', $mode === 'create' ? __('Create role') : __('Edit role'))
 
 @section('content')
     <x-tables.panel
-        :title="$mode === 'create' ? 'Nuevo rol de empresa' : 'Editar rol: '.$role->name"
-        description="Los permisos se aplican en la empresa activa y distinguen entre acceso a entidad y acceso a contenido."
+        :title="$mode === 'create' ? __('New company role') : __('Edit role: :name', ['name' => $role->name])"
+        :description="__('Permissions are applied to the active company and distinguish entity access from content access.')"
     >
         <x-slot:actions>
             <a href="{{ route('access.roles.index') }}" class="kt-btn kt-btn-light kt-btn-sm">
                 <i class="ki-filled ki-left"></i>
-                Volver
+                {{ __('Back') }}
             </a>
         </x-slot:actions>
 
         <form
             method="POST"
-            action="{{ $mode === 'create' ? route('access.roles.store') : route('access.roles.update', $role) }}"
+            action="{{ $mode === 'create' ? route('access.roles.store') : route('access.roles.update', ['role' => $role]) }}"
             class="p-5 space-y-5"
         >
             @csrf
@@ -31,30 +31,30 @@
             @endif
 
             <div class="max-w-xl space-y-2">
-                <label for="name" class="text-sm font-medium text-gray-700">Nombre del rol</label>
+                <label for="name" class="text-sm font-medium text-gray-700">{{ __('Role name') }}</label>
                 <input
                     id="name"
                     name="name"
                     type="text"
                     class="kt-input"
                     value="{{ old('name', $role?->name) }}"
-                    placeholder="Ej: editor_juegos"
+                    placeholder="{{ __('Example: game_editor') }}"
                     required
                 >
                 <p class="text-xs text-gray-500">
-                    Este nombre sera unico dentro de la empresa.
+                    {{ __('This name will be unique within the company.') }}
                 </p>
             </div>
 
             <div class="space-y-4">
                 <div class="flex items-center justify-between gap-2">
-                    <h4 class="text-sm font-semibold text-gray-900">Permisos</h4>
+                    <h4 class="text-sm font-semibold text-gray-900">{{ __('Permissions') }}</h4>
                     <button
                         type="button"
                         class="kt-btn kt-btn-light kt-btn-xs"
                         onclick="document.querySelectorAll('input[name=&quot;permissions[]&quot;]').forEach((el) => { el.checked = true; });"
                     >
-                        Marcar todo
+                        {{ __('Select all') }}
                     </button>
                 </div>
 
@@ -88,7 +88,7 @@
 
             <div class="pt-2">
                 <button type="submit" class="kt-btn kt-btn-primary">
-                    {{ $mode === 'create' ? 'Crear rol' : 'Guardar cambios' }}
+                    {{ $mode === 'create' ? __('Create role') : __('Save changes') }}
                 </button>
             </div>
         </form>
