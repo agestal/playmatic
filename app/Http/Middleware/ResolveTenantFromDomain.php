@@ -45,6 +45,13 @@ class ResolveTenantFromDomain
         }
 
         if (! $tenantDomain || ! $tenantDomain->tenant) {
+            if ($this->canProceedWithoutTenant($request)) {
+                $this->tenantContext->setTenant(null);
+                View::share('currentTenant', null);
+
+                return $next($request);
+            }
+
             abort(404, 'No existe una empresa asociada al dominio '.$host.'.');
         }
 
@@ -52,5 +59,23 @@ class ResolveTenantFromDomain
         View::share('currentTenant', $tenantDomain->tenant);
 
         return $next($request);
+    }
+
+    protected function canProceedWithoutTenant(Request $request): bool
+    {
+        return $request->routeIs('platform.*', 'login', 'logout', 'password.*', 'verification.*')
+            || $request->is(
+                'platform',
+                'platform/*',
+                'login',
+                'logout',
+                'forgot-password',
+                'reset-password',
+                'reset-password/*',
+                'verify-email',
+                'verify-email/*',
+                'email/verification-notification',
+                'confirm-password'
+            );
     }
 }

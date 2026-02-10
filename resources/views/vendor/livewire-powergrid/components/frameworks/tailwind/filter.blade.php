@@ -32,7 +32,7 @@
                 return $filterOrderMap->get($fieldName, 999); // 999 for fields not found in filters()
             });
         @endphp
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-3">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
             @foreach ($sortedFilters as $column)
                 @php
                     $filter = data_get($column, 'filters');

@@ -17,24 +17,9 @@ class TenantUserAccessController extends Controller
 {
     public function index(TenantContext $tenantContext): View
     {
-        $tenant = $this->tenantOrFail($tenantContext);
+        $this->tenantOrFail($tenantContext);
 
-        $memberships = TenantUser::query()
-            ->where('tenant_id', $tenant->id)
-            ->with(['user:id,name,email', 'role:id,name,tenant_id'])
-            ->orderByDesc('id')
-            ->paginate(20);
-
-        $roles = Role::query()
-            ->forTenant($tenant->id)
-            ->orderBy('name')
-            ->get(['id', 'name']);
-
-        return view('access.users.index', [
-            'tenant' => $tenant,
-            'memberships' => $memberships,
-            'roles' => $roles,
-        ]);
+        return view('access.users.index');
     }
 
     public function store(Request $request, TenantContext $tenantContext): RedirectResponse

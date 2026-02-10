@@ -17,20 +17,9 @@ class TenantRoleController extends Controller
 {
     public function index(TenantContext $tenantContext): View
     {
-        $tenant = $this->tenantOrFail($tenantContext);
+        $this->tenantOrFail($tenantContext);
 
-        $roles = Role::query()
-            ->forTenant($tenant->id)
-            ->with('permissions:id,name')
-            ->withCount('permissions')
-            ->withCount('tenantUsers')
-            ->orderBy('name')
-            ->get();
-
-        return view('access.roles.index', [
-            'tenant' => $tenant,
-            'roles' => $roles,
-        ]);
+        return view('access.roles.index');
     }
 
     public function create(TenantContext $tenantContext): View

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureTenantMembership;
+use App\Http\Middleware\EnsureSuperadmin;
 use App\Http\Middleware\RequireTenantPermission;
 use App\Http\Middleware\ResolveTenantFromDomain;
 use Illuminate\Foundation\Application;
@@ -19,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'tenant.member' => EnsureTenantMembership::class,
             'tenant.permission' => RequireTenantPermission::class,
+            'superadmin' => EnsureSuperadmin::class,
         ]);
 
         $middleware->redirectGuestsTo('/login');

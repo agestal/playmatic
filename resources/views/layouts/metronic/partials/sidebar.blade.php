@@ -17,6 +17,20 @@
      <div class="kt-scrollable-y-hover grow shrink-0 flex ps-2 lg:ps-5 pe-1 lg:pe-3" data-kt-scrollable="true" data-kt-scrollable-dependencies="#sidebar_header" data-kt-scrollable-height="auto" data-kt-scrollable-offset="0px" data-kt-scrollable-wrappers="#sidebar_content" id="sidebar_scrollable">
       <!-- Sidebar Menu -->
       <div class="kt-menu flex flex-col grow gap-1" data-kt-menu="true" data-kt-menu-accordion-expand-all="false" id="sidebar_menu">
+       @php
+        $canAccessUsers = auth()->user()?->can('tenant.users.manage');
+        $canAccessRoles = auth()->user()?->can('tenant.roles.manage');
+        $canAccessPermissions = $canAccessRoles;
+        $canAccessTenants = (bool) auth()->user()?->is_superadmin;
+        $showAccessControl = $canAccessUsers || $canAccessRoles || $canAccessPermissions || $canAccessTenants;
+
+        $accessRoutesActive = request()->routeIs('users.*')
+            || request()->routeIs('access.users.*')
+            || request()->routeIs('access.roles.*')
+            || request()->routeIs('access.permissions.*')
+            || request()->routeIs('platform.tenants.*');
+       @endphp
+
        <div class="kt-menu-item">
         <a class="kt-menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] ps-[10px] pe-[10px] py-[6px] {{ request()->routeIs('dashboard') ? 'bg-primary/10 text-primary rounded-md' : '' }}" href="{{ route('dashboard') }}">
          <span class="kt-menu-icon items-start text-muted-foreground w-[20px]">
@@ -26,38 +40,65 @@
         </a>
        </div>
 
-       @can('tenant.users.manage')
-        <div class="kt-menu-item">
-         <a class="kt-menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] ps-[10px] pe-[10px] py-[6px] {{ request()->routeIs('users.*') ? 'bg-primary/10 text-primary rounded-md' : '' }}" href="{{ route('users.index') }}">
-          <span class="kt-menu-icon items-start text-muted-foreground w-[20px]">
-           <i class="ki-filled ki-profile-user text-lg"></i>
-          </span>
-          <span class="kt-menu-title text-sm font-medium">Usuarios</span>
-         </a>
-        </div>
-       @endcan
+       @if ($showAccessControl)
+       <div class="kt-menu-item {{ $accessRoutesActive ? 'show' : '' }}" id="access_control_menu_item">
+        <a class="kt-menu-link kt-menu-toggle w-full text-start flex items-center grow border border-transparent gap-[10px] ps-[10px] pe-[10px] py-[6px] {{ $accessRoutesActive ? 'bg-primary/10 text-primary rounded-md' : '' }}" href="#" role="button" aria-expanded="{{ $accessRoutesActive ? 'true' : 'false' }}" id="access_control_menu_toggle">
+         <span class="kt-menu-icon items-start text-muted-foreground w-[20px]">
+          <i class="ki-filled ki-shield-tick text-lg"></i>
+         </span>
+         <span class="kt-menu-title text-sm font-medium">Control de acceso</span>
+         <span class="kt-menu-arrow">
+          <i class="ki-filled ki-right text-2xs"></i>
+         </span>
+        </a>
 
-       @can('tenant.roles.manage')
-        <div class="kt-menu-item">
-         <a class="kt-menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] ps-[10px] pe-[10px] py-[6px] {{ request()->routeIs('access.roles.*') ? 'bg-primary/10 text-primary rounded-md' : '' }}" href="{{ route('access.roles.index') }}">
-          <span class="kt-menu-icon items-start text-muted-foreground w-[20px]">
-           <i class="ki-filled ki-setting-4 text-lg"></i>
-          </span>
-          <span class="kt-menu-title text-sm font-medium">Roles y permisos</span>
-         </a>
-        </div>
-       @endcan
+        <div class="kt-menu-accordion gap-1 ms-[18px] border-s border-border/60 ps-[8px]" id="access_control_menu_submenu">
+         @if ($canAccessUsers)
+         <div class="kt-menu-item">
+          <a class="kt-menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] ps-[20px] pe-[10px] py-[6px] {{ request()->routeIs('users.*') || request()->routeIs('access.users.*') ? 'bg-primary/10 text-primary rounded-md' : '' }}" href="{{ route('access.users.index') }}">
+           <span class="kt-menu-icon items-start text-muted-foreground w-[20px]">
+            <i class="ki-filled ki-profile-user text-lg"></i>
+           </span>
+           <span class="kt-menu-title text-sm font-medium">Usuarios</span>
+          </a>
+         </div>
+         @endif
 
-       @can('tenant.users.manage')
-        <div class="kt-menu-item">
-         <a class="kt-menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] ps-[10px] pe-[10px] py-[6px] {{ request()->routeIs('access.users.*') ? 'bg-primary/10 text-primary rounded-md' : '' }}" href="{{ route('access.users.index') }}">
-          <span class="kt-menu-icon items-start text-muted-foreground w-[20px]">
-           <i class="ki-filled ki-shield-tick text-lg"></i>
-          </span>
-          <span class="kt-menu-title text-sm font-medium">Acceso de usuarios</span>
-         </a>
+         @if ($canAccessRoles)
+         <div class="kt-menu-item">
+          <a class="kt-menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] ps-[20px] pe-[10px] py-[6px] {{ request()->routeIs('access.roles.*') ? 'bg-primary/10 text-primary rounded-md' : '' }}" href="{{ route('access.roles.index') }}">
+           <span class="kt-menu-icon items-start text-muted-foreground w-[20px]">
+            <i class="ki-filled ki-setting-4 text-lg"></i>
+           </span>
+           <span class="kt-menu-title text-sm font-medium">Roles</span>
+          </a>
+         </div>
+         @endif
+
+         @if ($canAccessPermissions)
+         <div class="kt-menu-item">
+          <a class="kt-menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] ps-[20px] pe-[10px] py-[6px] {{ request()->routeIs('access.permissions.*') ? 'bg-primary/10 text-primary rounded-md' : '' }}" href="{{ route('access.permissions.index') }}">
+           <span class="kt-menu-icon items-start text-muted-foreground w-[20px]">
+            <i class="ki-filled ki-shield-tick text-lg"></i>
+           </span>
+           <span class="kt-menu-title text-sm font-medium">Permisos</span>
+          </a>
+         </div>
+         @endif
+
+         @if ($canAccessTenants)
+         <div class="kt-menu-item">
+          <a class="kt-menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] ps-[20px] pe-[10px] py-[6px] {{ request()->routeIs('platform.tenants.*') ? 'bg-primary/10 text-primary rounded-md' : '' }}" href="{{ route('platform.tenants.index') }}">
+           <span class="kt-menu-icon items-start text-muted-foreground w-[20px]">
+            <i class="ki-filled ki-setting text-lg"></i>
+           </span>
+           <span class="kt-menu-title text-sm font-medium">Tenants</span>
+          </a>
+         </div>
+         @endif
         </div>
-       @endcan
+       </div>
+       @endif
 
        @isset($currentTenant)
        <div class="mt-4 px-[10px] py-2 text-xs text-gray-500 border-t border-gray-200">
