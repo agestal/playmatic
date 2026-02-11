@@ -8,6 +8,7 @@ use App\Models\TenantDomain;
 use App\Models\TenantUser;
 use App\Models\User;
 use App\Support\Tenancy\TenantProvisioningService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,9 +22,48 @@ class TenantController extends Controller
         protected TenantProvisioningService $provisioningService
     ) {}
 
-    public function index(): View
+    public function index(Request $request): View
     {
-        return view('platform.tenants.index');
+        $search = trim(strval($request->query('search', '')));
+        $perPage = intval($request->query('per_page', 10));
+
+        if (! in_array($perPage, [10, 25, 50, 100], true)) {
+            $perPage = 10;
+        }
+
+        $primaryDomainSubquery = TenantDomain::query()
+            ->select('domain')
+            ->whereColumn('tenant_domains.tenant_id', 'tenants.id')
+            ->orderByDesc('is_primary')
+            ->orderBy('id')
+            ->limit(1);
+
+        $tenants = Tenant::query()
+            ->select('tenants.*')
+            ->selectSub($primaryDomainSubquery, 'primary_domain')
+            ->withCount([
+                'roles',
+                'tenantUsers as active_users_count' => fn ($query) => $query->where('status', 'active'),
+            ])
+            ->when($search !== '', function (Builder $query) use ($search): void {
+                $like = '%'.$search.'%';
+
+                $query->where(function (Builder $searchQuery) use ($like): void {
+                    $searchQuery
+                        ->where('tenants.name', 'like', $like)
+                        ->orWhere('tenants.slug', 'like', $like)
+                        ->orWhereHas('domains', fn ($domainQuery) => $domainQuery->where('domain', 'like', $like));
+                });
+            })
+            ->orderBy('name')
+            ->paginate($perPage)
+            ->withQueryString();
+
+        return view('platform.tenants.index', [
+            'tenants' => $tenants,
+            'search' => $search,
+            'perPage' => $perPage,
+        ]);
     }
 
     public function create(): View

@@ -15,11 +15,60 @@ use Illuminate\View\View;
 
 class TenantRoleController extends Controller
 {
-    public function index(TenantContext $tenantContext): View
+    public function index(Request $request, TenantContext $tenantContext): View
     {
-        $this->tenantOrFail($tenantContext);
+        $tenant = $this->tenantOrFail($tenantContext);
 
-        return view('access.roles.index');
+        $search = trim(strval($request->query('search', '')));
+        $permissionFilter = trim(strval($request->query('permission', '')));
+        $perPage = intval($request->query('per_page', 10));
+
+        if (! in_array($perPage, [10, 25, 50, 100], true)) {
+            $perPage = 10;
+        }
+
+        $roles = Role::query()
+            ->where('tenant_id', $tenant->id)
+            ->withCount([
+                'permissions',
+                'tenantUsers as members_count' => fn ($query) => $query->where('tenant_id', $tenant->id),
+            ])
+            ->with([
+                'permissions' => fn ($query) => $query
+                    ->select('permissions.id', 'permissions.name')
+                    ->orderBy('permissions.name'),
+            ])
+            ->when($search !== '', fn ($query) => $query->where(function ($searchQuery) use ($search): void {
+                $like = '%'.$search.'%';
+
+                $searchQuery
+                    ->where('roles.name', 'like', $like)
+                    ->orWhereHas('permissions', fn ($permissionQuery) => $permissionQuery->where('permissions.name', 'like', $like));
+            }))
+            ->when($permissionFilter !== '', fn ($query) => $query->whereHas('permissions', fn ($permissionQuery) => $permissionQuery->where('permissions.name', $permissionFilter)))
+            ->orderBy('name')
+            ->paginate($perPage)
+            ->withQueryString();
+
+        $permissionOptions = Role::query()
+            ->where('tenant_id', $tenant->id)
+            ->with('permissions:id,name')
+            ->get()
+            ->pluck('permissions')
+            ->flatten()
+            ->pluck('name')
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
+
+        return view('access.roles.index', [
+            'roles' => $roles,
+            'search' => $search,
+            'permissionFilter' => $permissionFilter,
+            'perPage' => $perPage,
+            'permissionOptions' => $permissionOptions,
+        ]);
     }
 
     public function create(TenantContext $tenantContext): View
