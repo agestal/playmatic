@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -69,10 +71,19 @@ class TenantUserAccessController extends Controller
     {
         $tenant = $this->tenantOrFail($tenantContext);
         $validated = $this->validateMembershipPayload($request, $tenant);
+        $normalizedEmail = strtolower($validated['email']);
 
         $user = User::query()
-            ->where('email', $validated['email'])
-            ->firstOrFail();
+            ->whereRaw('LOWER(email) = ?', [$normalizedEmail])
+            ->first();
+
+        if (! $user) {
+            $user = User::query()->create([
+                'name' => $this->defaultNameFromEmail($normalizedEmail),
+                'email' => $normalizedEmail,
+                'password' => Hash::make(Str::random(64)),
+            ]);
+        }
 
         TenantUser::query()->updateOrCreate(
             [
@@ -192,7 +203,7 @@ class TenantUserAccessController extends Controller
     protected function validateMembershipPayload(Request $request, Tenant $tenant): array
     {
         return $request->validate([
-            'email' => ['required', 'email', Rule::exists('users', 'email')],
+            'email' => ['required', 'string', 'email', 'max:255'],
             'role_id' => [
                 'required',
                 'integer',
@@ -200,6 +211,19 @@ class TenantUserAccessController extends Controller
             ],
             'status' => ['required', Rule::in(['active', 'disabled'])],
         ]);
+    }
+
+    protected function defaultNameFromEmail(string $email): string
+    {
+        $localPart = trim(strval(Str::before($email, '@')));
+
+        if ($localPart === '') {
+            return $email;
+        }
+
+        $candidate = trim(strval(Str::of($localPart)->replace(['.', '_', '-'], ' ')->title()));
+
+        return $candidate !== '' ? $candidate : $email;
     }
 
     protected function tenantOrFail(TenantContext $tenantContext): Tenant

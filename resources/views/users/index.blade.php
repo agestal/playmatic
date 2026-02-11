@@ -327,7 +327,7 @@
                             <div class="fv-row mb-7">
                                 <label class="required fw-semibold fs-6 mb-2">{{ __('User email') }}</label>
                                 <input class="form-control form-control-solid mb-3 mb-lg-0" name="email" placeholder="name@example.com" required type="email" value="{{ old('email') }}"/>
-                                <div class="form-text">{{ __('The user must already exist in the platform.') }}</div>
+                                <div class="form-text">{{ __('If the user does not exist, it will be created automatically.') }}</div>
                             </div>
 
                             <div class="fv-row mb-7">

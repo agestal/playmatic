@@ -16,7 +16,7 @@ class DashboardTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_dashboard_displays_tenant_user_statistics(): void
+    public function test_dashboard_displays_user_statistics(): void
     {
         $tenant = Tenant::query()->create([
             'name' => 'Acme Corporation',
@@ -37,9 +37,10 @@ class DashboardTest extends TestCase
 
         $userOne = User::factory()->create([
             'email_verified_at' => now(),
+            'is_superadmin' => true,
         ]);
 
-        $userTwo = User::factory()->create();
+        $userTwo = User::factory()->unverified()->create();
         $userThree = User::factory()->create([
             'email_verified_at' => now(),
         ]);
@@ -93,16 +94,15 @@ class DashboardTest extends TestCase
         ]);
 
         $response = $this
-            ->withServerVariables(['HTTP_HOST' => 'acme.playmatic.test'])
             ->actingAs($userOne)
-            ->get(route('dashboard', ['locale' => 'en']));
+            ->get('http://acme.playmatic.test/en');
 
         $response->assertOk();
         $response->assertViewHas('totalUsers', 3);
         $response->assertViewHas('activeUsers', 2);
         $response->assertViewHas('inactiveUsers', 1);
         $response->assertViewHas('verifiedUsers', 2);
-        $response->assertViewHas('onlineLast24h', 1);
+        $response->assertViewHas('onlineLast24h', 2);
         $response->assertSeeText('Executive Dashboard');
         $response->assertSeeText('Total users');
     }

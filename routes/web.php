@@ -4,6 +4,9 @@ use App\Http\Controllers\Access\TenantRoleController;
 use App\Http\Controllers\Access\TenantPermissionController;
 use App\Http\Controllers\Access\TenantUserAccessController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Games\GameController;
+use App\Http\Controllers\Games\GameEntryController;
+use App\Http\Controllers\Games\GameWinnerController;
 use App\Http\Controllers\Platform\TenantController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -60,6 +63,69 @@ Route::prefix('{locale}')
                     Route::put('/roles/{role}', [TenantRoleController::class, 'update'])->name('roles.update');
                     Route::delete('/roles/{role}', [TenantRoleController::class, 'destroy'])->name('roles.destroy');
                     Route::get('/permissions', [TenantPermissionController::class, 'index'])->name('permissions.index');
+                });
+            });
+
+            Route::prefix('games')->name('games.')->group(function () {
+                Route::get('/', [GameController::class, 'index'])
+                    ->middleware('tenant.permission:games.view.entity')
+                    ->name('index');
+                Route::get('/create', [GameController::class, 'create'])
+                    ->middleware('tenant.permission:games.edit.entity')
+                    ->name('create');
+                Route::post('/', [GameController::class, 'store'])
+                    ->middleware('tenant.permission:games.edit.entity')
+                    ->name('store');
+                Route::get('/{game}/edit', [GameController::class, 'edit'])
+                    ->middleware('tenant.permission:games.edit.entity')
+                    ->name('edit');
+                Route::put('/{game}', [GameController::class, 'update'])
+                    ->middleware('tenant.permission:games.edit.entity')
+                    ->name('update');
+                Route::delete('/{game}', [GameController::class, 'destroy'])
+                    ->middleware('tenant.permission:games.edit.entity')
+                    ->name('destroy');
+
+                Route::prefix('entries')->name('entries.')->group(function () {
+                    Route::get('/', [GameEntryController::class, 'index'])
+                        ->middleware('tenant.permission:participants.view.entity')
+                        ->name('index');
+                    Route::get('/create', [GameEntryController::class, 'create'])
+                        ->middleware('tenant.permission:games.edit.content')
+                        ->name('create');
+                    Route::post('/', [GameEntryController::class, 'store'])
+                        ->middleware('tenant.permission:games.edit.content')
+                        ->name('store');
+                    Route::get('/{entry}/edit', [GameEntryController::class, 'edit'])
+                        ->middleware('tenant.permission:games.edit.content')
+                        ->name('edit');
+                    Route::put('/{entry}', [GameEntryController::class, 'update'])
+                        ->middleware('tenant.permission:games.edit.content')
+                        ->name('update');
+                    Route::delete('/{entry}', [GameEntryController::class, 'destroy'])
+                        ->middleware('tenant.permission:games.edit.content')
+                        ->name('destroy');
+                });
+
+                Route::prefix('winners')->name('winners.')->group(function () {
+                    Route::get('/', [GameWinnerController::class, 'index'])
+                        ->middleware('tenant.permission:winners.view.entity')
+                        ->name('index');
+                    Route::get('/create', [GameWinnerController::class, 'create'])
+                        ->middleware('tenant.permission:games.edit.content')
+                        ->name('create');
+                    Route::post('/', [GameWinnerController::class, 'store'])
+                        ->middleware('tenant.permission:games.edit.content')
+                        ->name('store');
+                    Route::get('/{winner}/edit', [GameWinnerController::class, 'edit'])
+                        ->middleware('tenant.permission:games.edit.content')
+                        ->name('edit');
+                    Route::put('/{winner}', [GameWinnerController::class, 'update'])
+                        ->middleware('tenant.permission:games.edit.content')
+                        ->name('update');
+                    Route::delete('/{winner}', [GameWinnerController::class, 'destroy'])
+                        ->middleware('tenant.permission:games.edit.content')
+                        ->name('destroy');
                 });
             });
 

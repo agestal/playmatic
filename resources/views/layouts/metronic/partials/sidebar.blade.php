@@ -3,11 +3,15 @@
     $canAccessRoles = auth()->user()?->can('tenant.roles.manage');
     $canAccessPermissions = $canAccessRoles;
     $canAccessTenants = (bool) auth()->user()?->is_superadmin;
+    $canAccessGamesCatalog = auth()->user()?->can('games.view.entity') || auth()->user()?->can('games.edit.entity');
+    $canAccessGameEntries = auth()->user()?->can('participants.view.entity') || auth()->user()?->can('games.edit.content');
+    $canAccessGameWinners = auth()->user()?->can('winners.view.entity') || auth()->user()?->can('games.edit.content');
 
     $accessRoutesActive = request()->routeIs('users.*')
         || request()->routeIs('access.roles.*')
         || request()->routeIs('access.permissions.*')
         || request()->routeIs('platform.tenants.*');
+    $gamesRoutesActive = request()->routeIs('games.*');
 @endphp
 
 <div
@@ -112,6 +116,50 @@
                                     <a class="menu-link {{ request()->routeIs('platform.tenants.*') ? 'active' : '' }}" href="{{ route('platform.tenants.index') }}">
                                         <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
                                         <span class="menu-title">{{ __('Tenants') }}</span>
+                                    </a>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+
+                @if ($canAccessGamesCatalog || $canAccessGameEntries || $canAccessGameWinners)
+                    <div class="menu-item menu-accordion {{ $gamesRoutesActive ? 'show' : '' }}" data-kt-menu-trigger="click">
+                        <span class="menu-link">
+                            <span class="menu-icon">
+                                <i class="ki-duotone ki-crown fs-2">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                </i>
+                            </span>
+                            <span class="menu-title">{{ __('Games') }}</span>
+                            <span class="menu-arrow"></span>
+                        </span>
+
+                        <div class="menu-sub menu-sub-accordion">
+                            @if ($canAccessGamesCatalog)
+                                <div class="menu-item">
+                                    <a class="menu-link {{ request()->routeIs('games.index', 'games.create', 'games.edit') ? 'active' : '' }}" href="{{ route('games.index') }}">
+                                        <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                        <span class="menu-title">{{ __('Games') }}</span>
+                                    </a>
+                                </div>
+                            @endif
+
+                            @if ($canAccessGameEntries)
+                                <div class="menu-item">
+                                    <a class="menu-link {{ request()->routeIs('games.entries.*') ? 'active' : '' }}" href="{{ route('games.entries.index') }}">
+                                        <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                        <span class="menu-title">{{ __('Entries') }}</span>
+                                    </a>
+                                </div>
+                            @endif
+
+                            @if ($canAccessGameWinners)
+                                <div class="menu-item">
+                                    <a class="menu-link {{ request()->routeIs('games.winners.*') ? 'active' : '' }}" href="{{ route('games.winners.index') }}">
+                                        <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                        <span class="menu-title">{{ __('Winners') }}</span>
                                     </a>
                                 </div>
                             @endif

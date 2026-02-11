@@ -44,4 +44,21 @@ class Tenant extends Model
     {
         return $this->hasMany(Role::class);
     }
+
+    public function games(): BelongsToMany
+    {
+        return $this->belongsToMany(Game::class, 'games_tenants')
+            ->withPivot(['is_visible', 'starts_at', 'ends_at'])
+            ->withTimestamps();
+    }
+
+    public function gameEntries(): HasMany
+    {
+        return $this->hasMany(GameEntry::class);
+    }
+
+    public function gameWinners(): HasMany
+    {
+        return $this->hasMany(GameWinner::class);
+    }
 }
