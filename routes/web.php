@@ -3,6 +3,7 @@
 use App\Http\Controllers\Access\TenantRoleController;
 use App\Http\Controllers\Access\TenantPermissionController;
 use App\Http\Controllers\Access\TenantUserAccessController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Platform\TenantController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -39,7 +40,7 @@ Route::prefix('{locale}')
             });
 
         Route::middleware(['auth', 'tenant.member'])->group(function () {
-            Route::get('/', fn () => view('app.dashboard'))->name('dashboard');
+            Route::get('/', DashboardController::class)->name('dashboard');
 
             Route::middleware('tenant.permission:tenant.users.manage')->group(function () {
                 Route::get('/users', [TenantUserAccessController::class, 'index'])->name('users.index');
