@@ -3,14 +3,12 @@
 @section('title', __('Edit user'))
 
 @section('content')
-<div class="kt-card">
-    <div class="kt-card-header">
-        <h3 class="kt-card-title">{{ __('Edit user') }}</h3>
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">{{ __('Edit user') }}</h3>
     </div>
-    <div class="kt-card-content">
-        <p class="text-sm text-secondary-foreground">
-            {{ __('User ID: :id', ['id' => request()->route('user')]) }}
-        </p>
+    <div class="card-body">
+        <p class="text-muted mb-0">{{ __('User ID: :id', ['id' => request()->route('user')]) }}</p>
     </div>
 </div>
 @endsection

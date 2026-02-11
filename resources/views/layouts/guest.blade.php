@@ -1,21 +1,21 @@
 @extends('layouts.metronic.auth')
 
 @section('content')
-    <div class="pm-auth-shell">
-        <div class="pm-auth-left">
-            <div class="pm-auth-card">
-                <div class="kt-card">
-                    <div class="kt-card-content p-6 lg:p-7">
-                        {{ $slot }}
-                    </div>
+    <div class="d-flex flex-column flex-lg-row flex-column-fluid">
+        <div class="d-flex flex-column flex-lg-row-fluid w-lg-50 p-10 order-2 order-lg-1">
+            <div class="d-flex flex-center flex-column flex-lg-row-fluid">
+                <div class="w-lg-500px p-10 card shadow-sm border-0">
+                    {{ $slot }}
                 </div>
             </div>
         </div>
 
-        <div class="pm-auth-right" aria-hidden="true">
-            <div class="pm-auth-right-content">
-                <h2>{{ config('app.name') }}</h2>
-                <p>{{ __('Manage users, roles, permissions and tenants from a single workspace.') }}</p>
+        <div
+            class="d-flex flex-lg-row-fluid w-lg-50 bgi-size-cover bgi-position-center order-1 order-lg-2 pm-auth-hero"
+            style="background-image: url('{{ asset('assets/media/images/2600x1600/fondo_playmatic.png') }}');"
+        >
+            <div class="w-100 h-100 pm-auth-overlay d-flex align-items-end p-10">
+                <div class="text-white fw-semibold fs-4">{{ config('app.name') }}</div>
             </div>
         </div>
     </div>

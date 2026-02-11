@@ -3,30 +3,29 @@
 @section('title', $mode === 'create' ? __('Create role') : __('Edit role'))
 
 @section('content')
-    <div class="kt-card pm-surface-card overflow-hidden">
-        <div class="kt-card-header table-panel-header">
-            <div class="flex flex-col gap-1">
-                <h3 class="kt-card-title text-base font-semibold text-mono">
+    <div class="card">
+        <div class="card-header border-0 pt-6">
+            <div class="card-title flex-column align-items-start">
+                <h3 class="fw-bold mb-1">
                     {{ $mode === 'create' ? __('New company role') : __('Edit role: :name', ['name' => $role->name]) }}
                 </h3>
-                <p class="text-sm text-secondary-foreground">
+                <span class="text-muted fw-semibold fs-7">
                     {{ __('Permissions are applied to the active company and distinguish entity access from content access.') }}
-                </p>
+                </span>
             </div>
 
-            <div class="kt-card-toolbar">
-                <a href="{{ route('access.roles.index') }}" class="kt-btn kt-btn-light kt-btn-sm">
-                    <i class="ki-filled ki-left"></i>
+            <div class="card-toolbar">
+                <a class="btn btn-light-primary btn-sm" href="{{ route('access.roles.index') }}">
+                    <i class="ki-duotone ki-left fs-3"></i>
                     {{ __('Back') }}
                 </a>
             </div>
         </div>
 
-        <div class="kt-card-content p-0">
+        <div class="card-body pt-0">
             <form
                 method="POST"
                 action="{{ $mode === 'create' ? route('access.roles.store') : route('access.roles.update', ['role' => $role]) }}"
-                class="p-5 space-y-5"
             >
                 @csrf
                 @if ($mode === 'edit')
@@ -34,69 +33,67 @@
                 @endif
 
                 @if ($errors->any())
-                    <div class="kt-alert kt-alert-destructive">
-                        {{ $errors->first() }}
-                    </div>
+                    <div class="alert alert-danger mb-6">{{ $errors->first() }}</div>
                 @endif
 
-                <div class="max-w-xl space-y-2">
-                    <label for="name" class="text-sm font-medium text-mono">{{ __('Role name') }}</label>
+                <div class="mb-8" style="max-width: 720px;">
+                    <label class="form-label fw-semibold fs-6" for="name">{{ __('Role name') }}</label>
                     <input
                         id="name"
                         name="name"
                         type="text"
-                        class="kt-input"
+                        class="form-control form-control-solid"
                         value="{{ old('name', $role?->name) }}"
                         placeholder="{{ __('Example: game_editor') }}"
                         required
                     >
-                    <p class="text-xs text-secondary-foreground">
-                        {{ __('This name will be unique within the company.') }}
-                    </p>
+                    <div class="form-text">{{ __('This name will be unique within the company.') }}</div>
                 </div>
 
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between gap-2">
-                        <h4 class="text-sm font-semibold text-mono">{{ __('Permissions') }}</h4>
-                        <button
-                            type="button"
-                            class="kt-btn kt-btn-light kt-btn-xs"
-                            onclick="document.querySelectorAll('input[name=&quot;permissions[]&quot;]').forEach((el) => { el.checked = true; });"
-                        >
-                            {{ __('Select all') }}
-                        </button>
-                    </div>
+                <div class="d-flex align-items-center justify-content-between mb-5">
+                    <h4 class="fw-bold mb-0">{{ __('Permissions') }}</h4>
+                    <button
+                        type="button"
+                        class="btn btn-light-primary btn-sm"
+                        onclick="document.querySelectorAll('input[name=&quot;permissions[]&quot;]').forEach((el) => { el.checked = true; });"
+                    >
+                        {{ __('Select all') }}
+                    </button>
+                </div>
 
-                    @foreach ($permissionGroups as $group => $permissions)
-                        <div class="rounded-lg border border-border p-4 space-y-3">
-                            <h5 class="text-sm font-semibold text-mono">{{ $group }}</h5>
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                                @foreach ($permissions as $permission)
-                                    @php
-                                        $checked = in_array($permission['name'], old('permissions', $selectedPermissions), true);
-                                    @endphp
-                                    <label class="flex items-start gap-2 rounded-md border border-border p-3 hover:bg-accent">
+                @foreach ($permissionGroups as $group => $permissions)
+                    <div class="border rounded p-5 mb-5">
+                        <h5 class="fw-bold mb-4">{{ $group }}</h5>
+
+                        <div class="row g-4">
+                            @foreach ($permissions as $permission)
+                                @php
+                                    $checked = in_array($permission['name'], old('permissions', $selectedPermissions), true);
+                                @endphp
+                                <div class="col-12 col-lg-6">
+                                    <label class="d-flex align-items-start gap-3 border rounded p-4 h-100 cursor-pointer">
                                         <input
                                             type="checkbox"
+                                            class="form-check-input mt-1"
                                             name="permissions[]"
                                             value="{{ $permission['name'] }}"
                                             @checked($checked)
-                                            class="kt-checkbox mt-0.5"
                                         >
-                                        <span class="space-y-1">
-                                            <span class="block text-sm font-medium text-mono">{{ $permission['label'] }}</span>
-                                            <span class="block text-xs text-secondary-foreground">{{ $permission['description'] }}</span>
-                                            <span class="block text-[11px] text-muted-foreground">{{ $permission['name'] }}</span>
+
+                                        <span>
+                                            <span class="d-block fw-semibold text-gray-900">{{ $permission['label'] }}</span>
+                                            <span class="d-block text-muted fs-7">{{ $permission['description'] }}</span>
+                                            <span class="d-block text-gray-600 fs-8 mt-1">{{ $permission['name'] }}</span>
                                         </span>
                                     </label>
-                                @endforeach
-                            </div>
+                                </div>
+                            @endforeach
                         </div>
-                    @endforeach
-                </div>
+                    </div>
+                @endforeach
 
                 <div class="pt-2">
-                    <button type="submit" class="kt-btn kt-btn-primary">
+                    <button class="btn btn-primary" type="submit">
                         {{ $mode === 'create' ? __('Create role') : __('Save changes') }}
                     </button>
                 </div>

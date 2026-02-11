@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Access\TenantRoleController;
 use App\Http\Controllers\Access\TenantPermissionController;
+use App\Http\Controllers\Access\TenantUserAccessController;
 use App\Http\Controllers\Platform\TenantController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -41,7 +42,11 @@ Route::prefix('{locale}')
             Route::get('/', fn () => view('app.dashboard'))->name('dashboard');
 
             Route::middleware('tenant.permission:tenant.users.manage')->group(function () {
-                Route::get('/users', fn () => view('users.index'))->name('users.index');
+                Route::get('/users', [TenantUserAccessController::class, 'index'])->name('users.index');
+                Route::post('/users', [TenantUserAccessController::class, 'store'])->name('users.store');
+                Route::delete('/users/bulk', [TenantUserAccessController::class, 'destroyMany'])->name('users.destroy-many');
+                Route::put('/users/{tenantUser}', [TenantUserAccessController::class, 'update'])->name('users.update');
+                Route::delete('/users/{tenantUser}', [TenantUserAccessController::class, 'destroy'])->name('users.destroy');
                 Route::get('/users/{user}/edit', fn () => view('users.edit'))->name('users.edit');
             });
 

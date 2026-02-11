@@ -1,20 +1,52 @@
 <!DOCTYPE html>
-<html class="h-full" data-kt-theme="true" data-kt-theme-mode="light" dir="ltr" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     @include('layouts.metronic.partials.head')
 </head>
+<body
+    id="kt_app_body"
+    data-kt-app-header-fixed="true"
+    data-kt-app-layout="dark-sidebar"
+    data-kt-app-sidebar-enabled="true"
+    data-kt-app-sidebar-fixed="true"
+    data-kt-app-sidebar-push-header="true"
+    data-kt-app-sidebar-hoverable="true"
+    class="app-default"
+>
+<script>
+    var defaultThemeMode = 'light';
+    var themeMode;
 
-<body class="antialiased flex h-full text-base text-foreground bg-background demo1 kt-sidebar-fixed kt-header-fixed pm-metronic-app">
-    <div class="flex grow">
-        @include('layouts.metronic.partials.sidebar')
+    if (document.documentElement) {
+        if (document.documentElement.hasAttribute('data-bs-theme-mode')) {
+            themeMode = document.documentElement.getAttribute('data-bs-theme-mode');
+        } else {
+            if (localStorage.getItem('data-bs-theme') !== null) {
+                themeMode = localStorage.getItem('data-bs-theme');
+            } else {
+                themeMode = defaultThemeMode;
+            }
+        }
 
-        <div class="kt-wrapper flex flex-col grow min-w-0">
-            @include('layouts.metronic.partials.header')
+        if (themeMode === 'system') {
+            themeMode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+
+        document.documentElement.setAttribute('data-bs-theme', themeMode);
+    }
+</script>
+
+<div class="d-flex flex-column flex-root app-root" id="kt_app_root">
+    <div class="app-page flex-column flex-column-fluid" id="kt_app_page">
+        @include('layouts.metronic.partials.header')
+
+        <div class="app-wrapper flex-column flex-row-fluid" id="kt_app_wrapper">
+            @include('layouts.metronic.partials.sidebar')
             @include('layouts.metronic.partials.content')
-            @include('layouts.metronic.partials.footer')
         </div>
     </div>
+</div>
 
-    @include('layouts.metronic.partials.scripts')
+@include('layouts.metronic.partials.scripts')
 </body>
 </html>

@@ -1,1 +1,1 @@
-<input {{ $attributes->merge(['type' => 'checkbox', 'class' => 'kt-checkbox']) }}>
+<input {{ $attributes->merge(['type' => 'checkbox', 'class' => 'form-check-input']) }}>

@@ -3,7 +3,6 @@
     $canAccessRoles = auth()->user()?->can('tenant.roles.manage');
     $canAccessPermissions = $canAccessRoles;
     $canAccessTenants = (bool) auth()->user()?->is_superadmin;
-    $showAccessControl = $canAccessUsers || $canAccessRoles || $canAccessPermissions || $canAccessTenants;
 
     $accessRoutesActive = request()->routeIs('users.*')
         || request()->routeIs('access.roles.*')
@@ -12,141 +11,113 @@
 @endphp
 
 <div
-    class="kt-sidebar bg-background border-e border-e-border fixed top-0 bottom-0 z-20 hidden lg:flex flex-col items-stretch shrink-0 [--kt-drawer-enable:true] lg:[--kt-drawer-enable:false]"
+    class="app-sidebar flex-column"
     data-kt-drawer="true"
-    data-kt-drawer-class="kt-drawer kt-drawer-start top-0 bottom-0"
-    id="sidebar"
+    data-kt-drawer-activate="{default: true, lg: false}"
+    data-kt-drawer-direction="start"
+    data-kt-drawer-name="app-sidebar"
+    data-kt-drawer-overlay="true"
+    data-kt-drawer-toggle="#kt_app_sidebar_mobile_toggle"
+    id="kt_app_sidebar"
 >
-    <div class="kt-sidebar-header hidden lg:flex items-center relative justify-between px-3 lg:px-6 shrink-0" id="sidebar_header">
-        <a class="dark:hidden" href="{{ route('dashboard') }}">
-            <img class="default-logo min-h-[22px] max-w-none" src="{{ asset('assets/media/app/default-logo.svg') }}" alt="{{ config('app.name') }}">
-            <img class="small-logo min-h-[22px] max-w-none" src="{{ asset('assets/media/app/mini-logo.svg') }}" alt="{{ config('app.name') }}">
+    <div class="app-sidebar-logo px-6" id="kt_app_sidebar_logo">
+        <a href="{{ route('dashboard') }}">
+            <img alt="{{ config('app.name') }}" class="h-25px app-sidebar-logo-default" src="{{ asset('assets/media/app/default-logo-dark.svg') }}"/>
+            <img alt="{{ config('app.name') }}" class="h-20px app-sidebar-logo-minimize" src="{{ asset('assets/media/app/mini-logo.svg') }}"/>
         </a>
 
-        <a class="hidden dark:block" href="{{ route('dashboard') }}">
-            <img class="default-logo min-h-[22px] max-w-none" src="{{ asset('assets/media/app/default-logo-dark.svg') }}" alt="{{ config('app.name') }}">
-            <img class="small-logo min-h-[22px] max-w-none" src="{{ asset('assets/media/app/mini-logo.svg') }}" alt="{{ config('app.name') }}">
-        </a>
-
-        <button
-            class="kt-btn kt-btn-outline kt-btn-icon size-[30px] absolute start-full top-2/4 -translate-x-2/4 -translate-y-2/4 rtl:translate-x-2/4"
-            data-kt-toggle="body"
-            data-kt-toggle-class="kt-sidebar-collapse"
-            id="sidebar_toggle"
-            type="button"
-            aria-label="{{ __('Collapse sidebar') }}"
+        <div
+            class="btn btn-icon btn-shadow btn-sm btn-color-muted btn-active-color-primary body-bg h-30px w-30px position-absolute translate-middle start-100 top-50"
+            data-kt-toggle="true"
+            data-kt-toggle-name="app-sidebar-minimize"
+            data-kt-toggle-state="active"
+            data-kt-toggle-target="body"
+            id="kt_app_sidebar_toggle"
         >
-            <i class="ki-filled ki-black-left-line kt-toggle-active:rotate-180 transition-all duration-300 rtl:translate rtl:rotate-180 rtl:kt-toggle-active:rotate-0"></i>
-        </button>
+            <i class="ki-duotone ki-black-left-line fs-3 rotate-180">
+                <span class="path1"></span>
+                <span class="path2"></span>
+            </i>
+        </div>
     </div>
 
-    <div class="kt-sidebar-content flex grow shrink-0 py-5 pe-2" id="sidebar_content">
+    <div class="app-sidebar-menu overflow-hidden flex-column-fluid">
         <div
-            class="kt-scrollable-y-hover grow shrink-0 flex ps-2 lg:ps-5 pe-1 lg:pe-3"
-            data-kt-scrollable="true"
-            data-kt-scrollable-dependencies="#sidebar_header"
-            data-kt-scrollable-height="auto"
-            data-kt-scrollable-offset="0px"
-            data-kt-scrollable-wrappers="#sidebar_content"
-            id="sidebar_scrollable"
+            class="app-sidebar-wrapper hover-scroll-overlay-y my-5"
+            data-kt-scroll="true"
+            data-kt-scroll-activate="true"
+            data-kt-scroll-dependencies="#kt_app_sidebar_logo"
+            data-kt-scroll-height="auto"
+            data-kt-scroll-offset="5px"
+            id="kt_app_sidebar_menu_wrapper"
         >
-            <div class="kt-menu flex flex-col grow gap-1" data-kt-menu="true" data-kt-menu-accordion-expand-all="false" id="sidebar_menu">
-                <div class="kt-menu-item">
-                    <a
-                        class="kt-menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] ps-[10px] pe-[10px] py-[6px] {{ request()->routeIs('dashboard') ? 'bg-primary/10 text-primary rounded-md' : '' }}"
-                        href="{{ route('dashboard') }}"
-                    >
-                        <span class="kt-menu-icon items-start text-muted-foreground w-[20px]">
-                            <i class="ki-filled ki-element-11 text-lg"></i>
+            <div class="menu menu-column menu-rounded menu-sub-indention fw-semibold fs-6" data-kt-menu="true" id="kt_app_sidebar_menu">
+                <div class="menu-item">
+                    <a class="menu-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
+                        <span class="menu-icon">
+                            <i class="ki-duotone ki-element-11 fs-2">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                                <span class="path3"></span>
+                                <span class="path4"></span>
+                            </i>
                         </span>
-                        <span class="kt-menu-title text-sm font-medium">{{ __('Dashboard') }}</span>
+                        <span class="menu-title">{{ __('Dashboard') }}</span>
                     </a>
                 </div>
 
-                @if ($showAccessControl)
-                    <div class="kt-menu-item {{ $accessRoutesActive ? 'show' : '' }}" id="access_control_menu_item">
-                        <a
-                            class="kt-menu-link kt-menu-toggle w-full text-start flex items-center grow border border-transparent gap-[10px] ps-[10px] pe-[10px] py-[6px] {{ $accessRoutesActive ? 'bg-primary/10 text-primary rounded-md' : '' }}"
-                            href="#"
-                            role="button"
-                            aria-expanded="{{ $accessRoutesActive ? 'true' : 'false' }}"
-                            id="access_control_menu_toggle"
-                        >
-                            <span class="kt-menu-icon items-start text-muted-foreground w-[20px]">
-                                <i class="ki-filled ki-shield-tick text-lg"></i>
+                @if ($canAccessUsers || $canAccessRoles || $canAccessPermissions || $canAccessTenants)
+                    <div class="menu-item menu-accordion {{ $accessRoutesActive ? 'show' : '' }}" data-kt-menu-trigger="click">
+                        <span class="menu-link">
+                            <span class="menu-icon">
+                                <i class="ki-duotone ki-shield-tick fs-2">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                </i>
                             </span>
-                            <span class="kt-menu-title text-sm font-medium">{{ __('Access control') }}</span>
-                            <span class="kt-menu-arrow">
-                                <i class="ki-filled ki-right text-2xs"></i>
-                            </span>
-                        </a>
+                            <span class="menu-title">{{ __('Access control') }}</span>
+                            <span class="menu-arrow"></span>
+                        </span>
 
-                        <div class="kt-menu-accordion gap-1 ms-[18px] border-s border-border/60 ps-[8px] {{ $accessRoutesActive ? 'show' : '' }}" id="access_control_menu_submenu">
+                        <div class="menu-sub menu-sub-accordion">
                             @if ($canAccessUsers)
-                                <div class="kt-menu-item">
-                                    <a
-                                        class="kt-menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] ps-[20px] pe-[10px] py-[6px] {{ request()->routeIs('users.*') ? 'bg-primary/10 text-primary rounded-md' : '' }}"
-                                        href="{{ route('users.index') }}"
-                                    >
-                                        <span class="kt-menu-icon items-start text-muted-foreground w-[20px]">
-                                            <i class="ki-filled ki-profile-user text-lg"></i>
-                                        </span>
-                                        <span class="kt-menu-title text-sm font-medium">{{ __('Users') }}</span>
+                                <div class="menu-item">
+                                    <a class="menu-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
+                                        <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                        <span class="menu-title">{{ __('Users') }}</span>
                                     </a>
                                 </div>
                             @endif
 
                             @if ($canAccessRoles)
-                                <div class="kt-menu-item">
-                                    <a
-                                        class="kt-menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] ps-[20px] pe-[10px] py-[6px] {{ request()->routeIs('access.roles.*') ? 'bg-primary/10 text-primary rounded-md' : '' }}"
-                                        href="{{ route('access.roles.index') }}"
-                                    >
-                                        <span class="kt-menu-icon items-start text-muted-foreground w-[20px]">
-                                            <i class="ki-filled ki-setting-4 text-lg"></i>
-                                        </span>
-                                        <span class="kt-menu-title text-sm font-medium">{{ __('Roles') }}</span>
+                                <div class="menu-item">
+                                    <a class="menu-link {{ request()->routeIs('access.roles.*') ? 'active' : '' }}" href="{{ route('access.roles.index') }}">
+                                        <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                        <span class="menu-title">{{ __('Roles') }}</span>
                                     </a>
                                 </div>
                             @endif
 
                             @if ($canAccessPermissions)
-                                <div class="kt-menu-item">
-                                    <a
-                                        class="kt-menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] ps-[20px] pe-[10px] py-[6px] {{ request()->routeIs('access.permissions.*') ? 'bg-primary/10 text-primary rounded-md' : '' }}"
-                                        href="{{ route('access.permissions.index') }}"
-                                    >
-                                        <span class="kt-menu-icon items-start text-muted-foreground w-[20px]">
-                                            <i class="ki-filled ki-shield-tick text-lg"></i>
-                                        </span>
-                                        <span class="kt-menu-title text-sm font-medium">{{ __('Permissions') }}</span>
+                                <div class="menu-item">
+                                    <a class="menu-link {{ request()->routeIs('access.permissions.*') ? 'active' : '' }}" href="{{ route('access.permissions.index') }}">
+                                        <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                        <span class="menu-title">{{ __('Permissions') }}</span>
                                     </a>
                                 </div>
                             @endif
 
                             @if ($canAccessTenants)
-                                <div class="kt-menu-item">
-                                    <a
-                                        class="kt-menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] ps-[20px] pe-[10px] py-[6px] {{ request()->routeIs('platform.tenants.*') ? 'bg-primary/10 text-primary rounded-md' : '' }}"
-                                        href="{{ route('platform.tenants.index') }}"
-                                    >
-                                        <span class="kt-menu-icon items-start text-muted-foreground w-[20px]">
-                                            <i class="ki-filled ki-setting text-lg"></i>
-                                        </span>
-                                        <span class="kt-menu-title text-sm font-medium">{{ __('Tenants') }}</span>
+                                <div class="menu-item">
+                                    <a class="menu-link {{ request()->routeIs('platform.tenants.*') ? 'active' : '' }}" href="{{ route('platform.tenants.index') }}">
+                                        <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                        <span class="menu-title">{{ __('Tenants') }}</span>
                                     </a>
                                 </div>
                             @endif
                         </div>
                     </div>
                 @endif
-
-                @isset($currentTenant)
-                    <div class="mt-4 px-[10px] py-2 text-xs text-secondary-foreground border-t border-border">
-                        {{ __('Active company:') }}
-                        <span class="font-semibold text-mono">{{ $currentTenant->name }}</span>
-                    </div>
-                @endisset
             </div>
         </div>
     </div>

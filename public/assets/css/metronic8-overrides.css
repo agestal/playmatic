@@ -1,0 +1,159 @@
+.app-sidebar .menu .menu-link.active {
+    background-color: rgba(54, 153, 255, 0.12);
+    color: #3699ff;
+}
+
+.app-sidebar .menu .menu-link.active .menu-title,
+.app-sidebar .menu .menu-link.active .menu-icon i {
+    color: #3699ff;
+}
+
+.pm-auth-hero {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    min-height: 320px;
+}
+
+.pm-auth-overlay {
+    background: linear-gradient(145deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.35) 100%);
+}
+
+.pm-auth-link {
+    color: var(--bs-primary);
+    text-decoration: none;
+}
+
+.pm-auth-link:hover {
+    text-decoration: underline;
+}
+
+/* Compatibility for legacy internal components still using kt- prefixed tags */
+.kt-input {
+    display: block;
+    width: 100%;
+    padding: 0.775rem 1rem;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    color: var(--bs-gray-700);
+    background-color: var(--bs-gray-100);
+    background-clip: padding-box;
+    border: 1px solid var(--bs-gray-300);
+    border-radius: 0.475rem;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+
+.kt-input:focus,
+.kt-input input:focus,
+.kt-input select:focus,
+.kt-input textarea:focus {
+    color: var(--bs-gray-700);
+    background-color: var(--bs-body-bg);
+    border-color: #b5b5c3;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(0, 158, 247, 0.25);
+}
+
+.kt-input input,
+.kt-input select,
+.kt-input textarea {
+    border: 0;
+    outline: 0;
+    background: transparent;
+    width: 100%;
+}
+
+.kt-form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.kt-alert {
+    border-radius: 0.475rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.kt-alert-success {
+    border: 1px solid #50cd89;
+    background: #e8fff3;
+    color: #0f5132;
+}
+
+.kt-alert-destructive {
+    border: 1px solid #f1416c;
+    background: #fff5f8;
+    color: #842029;
+}
+
+.kt-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: 1px solid transparent;
+    border-radius: 0.475rem;
+    padding: calc(0.775rem + 1px) calc(1.5rem + 1px);
+    font-size: 1.1rem;
+    font-weight: 500;
+    line-height: 1.5;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.kt-btn-primary {
+    color: #fff;
+    background-color: #009ef7;
+    border-color: #009ef7;
+}
+
+.kt-btn-light {
+    color: #7e8299;
+    background-color: #f5f8fa;
+    border-color: #f5f8fa;
+}
+
+.kt-btn-outline {
+    color: #7e8299;
+    background-color: transparent;
+    border-color: #e4e6ef;
+}
+
+.kt-btn-sm {
+    padding: 0.55rem 1rem;
+    font-size: 0.95rem;
+}
+
+.kt-btn-xs {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.85rem;
+}
+
+.kt-checkbox {
+    width: 1.35rem;
+    height: 1.35rem;
+    margin-top: 0.1rem;
+    border: 1px solid #b5b5c3;
+    border-radius: 0.45rem;
+}
+
+.kt-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 0.425rem;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.kt-badge-light {
+    color: #7e8299;
+    background-color: #f5f8fa;
+}
+
+.kt-badge-light-primary {
+    color: #009ef7;
+    background-color: #f1faff;
+}

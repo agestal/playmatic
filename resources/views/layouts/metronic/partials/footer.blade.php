@@ -1,17 +1,14 @@
-<footer class="kt-footer border-t border-border bg-background">
-    <div class="kt-container-fluid">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-3 py-4">
-            <div class="text-sm text-secondary-foreground">
-                {{ date('Y') }} © {{ config('app.name') }}
-            </div>
-
-            <nav class="flex items-center gap-4 text-sm text-secondary-foreground">
-                <a class="hover:text-primary" href="{{ route('dashboard') }}">{{ __('Dashboard') }}</a>
-                @isset($currentTenant)
-                    <a class="hover:text-primary" href="{{ route('profile.edit') }}">{{ __('Profile') }}</a>
-                @endisset
-                <a class="hover:text-primary" href="https://keenthemes.com/metronic/docs" target="_blank" rel="noopener noreferrer">{{ __('Metronic docs') }}</a>
-            </nav>
-        </div>
+<div class="app-footer py-4 d-flex flex-column flex-md-row flex-center flex-md-stack" id="kt_app_footer">
+    <div class="text-dark order-2 order-md-1">
+        <span class="text-muted fw-semibold me-1">{{ date('Y') }}&copy;</span>
+        <a class="text-gray-800 text-hover-primary" href="{{ route('dashboard') }}">{{ config('app.name') }}</a>
     </div>
-</footer>
+
+    <ul class="menu menu-gray-600 menu-hover-primary fw-semibold order-1">
+        <li class="menu-item"><a class="menu-link px-2" href="{{ route('dashboard') }}">{{ __('Dashboard') }}</a></li>
+        @isset($currentTenant)
+            <li class="menu-item"><a class="menu-link px-2" href="{{ route('profile.edit') }}">{{ __('Profile') }}</a></li>
+        @endisset
+        <li class="menu-item"><a class="menu-link px-2" href="https://preview.keenthemes.com/metronic8/demo1" rel="noopener noreferrer" target="_blank">Metronic 8</a></li>
+    </ul>
+</div>
