@@ -4,20 +4,17 @@
     @include('layouts.metronic.partials.head')
 </head>
 
-<body class="antialiased flex h-full text-base text-foreground bg-background demo1 kt-sidebar-fixed kt-header-fixed">
-<div class="flex grow">
-    @include('layouts.metronic.partials.sidebar')
+<body class="antialiased flex h-full text-base text-foreground bg-background demo1 kt-sidebar-fixed kt-header-fixed pm-metronic-app">
+    <div class="flex grow">
+        @include('layouts.metronic.partials.sidebar')
 
-    <div class="flex flex-col grow min-w-0">
-        @include('layouts.metronic.partials.header')
-
-        @include('layouts.metronic.partials.content')
-
-
-        @include('layouts.metronic.partials.footer')
+        <div class="kt-wrapper flex flex-col grow min-w-0">
+            @include('layouts.metronic.partials.header')
+            @include('layouts.metronic.partials.content')
+            @include('layouts.metronic.partials.footer')
+        </div>
     </div>
-</div>
 
-@include('layouts.metronic.partials.scripts')
+    @include('layouts.metronic.partials.scripts')
 </body>
 </html>

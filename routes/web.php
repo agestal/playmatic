@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Access\TenantRoleController;
 use App\Http\Controllers\Access\TenantPermissionController;
-use App\Http\Controllers\Access\TenantUserAccessController;
 use App\Http\Controllers\Platform\TenantController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -55,13 +54,6 @@ Route::prefix('{locale}')
                     Route::put('/roles/{role}', [TenantRoleController::class, 'update'])->name('roles.update');
                     Route::delete('/roles/{role}', [TenantRoleController::class, 'destroy'])->name('roles.destroy');
                     Route::get('/permissions', [TenantPermissionController::class, 'index'])->name('permissions.index');
-                });
-
-                Route::middleware('tenant.permission:tenant.users.manage')->group(function () {
-                    Route::get('/users', [TenantUserAccessController::class, 'index'])->name('users.index');
-                    Route::post('/users', [TenantUserAccessController::class, 'store'])->name('users.store');
-                    Route::put('/users/{tenantUser}', [TenantUserAccessController::class, 'update'])->name('users.update');
-                    Route::delete('/users/{tenantUser}', [TenantUserAccessController::class, 'destroy'])->name('users.destroy');
                 });
             });
 

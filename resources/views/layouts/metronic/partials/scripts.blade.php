@@ -36,12 +36,30 @@
         toggle.dataset.manualAccordionBound = 'true';
     };
 
-    document.addEventListener('DOMContentLoaded', initAccessControlMenuToggle);
-    document.addEventListener('livewire:navigated', initAccessControlMenuToggle);
-    initAccessControlMenuToggle();
+    const initKtComponents = () => {
+        window.KTComponents?.init?.();
+        window.KTMenu?.init?.();
+        window.KTDropdown?.init?.();
+        window.KTModal?.init?.();
+        window.KTSelect?.init?.();
+    };
+
+    const initUi = () => {
+        initAccessControlMenuToggle();
+        initKtComponents();
+    };
+
+    document.addEventListener('DOMContentLoaded', initUi);
+    document.addEventListener('livewire:navigated', initUi);
+    document.addEventListener('livewire:initialized', () => {
+        window.Livewire?.hook?.('morph.updated', () => {
+            initUi();
+        });
+    });
+
+    initUi();
 })();
 </script>
 
 @livewireScripts
-<script src="{{ asset('assets/vendors/livewire-powergrid/powergrid.js') }}"></script>
 @stack('scripts')
