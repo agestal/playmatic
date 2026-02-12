@@ -115,6 +115,7 @@ class GameWinnerController extends Controller
         GameWinner::query()->withoutGlobalScopes()->create([
             'tenant_id' => $tenant->id,
             'game_id' => $gameId,
+            'game_round_id' => $entry?->game_round_id,
             'game_entry_id' => $entry?->id,
             'participant_user_id' => $participantUser?->id,
             'participant_name' => data_get($validated, 'participant_name') ?: $entry?->participant_name ?: $participantUser?->name,
@@ -170,6 +171,7 @@ class GameWinnerController extends Controller
 
         $winner->update([
             'game_id' => $gameId,
+            'game_round_id' => $entry?->game_round_id,
             'game_entry_id' => $entry?->id,
             'participant_user_id' => $participantUser?->id,
             'participant_name' => data_get($validated, 'participant_name') ?: $entry?->participant_name ?: $participantUser?->name,

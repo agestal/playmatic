@@ -4,9 +4,11 @@ use App\Http\Controllers\Access\TenantRoleController;
 use App\Http\Controllers\Access\TenantPermissionController;
 use App\Http\Controllers\Access\TenantUserAccessController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Games\AttendanceGuessRoundController;
 use App\Http\Controllers\Games\GameController;
 use App\Http\Controllers\Games\GameEntryController;
 use App\Http\Controllers\Games\GameWinnerController;
+use App\Http\Controllers\Games\PublicAttendanceGuessController;
 use App\Http\Controllers\Platform\TenantController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -14,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 /**
  * Add new locales here (slug -> resources/lang/{slug}.json).
  */
-$supportedLocales = ['en', 'es'];
+$supportedLocales = ['en', 'es', 'pt'];
 
 Route::get('/', function () use ($supportedLocales) {
     $defaultLocale = config('app.locale');
@@ -25,6 +27,11 @@ Route::get('/', function () use ($supportedLocales) {
 
     return redirect('/'.$defaultLocale);
 });
+
+Route::get('/adivina-aforo', [PublicAttendanceGuessController::class, 'show'])
+    ->name('public.attendance-guess.show');
+Route::post('/adivina-aforo', [PublicAttendanceGuessController::class, 'store'])
+    ->name('public.attendance-guess.store');
 
 Route::prefix('{locale}')
     ->whereIn('locale', $supportedLocales)
@@ -85,6 +92,33 @@ Route::prefix('{locale}')
                 Route::delete('/{game}', [GameController::class, 'destroy'])
                     ->middleware('tenant.permission:games.edit.entity')
                     ->name('destroy');
+
+                Route::prefix('attendance-guess/rounds')->name('attendance-rounds.')->group(function () {
+                    Route::get('/', [AttendanceGuessRoundController::class, 'index'])
+                        ->middleware('tenant.permission:games.view.entity')
+                        ->name('index');
+                    Route::get('/create', [AttendanceGuessRoundController::class, 'create'])
+                        ->middleware('tenant.permission:games.edit.content')
+                        ->name('create');
+                    Route::post('/', [AttendanceGuessRoundController::class, 'store'])
+                        ->middleware('tenant.permission:games.edit.content')
+                        ->name('store');
+                    Route::get('/{round}/edit', [AttendanceGuessRoundController::class, 'edit'])
+                        ->middleware('tenant.permission:games.edit.content')
+                        ->name('edit');
+                    Route::put('/{round}', [AttendanceGuessRoundController::class, 'update'])
+                        ->middleware('tenant.permission:games.edit.content')
+                        ->name('update');
+                    Route::post('/{round}/activate', [AttendanceGuessRoundController::class, 'activate'])
+                        ->middleware('tenant.permission:games.edit.content')
+                        ->name('activate');
+                    Route::post('/{round}/deactivate', [AttendanceGuessRoundController::class, 'deactivate'])
+                        ->middleware('tenant.permission:games.edit.content')
+                        ->name('deactivate');
+                    Route::delete('/{round}', [AttendanceGuessRoundController::class, 'destroy'])
+                        ->middleware('tenant.permission:games.edit.content')
+                        ->name('destroy');
+                });
 
                 Route::prefix('entries')->name('entries.')->group(function () {
                     Route::get('/', [GameEntryController::class, 'index'])

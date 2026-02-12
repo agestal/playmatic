@@ -63,7 +63,7 @@
                         </select>
                     </div>
 
-                    <div class="col-12 col-lg-6">
+                    <div class="col-12 col-lg-4">
                         <label class="form-label fw-semibold" for="participant_name">{{ __('Participant name') }}</label>
                         <input
                             id="participant_name"
@@ -74,7 +74,7 @@
                         >
                     </div>
 
-                    <div class="col-12 col-lg-6">
+                    <div class="col-12 col-lg-4">
                         <label class="form-label fw-semibold" for="participant_email">{{ __('Participant email') }}</label>
                         <input
                             id="participant_email"
@@ -82,6 +82,17 @@
                             type="email"
                             class="form-control form-control-solid"
                             value="{{ old('participant_email', $entry?->participant_email) }}"
+                        >
+                    </div>
+
+                    <div class="col-12 col-lg-4">
+                        <label class="form-label fw-semibold" for="participant_phone">{{ __('Participant phone') }}</label>
+                        <input
+                            id="participant_phone"
+                            name="participant_phone"
+                            type="text"
+                            class="form-control form-control-solid"
+                            value="{{ old('participant_phone', $entry?->participant_phone) }}"
                         >
                     </div>
 

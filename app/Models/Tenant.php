@@ -11,6 +11,9 @@ class Tenant extends Model
     protected $fillable = [
         'name',
         'slug',
+        'logo',
+        'primary_color',
+        'secondary_color',
         'branding',
         'features',
     ];
@@ -55,6 +58,11 @@ class Tenant extends Model
     public function gameEntries(): HasMany
     {
         return $this->hasMany(GameEntry::class);
+    }
+
+    public function gameRounds(): HasMany
+    {
+        return $this->hasMany(GameRound::class);
     }
 
     public function gameWinners(): HasMany

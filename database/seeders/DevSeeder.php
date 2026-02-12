@@ -44,6 +44,9 @@ class DevSeeder extends Seeder
                 ->where('id', $tenant->id)
                 ->update([
                     'name' => 'Playmatic Demo',
+                    'logo' => null,
+                    'primary_color' => '#111827',
+                    'secondary_color' => '#3b82f6',
                     'branding' => json_encode([
                         'logo' => null,
                         'primary_color' => '#111827',
@@ -57,6 +60,9 @@ class DevSeeder extends Seeder
             $tenantId = DB::table('tenants')->insertGetId([
                 'name' => 'Playmatic Demo',
                 'slug' => $tenantSlug,
+                'logo' => null,
+                'primary_color' => '#111827',
+                'secondary_color' => '#3b82f6',
                 'branding' => json_encode([
                     'logo' => null,
                     'primary_color' => '#111827',

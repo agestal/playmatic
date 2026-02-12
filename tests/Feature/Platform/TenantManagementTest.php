@@ -52,6 +52,9 @@ class TenantManagementTest extends TestCase
                 'slug' => 'acme-corporation',
                 'primary_domain' => 'https://acme.playmatic.local/login',
                 'owner_email' => $owner->email,
+                'logo' => 'https://cdn.playmatic.local/logos/acme.svg',
+                'primary_color' => '#0d6efd',
+                'secondary_color' => '#20c997',
             ]);
 
         $tenant = Tenant::query()
@@ -59,6 +62,12 @@ class TenantManagementTest extends TestCase
             ->first();
 
         $this->assertNotNull($tenant);
+        $this->assertDatabaseHas('tenants', [
+            'id' => $tenant->id,
+            'logo' => 'https://cdn.playmatic.local/logos/acme.svg',
+            'primary_color' => '#0D6EFD',
+            'secondary_color' => '#20C997',
+        ]);
 
         $response->assertRedirect(route('platform.tenants.edit', ['tenant' => $tenant]));
 
@@ -116,6 +125,9 @@ class TenantManagementTest extends TestCase
                 'slug' => 'acme',
                 'primary_domain' => 'new.playmatic.local',
                 'owner_email' => $newOwner->email,
+                'logo' => 'https://cdn.playmatic.local/logos/acme-updated.svg',
+                'primary_color' => '#111827',
+                'secondary_color' => '#f59e0b',
             ]);
 
         $response->assertRedirect(route('platform.tenants.edit', ['tenant' => $tenant]));
@@ -123,6 +135,9 @@ class TenantManagementTest extends TestCase
         $tenant->refresh();
 
         $this->assertSame('Acme Updated', $tenant->name);
+        $this->assertSame('https://cdn.playmatic.local/logos/acme-updated.svg', $tenant->logo);
+        $this->assertSame('#111827', $tenant->primary_color);
+        $this->assertSame('#F59E0B', $tenant->secondary_color);
 
         $this->assertDatabaseHas('tenant_domains', [
             'tenant_id' => $tenant->id,

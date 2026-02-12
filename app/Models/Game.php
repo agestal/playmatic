@@ -47,6 +47,11 @@ class Game extends Model
         return $this->hasMany(GameEntry::class);
     }
 
+    public function rounds(): HasMany
+    {
+        return $this->hasMany(GameRound::class);
+    }
+
     public function winners(): HasMany
     {
         return $this->hasMany(GameWinner::class);

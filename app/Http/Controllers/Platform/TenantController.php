@@ -84,6 +84,9 @@ class TenantController extends Controller
             $tenant = Tenant::query()->create([
                 'name' => $validated['name'],
                 'slug' => $validated['slug'],
+                'logo' => $validated['logo'] ?? null,
+                'primary_color' => $validated['primary_color'] ?? null,
+                'secondary_color' => $validated['secondary_color'] ?? null,
             ]);
 
             $roles = $this->provisioningService->ensureDefaultRoles($tenant);
@@ -142,6 +145,9 @@ class TenantController extends Controller
             $tenant->update([
                 'name' => $validated['name'],
                 'slug' => $validated['slug'],
+                'logo' => $validated['logo'] ?? null,
+                'primary_color' => $validated['primary_color'] ?? null,
+                'secondary_color' => $validated['secondary_color'] ?? null,
             ]);
 
             $roles = $this->provisioningService->ensureDefaultRoles($tenant);
@@ -171,7 +177,7 @@ class TenantController extends Controller
     }
 
     /**
-     * @return array{name:string,slug:string,owner_email:string,primary_domain:string}
+     * @return array{name:string,slug:string,owner_email:string,primary_domain:string,logo:?string,primary_color:?string,secondary_color:?string}
      */
     protected function validatePayload(Request $request, ?Tenant $tenant = null): array
     {
@@ -186,6 +192,9 @@ class TenantController extends Controller
             'slug' => ['required', 'alpha_dash', 'max:100', $slugRule],
             'owner_email' => ['required', 'email', Rule::exists('users', 'email')],
             'primary_domain' => ['required', 'string', 'max:255'],
+            'logo' => ['nullable', 'string', 'max:2048'],
+            'primary_color' => ['nullable', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'secondary_color' => ['nullable', 'regex:/^#[0-9a-fA-F]{6}$/'],
         ]);
 
         $normalizedDomain = $this->provisioningService->normalizeDomain($validated['primary_domain']);
@@ -210,6 +219,9 @@ class TenantController extends Controller
         }
 
         $validated['primary_domain'] = $normalizedDomain;
+        $validated['logo'] = $validated['logo'] ?? null;
+        $validated['primary_color'] = isset($validated['primary_color']) ? strtoupper($validated['primary_color']) : null;
+        $validated['secondary_color'] = isset($validated['secondary_color']) ? strtoupper($validated['secondary_color']) : null;
 
         return $validated;
     }

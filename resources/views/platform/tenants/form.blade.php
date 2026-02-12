@@ -8,7 +8,7 @@
             <div class="card-title flex-column align-items-start">
                 <h3 class="fw-bold mb-1">{{ $mode === 'create' ? __('New tenant') : __('Edit tenant') }}</h3>
                 <span class="text-muted fw-semibold fs-7">
-                    {{ __('Tenant base configuration: name, slug, primary domain, and owner.') }}
+                    {{ __('Tenant base configuration: name, slug, primary domain, owner, and branding.') }}
                 </span>
             </div>
 
@@ -90,6 +90,50 @@
                         required
                     >
                     <div class="form-text">{{ __('The :role role and active status will be assigned in this tenant.', ['role' => 'tenant_admin']) }}</div>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label fw-semibold fs-6" for="logo">{{ __('Logo URL (optional)') }}</label>
+                    <input
+                        id="logo"
+                        type="text"
+                        name="logo"
+                        class="form-control form-control-solid"
+                        value="{{ old('logo', $tenant?->logo) }}"
+                        placeholder="https://cdn.example.com/tenant-logo.svg"
+                        maxlength="2048"
+                    >
+                    <div class="form-text">{{ __('Leave empty if you do not want a logo yet.') }}</div>
+                </div>
+
+                <div class="col-12 col-lg-6">
+                    <label class="form-label fw-semibold fs-6" for="primary_color">{{ __('Primary color (hex)') }}</label>
+                    <input
+                        id="primary_color"
+                        type="text"
+                        name="primary_color"
+                        class="form-control form-control-solid"
+                        value="{{ old('primary_color', $tenant?->primary_color) }}"
+                        placeholder="#0D6EFD"
+                        maxlength="7"
+                        pattern="^#[0-9A-Fa-f]{6}$"
+                    >
+                    <div class="form-text">{{ __('Use HEX format, for example :example.', ['example' => '#0D6EFD']) }}</div>
+                </div>
+
+                <div class="col-12 col-lg-6">
+                    <label class="form-label fw-semibold fs-6" for="secondary_color">{{ __('Secondary color (hex)') }}</label>
+                    <input
+                        id="secondary_color"
+                        type="text"
+                        name="secondary_color"
+                        class="form-control form-control-solid"
+                        value="{{ old('secondary_color', $tenant?->secondary_color) }}"
+                        placeholder="#20C997"
+                        maxlength="7"
+                        pattern="^#[0-9A-Fa-f]{6}$"
+                    >
+                    <div class="form-text">{{ __('Use HEX format, for example :example.', ['example' => '#20C997']) }}</div>
                 </div>
 
                 <div class="col-12 d-flex align-items-center gap-3">

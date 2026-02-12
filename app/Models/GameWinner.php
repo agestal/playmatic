@@ -15,6 +15,7 @@ class GameWinner extends Model
     protected $fillable = [
         'tenant_id',
         'game_id',
+        'game_round_id',
         'game_entry_id',
         'participant_user_id',
         'participant_name',
@@ -32,6 +33,7 @@ class GameWinner extends Model
         return [
             'tenant_id' => 'integer',
             'game_id' => 'integer',
+            'game_round_id' => 'integer',
             'game_entry_id' => 'integer',
             'participant_user_id' => 'integer',
             'position' => 'integer',
@@ -48,6 +50,11 @@ class GameWinner extends Model
     public function game(): BelongsTo
     {
         return $this->belongsTo(Game::class);
+    }
+
+    public function gameRound(): BelongsTo
+    {
+        return $this->belongsTo(GameRound::class);
     }
 
     public function gameEntry(): BelongsTo

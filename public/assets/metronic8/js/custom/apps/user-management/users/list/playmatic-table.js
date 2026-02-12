@@ -2,6 +2,22 @@
 
 (function () {
     const table = document.getElementById("kt_table_users");
+    const i18n = Object.assign(
+        {
+            deleteConfirmTemplate: "Are you sure you want to delete __name__?",
+            deleteSelectedConfirm: "Are you sure you want to delete selected users?",
+            confirmDelete: "Yes, delete!",
+            cancelDelete: "No, cancel",
+            defaultUserName: "user",
+            csvUser: "User",
+            csvRole: "Role",
+            csvLastLogin: "Last login",
+            csvTwoStep: "Two-step",
+            csvJoinedDate: "Joined Date",
+            csvFileName: "users-export.csv",
+        },
+        window.playmaticUsersTableI18n || {}
+    );
 
     if (!table) {
         return;
@@ -16,6 +32,7 @@
     const searchInput = document.querySelector('[data-kt-user-table-filter="search"]');
     const searchForm = document.getElementById("usersSearchForm");
     const exportButton = document.querySelector('[data-kt-users-modal-action="submit"]');
+    const buildDeleteMessage = (name) => i18n.deleteConfirmTemplate.replace("__name__", name);
 
     const rowCheckboxes = () => Array.from(table.querySelectorAll(".row-checkbox"));
 
@@ -49,7 +66,7 @@
                 event.preventDefault();
 
                 const membershipId = button.getAttribute("data-membership-id");
-                const userName = button.getAttribute("data-user-name") || "user";
+                const userName = button.getAttribute("data-user-name") || i18n.defaultUserName;
                 const form = document.getElementById(`delete-membership-${membershipId}`);
 
                 if (!form) {
@@ -57,12 +74,12 @@
                 }
 
                 Swal.fire({
-                    text: `Are you sure you want to delete ${userName}?`,
+                    text: buildDeleteMessage(userName),
                     icon: "warning",
                     showCancelButton: true,
                     buttonsStyling: false,
-                    confirmButtonText: "Yes, delete!",
-                    cancelButtonText: "No, cancel",
+                    confirmButtonText: i18n.confirmDelete,
+                    cancelButtonText: i18n.cancelDelete,
                     customClass: {
                         confirmButton: "btn fw-bold btn-danger",
                         cancelButton: "btn fw-bold btn-active-light-primary"
@@ -118,12 +135,12 @@
             }
 
             Swal.fire({
-                text: "Are you sure you want to delete selected users?",
+                text: i18n.deleteSelectedConfirm,
                 icon: "warning",
                 showCancelButton: true,
                 buttonsStyling: false,
-                confirmButtonText: "Yes, delete!",
-                cancelButtonText: "No, cancel",
+                confirmButtonText: i18n.confirmDelete,
+                cancelButtonText: i18n.cancelDelete,
                 customClass: {
                     confirmButton: "btn fw-bold btn-danger",
                     cancelButton: "btn fw-bold btn-active-light-primary"
@@ -189,7 +206,7 @@
                 return;
             }
 
-            const header = ["User", "Role", "Last login", "Two-step", "Joined Date"];
+            const header = [i18n.csvUser, i18n.csvRole, i18n.csvLastLogin, i18n.csvTwoStep, i18n.csvJoinedDate];
             const csv = [header, ...rows]
                 .map((line) => line.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(","))
                 .join("\n");
@@ -197,7 +214,7 @@
             const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = "users-export.csv";
+            link.download = i18n.csvFileName;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);

@@ -106,6 +106,7 @@
                 <thead>
                     <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
                         <th class="min-w-200px">{{ __('Tenant') }}</th>
+                        <th class="min-w-180px">{{ __('Branding') }}</th>
                         <th class="min-w-150px">{{ __('Primary Domain') }}</th>
                         <th class="min-w-100px">{{ __('Roles') }}</th>
                         <th class="min-w-125px">{{ __('Active users') }}</th>
@@ -126,19 +127,72 @@
                                 $initials = 'T';
                             }
 
+                            $logoUrl = $tenant->logo;
+
+                            if (
+                                is_string($logoUrl)
+                                && $logoUrl !== ''
+                                && ! str_starts_with($logoUrl, 'http://')
+                                && ! str_starts_with($logoUrl, 'https://')
+                                && ! str_starts_with($logoUrl, '/')
+                            ) {
+                                $logoUrl = asset($logoUrl);
+                            }
+
+                            $primaryColor = $tenant->primary_color;
+                            $secondaryColor = $tenant->secondary_color;
                             $createdAt = $tenant->created_at ? $tenant->created_at->format('d M Y, g:i A') : '-';
                         @endphp
                         <tr>
                             <td class="d-flex align-items-center">
                                 <div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
                                     <a href="{{ route('platform.tenants.edit', ['tenant' => $tenant]) }}">
-                                        <div class="symbol-label fs-3 bg-light-primary text-primary fw-bold">{{ $initials }}</div>
+                                        <div
+                                            class="symbol-label fs-3 fw-bold"
+                                            @if ($primaryColor)
+                                                style="background-color: {{ $primaryColor }}; color: #ffffff;"
+                                            @else
+                                                style="background-color: #f1f1f2; color: #0d6efd;"
+                                            @endif
+                                        >
+                                            @if ($logoUrl)
+                                                <img alt="{{ $tenant->name }}" class="w-100 h-100" src="{{ $logoUrl }}" style="object-fit: cover;">
+                                            @else
+                                                {{ $initials }}
+                                            @endif
+                                        </div>
                                     </a>
                                 </div>
 
                                 <div class="d-flex flex-column">
                                     <a class="text-gray-800 text-hover-primary mb-1" href="{{ route('platform.tenants.edit', ['tenant' => $tenant]) }}">{{ $tenant->name }}</a>
                                     <span>{{ $tenant->slug }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column gap-2">
+                                    <span class="badge {{ $logoUrl ? 'badge-light-success' : 'badge-light' }} fw-semibold">
+                                        {{ $logoUrl ? __('Logo') : __('No logo') }}
+                                    </span>
+
+                                    @if ($primaryColor || $secondaryColor)
+                                        <div class="d-flex align-items-center gap-3">
+                                            @if ($primaryColor)
+                                                <span class="d-inline-flex align-items-center gap-2">
+                                                    <span class="d-inline-block rounded-circle border border-gray-300" style="width: 14px; height: 14px; background-color: {{ $primaryColor }}"></span>
+                                                    <span class="text-muted fs-8">{{ $primaryColor }}</span>
+                                                </span>
+                                            @endif
+                                            @if ($secondaryColor)
+                                                <span class="d-inline-flex align-items-center gap-2">
+                                                    <span class="d-inline-block rounded-circle border border-gray-300" style="width: 14px; height: 14px; background-color: {{ $secondaryColor }}"></span>
+                                                    <span class="text-muted fs-8">{{ $secondaryColor }}</span>
+                                                </span>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
                                 </div>
                             </td>
                             <td>
@@ -191,7 +245,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td class="text-center text-muted py-10" colspan="6">{{ __('No tenants found.') }}</td>
+                            <td class="text-center text-muted py-10" colspan="7">{{ __('No tenants found.') }}</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -230,6 +284,14 @@
         (function () {
             const searchInput = document.querySelector('[data-kt-tenant-table-filter="search"]');
             const searchForm = document.getElementById('tenantsSearchForm');
+            const deleteConfirmationTemplate = @json(__('Are you sure you want to delete :name?', ['name' => '__name__']));
+            const deleteConfirmLabel = @json(__('Yes, delete!'));
+            const deleteCancelLabel = @json(__('No, cancel'));
+            const defaultTenantLabel = @json(__('Tenant'));
+
+            const buildDeleteMessage = function (name) {
+                return deleteConfirmationTemplate.replace('__name__', name);
+            };
 
             if (searchInput && searchForm) {
                 let timer = null;
@@ -256,7 +318,7 @@
                     event.preventDefault();
 
                     const tenantId = button.getAttribute('data-tenant-id');
-                    const tenantName = button.getAttribute('data-tenant-name') || 'tenant';
+                    const tenantName = button.getAttribute('data-tenant-name') || defaultTenantLabel;
                     const form = document.getElementById('delete-tenant-' + tenantId);
 
                     if (!form) {
@@ -265,12 +327,12 @@
 
                     if (window.Swal) {
                         Swal.fire({
-                            text: 'Are you sure you want to delete ' + tenantName + '?',
+                            text: buildDeleteMessage(tenantName),
                             icon: 'warning',
                             showCancelButton: true,
                             buttonsStyling: false,
-                            confirmButtonText: 'Yes, delete!',
-                            cancelButtonText: 'No, cancel',
+                            confirmButtonText: deleteConfirmLabel,
+                            cancelButtonText: deleteCancelLabel,
                             customClass: {
                                 confirmButton: 'btn fw-bold btn-danger',
                                 cancelButton: 'btn fw-bold btn-active-light-primary'
@@ -284,7 +346,7 @@
                         return;
                     }
 
-                    if (window.confirm('Are you sure you want to delete ' + tenantName + '?')) {
+                    if (window.confirm(buildDeleteMessage(tenantName))) {
                         form.submit();
                     }
                 });

@@ -362,5 +362,20 @@
 
 @push('scripts')
     <script src="{{ asset('assets/metronic8/plugins/custom/datatables/datatables.bundle.js') }}"></script>
+    <script>
+        window.playmaticUsersTableI18n = {
+            deleteConfirmTemplate: @json(__('Are you sure you want to delete :name?', ['name' => '__name__'])),
+            deleteSelectedConfirm: @json(__('Are you sure you want to delete selected users?')),
+            confirmDelete: @json(__('Yes, delete!')),
+            cancelDelete: @json(__('No, cancel')),
+            defaultUserName: @json(__('User')),
+            csvUser: @json(__('User')),
+            csvRole: @json(__('Role')),
+            csvLastLogin: @json(__('Last login')),
+            csvTwoStep: @json(__('Two-step')),
+            csvJoinedDate: @json(__('Joined Date')),
+            csvFileName: 'users-export.csv',
+        };
+    </script>
     <script src="{{ asset('assets/metronic8/js/custom/apps/user-management/users/list/playmatic-table.js') }}"></script>
 @endpush

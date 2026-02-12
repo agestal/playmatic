@@ -250,6 +250,14 @@
         (function () {
             const searchInput = document.querySelector('[data-kt-role-table-filter="search"]');
             const searchForm = document.getElementById('rolesSearchForm');
+            const deleteConfirmationTemplate = @json(__('Are you sure you want to delete :name?', ['name' => '__name__']));
+            const deleteConfirmLabel = @json(__('Yes, delete!'));
+            const deleteCancelLabel = @json(__('No, cancel'));
+            const defaultRoleLabel = @json(__('Role'));
+
+            const buildDeleteMessage = function (name) {
+                return deleteConfirmationTemplate.replace('__name__', name);
+            };
 
             if (searchInput && searchForm) {
                 let timer = null;
@@ -276,7 +284,7 @@
                     event.preventDefault();
 
                     const roleId = button.getAttribute('data-role-id');
-                    const roleName = button.getAttribute('data-role-name') || 'role';
+                    const roleName = button.getAttribute('data-role-name') || defaultRoleLabel;
                     const form = document.getElementById('delete-role-' + roleId);
 
                     if (!form) {
@@ -285,12 +293,12 @@
 
                     if (window.Swal) {
                         Swal.fire({
-                            text: 'Are you sure you want to delete ' + roleName + '?',
+                            text: buildDeleteMessage(roleName),
                             icon: 'warning',
                             showCancelButton: true,
                             buttonsStyling: false,
-                            confirmButtonText: 'Yes, delete!',
-                            cancelButtonText: 'No, cancel',
+                            confirmButtonText: deleteConfirmLabel,
+                            cancelButtonText: deleteCancelLabel,
                             customClass: {
                                 confirmButton: 'btn fw-bold btn-danger',
                                 cancelButton: 'btn fw-bold btn-active-light-primary'
@@ -304,7 +312,7 @@
                         return;
                     }
 
-                    if (window.confirm('Are you sure you want to delete ' + roleName + '?')) {
+                    if (window.confirm(buildDeleteMessage(roleName))) {
                         form.submit();
                     }
                 });

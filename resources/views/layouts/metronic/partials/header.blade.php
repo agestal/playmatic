@@ -18,11 +18,13 @@
     $localeLabels = [
         'en' => __('English'),
         'es' => __('Spanish'),
+        'pt' => __('Portuguese'),
     ];
 
     $localeFlags = [
         'en' => 'united-states',
         'es' => 'spain',
+        'pt' => 'portugal',
     ];
 
     $userInitials = collect(preg_split('/\s+/', trim((string) $user?->name)) ?: [])

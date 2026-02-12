@@ -4,6 +4,7 @@
     $canAccessPermissions = $canAccessRoles;
     $canAccessTenants = (bool) auth()->user()?->is_superadmin;
     $canAccessGamesCatalog = auth()->user()?->can('games.view.entity') || auth()->user()?->can('games.edit.entity');
+    $canAccessAttendanceRounds = auth()->user()?->can('games.view.entity') || auth()->user()?->can('games.edit.content');
     $canAccessGameEntries = auth()->user()?->can('participants.view.entity') || auth()->user()?->can('games.edit.content');
     $canAccessGameWinners = auth()->user()?->can('winners.view.entity') || auth()->user()?->can('games.edit.content');
 
@@ -11,7 +12,9 @@
         || request()->routeIs('access.roles.*')
         || request()->routeIs('access.permissions.*')
         || request()->routeIs('platform.tenants.*');
-    $gamesRoutesActive = request()->routeIs('games.*');
+    $gamesRoutesActive = request()->routeIs('games.index', 'games.create', 'games.edit')
+        || request()->routeIs('games.entries.*')
+        || request()->routeIs('games.winners.*');
 @endphp
 
 <div
@@ -120,6 +123,20 @@
                                 </div>
                             @endif
                         </div>
+                    </div>
+                @endif
+
+                @if ($canAccessAttendanceRounds)
+                    <div class="menu-item">
+                        <a class="menu-link {{ request()->routeIs('games.attendance-rounds.*') ? 'active' : '' }}" href="{{ route('games.attendance-rounds.index') }}">
+                            <span class="menu-icon">
+                                <i class="ki-duotone ki-calendar fs-2">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                </i>
+                            </span>
+                            <span class="menu-title">{{ __('Adivina el aforo') }}</span>
+                        </a>
                     </div>
                 @endif
 

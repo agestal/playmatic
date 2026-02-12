@@ -134,9 +134,12 @@
                                     @if ($entry->participant_email || $entry->participantUser?->email)
                                         <span class="text-muted fs-7">{{ $entry->participant_email ?? $entry->participantUser?->email }}</span>
                                     @endif
+                                    @if ($entry->participant_phone)
+                                        <span class="text-muted fs-7">{{ $entry->participant_phone }}</span>
+                                    @endif
                                 </div>
                             </td>
-                            <td><span class="badge badge-light">{{ ucfirst($entry->status) }}</span></td>
+                            <td><span class="badge badge-light">{{ $statusOptions[$entry->status] ?? __('Unknown') }}</span></td>
                             <td>{{ $entry->score !== null ? number_format((float) $entry->score, 2) : '-' }}</td>
                             <td>{{ $entry->submitted_at ? $entry->submitted_at->format('d/m/Y H:i') : '-' }}</td>
                             <td class="text-end">

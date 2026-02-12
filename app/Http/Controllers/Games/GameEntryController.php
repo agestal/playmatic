@@ -111,6 +111,7 @@ class GameEntryController extends Controller
             'participant_user_id' => $participantUser?->id,
             'participant_name' => data_get($validated, 'participant_name') ?: $participantUser?->name,
             'participant_email' => data_get($validated, 'participant_email') ?: $participantUser?->email,
+            'participant_phone' => data_get($validated, 'participant_phone'),
             'status' => $validated['status'],
             'score' => data_get($validated, 'score') !== null ? floatval($validated['score']) : null,
             'answer_payload' => $this->decodeJson($validated['answer_payload'] ?? null, 'answer_payload'),
@@ -156,6 +157,7 @@ class GameEntryController extends Controller
             'participant_user_id' => $participantUser?->id,
             'participant_name' => data_get($validated, 'participant_name') ?: $participantUser?->name,
             'participant_email' => data_get($validated, 'participant_email') ?: $participantUser?->email,
+            'participant_phone' => data_get($validated, 'participant_phone'),
             'status' => $validated['status'],
             'score' => data_get($validated, 'score') !== null ? floatval($validated['score']) : null,
             'answer_payload' => $this->decodeJson($validated['answer_payload'] ?? null, 'answer_payload'),
@@ -181,7 +183,7 @@ class GameEntryController extends Controller
     }
 
     /**
-     * @return array{game_id:int|string,participant_user_id?:int|string|null,participant_name?:string,participant_email?:string,status:string,score?:string|float|int|null,answer_payload?:string|null,submitted_at?:string|null,evaluated_at?:string|null}
+     * @return array{game_id:int|string,participant_user_id?:int|string|null,participant_name?:string,participant_email?:string,participant_phone?:string,status:string,score?:string|float|int|null,answer_payload?:string|null,submitted_at?:string|null,evaluated_at?:string|null}
      */
     protected function validatePayload(Request $request, int $tenantId): array
     {
@@ -190,6 +192,7 @@ class GameEntryController extends Controller
             'participant_user_id' => ['nullable', 'integer', Rule::exists('users', 'id')],
             'participant_name' => ['nullable', 'string', 'max:120'],
             'participant_email' => ['nullable', 'email', 'max:255'],
+            'participant_phone' => ['nullable', 'string', 'max:40'],
             'status' => ['required', Rule::in(array_keys($this->statusOptions()))],
             'score' => ['nullable', 'numeric', 'min:0'],
             'answer_payload' => ['nullable', 'string', 'json'],
@@ -199,17 +202,18 @@ class GameEntryController extends Controller
     }
 
     /**
-     * @param  array{participant_user_id?:int|string|null,participant_name?:string|null,participant_email?:string|null}  $validated
+     * @param  array{participant_user_id?:int|string|null,participant_name?:string|null,participant_email?:string|null,participant_phone?:string|null}  $validated
      */
     protected function assertParticipantIntegrity(array $validated, int $tenantId): void
     {
         $participantUserId = intval($validated['participant_user_id'] ?? 0);
         $participantName = trim(strval($validated['participant_name'] ?? ''));
         $participantEmail = trim(strval($validated['participant_email'] ?? ''));
+        $participantPhone = trim(strval($validated['participant_phone'] ?? ''));
 
-        if ($participantUserId <= 0 && $participantName === '' && $participantEmail === '') {
+        if ($participantUserId <= 0 && $participantName === '' && $participantEmail === '' && $participantPhone === '') {
             throw ValidationException::withMessages([
-                'participant_name' => __('Provide at least one participant reference (user, name or email).'),
+                'participant_name' => __('Provide at least one participant reference (user, name, email or phone).'),
             ]);
         }
 
