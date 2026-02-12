@@ -56,9 +56,10 @@ Route::prefix('{locale}')
                 Route::get('/users', [TenantUserAccessController::class, 'index'])->name('users.index');
                 Route::post('/users', [TenantUserAccessController::class, 'store'])->name('users.store');
                 Route::delete('/users/bulk', [TenantUserAccessController::class, 'destroyMany'])->name('users.destroy-many');
+                Route::get('/users/{tenantUser}/edit', [TenantUserAccessController::class, 'edit'])->name('users.edit');
                 Route::put('/users/{tenantUser}', [TenantUserAccessController::class, 'update'])->name('users.update');
+                Route::put('/users/{tenantUser}/password', [TenantUserAccessController::class, 'updatePassword'])->name('users.password.update');
                 Route::delete('/users/{tenantUser}', [TenantUserAccessController::class, 'destroy'])->name('users.destroy');
-                Route::get('/users/{user}/edit', fn () => view('users.edit'))->name('users.edit');
             });
 
             Route::prefix('access')->name('access.')->group(function () {

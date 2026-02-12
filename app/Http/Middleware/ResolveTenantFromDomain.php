@@ -18,7 +18,12 @@ class ResolveTenantFromDomain
 
     public function handle(Request $request, Closure $next): Response
     {
-        if (app()->runningInConsole()) {
+        // Ensure shared tenant data never leaks between requests.
+        View::share('currentTenant', null);
+
+        $isTestingRuntime = $this->isTestingRuntime();
+
+        if (app()->runningInConsole() && ! $isTestingRuntime) {
             $this->tenantContext->setTenant(null);
 
             return $next($request);
@@ -39,7 +44,7 @@ class ResolveTenantFromDomain
                 ->first();
         }
 
-        if (! $tenantDomain && (app()->runningUnitTests() || app()->environment('testing'))) {
+        if (! $tenantDomain && $isTestingRuntime) {
             $this->tenantContext->setTenant(null);
 
             return $next($request);
@@ -48,7 +53,6 @@ class ResolveTenantFromDomain
         if (! $tenantDomain || ! $tenantDomain->tenant) {
             if ($this->canProceedWithoutTenant($request)) {
                 $this->tenantContext->setTenant(null);
-                View::share('currentTenant', null);
 
                 return $next($request);
             }
@@ -92,5 +96,13 @@ class ResolveTenantFromDomain
             'email/verification-notification',
             'confirm-password',
         ], $normalizedPath);
+    }
+
+    protected function isTestingRuntime(): bool
+    {
+        return app()->runningUnitTests()
+            || app()->environment('testing')
+            || defined('PHPUNIT_COMPOSER_INSTALL')
+            || defined('__PHPUNIT_PHAR__');
     }
 }

@@ -54,24 +54,34 @@ class LoginRequest extends FormRequest
         $user = Auth::user();
         $tenantId = app(TenantContext::class)->tenantId();
 
-        if (
-            $user
-            && ! (bool) $user->is_superadmin
-            && $tenantId
-            && ! TenantUser::query()
-                ->where('tenant_id', $tenantId)
-                ->where('user_id', $user->id)
-                ->where('status', 'active')
-                ->exists()
-        ) {
-            Auth::logout();
+        if ($user && ! $tenantId) {
+            $this->rejectTenantAuthentication(__('There is no active company for this domain.'));
+        }
 
-            throw ValidationException::withMessages([
-                'email' => __('Your user does not have access to this company on this domain.'),
-            ]);
+        if ($user && ! TenantUser::query()
+            ->where('tenant_id', $tenantId)
+            ->where('user_id', $user->id)
+            ->where('status', 'active')
+            ->exists()
+        ) {
+            $this->rejectTenantAuthentication(
+                __('Your user does not have access to this company on this domain.')
+            );
         }
 
         RateLimiter::clear($this->throttleKey());
+    }
+
+    protected function rejectTenantAuthentication(string $message): void
+    {
+        Auth::logout();
+        $this->session()->invalidate();
+        $this->session()->regenerateToken();
+        RateLimiter::hit($this->throttleKey());
+
+        throw ValidationException::withMessages([
+            'email' => $message,
+        ]);
     }
 
     /**

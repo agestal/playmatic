@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class TenantUserAccessController extends Controller
@@ -77,11 +78,25 @@ class TenantUserAccessController extends Controller
             ->whereRaw('LOWER(email) = ?', [$normalizedEmail])
             ->first();
 
+        $password = data_get($validated, 'password');
+        $passwordValue = is_string($password) ? $password : '';
+        $passwordProvided = is_string($password) && $password !== '';
+
+        if (! $user && ! $passwordProvided) {
+            return back()
+                ->withErrors(['password' => __('Password is required when creating a new user.')])
+                ->withInput();
+        }
+
         if (! $user) {
             $user = User::query()->create([
                 'name' => $this->defaultNameFromEmail($normalizedEmail),
                 'email' => $normalizedEmail,
-                'password' => Hash::make(Str::random(64)),
+                'password' => Hash::make($passwordValue),
+            ]);
+        } elseif ($passwordProvided) {
+            $user->update([
+                'password' => Hash::make($passwordValue),
             ]);
         }
 
@@ -101,6 +116,28 @@ class TenantUserAccessController extends Controller
             ->with('status', __('User access was updated for this company.'));
     }
 
+    public function edit(string $locale, TenantUser $tenantUser, TenantContext $tenantContext): View
+    {
+        $tenant = $this->tenantOrFail($tenantContext);
+        $this->assertMembershipTenant($tenantUser, $tenant);
+
+        $tenantUser->loadMissing([
+            'user:id,name,email',
+            'role:id,name',
+        ]);
+
+        $roleChoices = Role::query()
+            ->where('tenant_id', $tenant->id)
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        return view('users.edit', [
+            'tenantUser' => $tenantUser,
+            'user' => $tenantUser->user,
+            'roleChoices' => $roleChoices,
+        ]);
+    }
+
     public function update(Request $request, string $locale, TenantUser $tenantUser, TenantContext $tenantContext): RedirectResponse
     {
         $tenant = $this->tenantOrFail($tenantContext);
@@ -113,6 +150,7 @@ class TenantUserAccessController extends Controller
                 Rule::exists('roles', 'id')->where(fn ($query) => $query->where('tenant_id', $tenant->id)),
             ],
             'status' => ['required', Rule::in(['active', 'disabled'])],
+            'password' => ['nullable', 'confirmed', Password::defaults()],
         ]);
 
         if ((int) $request->user()->id === (int) $tenantUser->user_id && $validated['status'] === 'disabled') {
@@ -126,9 +164,41 @@ class TenantUserAccessController extends Controller
             'status' => $validated['status'],
         ]);
 
+        $password = data_get($validated, 'password');
+        $passwordValue = is_string($password) ? $password : '';
+        $passwordProvided = is_string($password) && $password !== '';
+
+        if ($passwordProvided) {
+            $tenantUser->user()->update([
+                'password' => Hash::make($passwordValue),
+            ]);
+        }
+
         return redirect()
-            ->route('users.index')
+            ->route('users.edit', ['tenantUser' => $tenantUser->id])
             ->with('status', __('User permissions updated.'));
+    }
+
+    public function updatePassword(
+        Request $request,
+        string $locale,
+        TenantUser $tenantUser,
+        TenantContext $tenantContext,
+    ): RedirectResponse {
+        $tenant = $this->tenantOrFail($tenantContext);
+        $this->assertMembershipTenant($tenantUser, $tenant);
+
+        $validated = $request->validate([
+            'password' => ['required', 'confirmed', Password::defaults()],
+        ]);
+
+        $tenantUser->user()->update([
+            'password' => Hash::make($validated['password']),
+        ]);
+
+        return redirect()
+            ->route('users.edit', ['tenantUser' => $tenantUser->id])
+            ->with('status', __('Password updated successfully.'));
     }
 
     public function destroy(Request $request, string $locale, TenantUser $tenantUser, TenantContext $tenantContext): RedirectResponse
@@ -198,7 +268,7 @@ class TenantUserAccessController extends Controller
     }
 
     /**
-     * @return array{email:string,role_id:int|string,status:string}
+     * @return array{email:string,password?:string|null,role_id:int|string,status:string}
      */
     protected function validateMembershipPayload(Request $request, Tenant $tenant): array
     {
@@ -210,6 +280,7 @@ class TenantUserAccessController extends Controller
                 Rule::exists('roles', 'id')->where(fn ($query) => $query->where('tenant_id', $tenant->id)),
             ],
             'status' => ['required', Rule::in(['active', 'disabled'])],
+            'password' => ['nullable', 'confirmed', Password::defaults()],
         ]);
     }
 

@@ -189,13 +189,13 @@
                             </td>
                             <td class="d-flex align-items-center">
                                 <div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
-                                    <a href="{{ route('users.edit', ['user' => $member->id]) }}">
+                                    <a href="{{ route('users.edit', ['tenantUser' => $member->membership_id]) }}">
                                         <div class="symbol-label fs-3 bg-light-primary text-primary fw-bold">{{ $initials }}</div>
                                     </a>
                                 </div>
 
                                 <div class="d-flex flex-column">
-                                    <a class="text-gray-800 text-hover-primary mb-1" href="{{ route('users.edit', ['user' => $member->id]) }}">{{ $member->name }}</a>
+                                    <a class="text-gray-800 text-hover-primary mb-1" href="{{ route('users.edit', ['tenantUser' => $member->membership_id]) }}">{{ $member->name }}</a>
                                     <span>{{ $member->email }}</span>
                                 </div>
                             </td>
@@ -224,7 +224,7 @@
 
                                 <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4" data-kt-menu="true">
                                     <div class="menu-item px-3">
-                                        <a class="menu-link px-3" href="{{ route('users.edit', ['user' => $member->id]) }}">{{ __('Edit') }}</a>
+                                        <a class="menu-link px-3" href="{{ route('users.edit', ['tenantUser' => $member->membership_id]) }}">{{ __('Edit') }}</a>
                                     </div>
                                     <div class="menu-item px-3">
                                         <button
@@ -328,6 +328,17 @@
                                 <label class="required fw-semibold fs-6 mb-2">{{ __('User email') }}</label>
                                 <input class="form-control form-control-solid mb-3 mb-lg-0" name="email" placeholder="name@example.com" required type="email" value="{{ old('email') }}"/>
                                 <div class="form-text">{{ __('If the user does not exist, it will be created automatically.') }}</div>
+                            </div>
+
+                            <div class="fv-row mb-7">
+                                <label class="fw-semibold fs-6 mb-2">{{ __('Password') }}</label>
+                                <input class="form-control form-control-solid mb-3 mb-lg-0" autocomplete="new-password" name="password" type="password"/>
+                                <div class="form-text">{{ __('Set a password for new users. For existing users, leave empty to keep the current password.') }}</div>
+                            </div>
+
+                            <div class="fv-row mb-7">
+                                <label class="fw-semibold fs-6 mb-2">{{ __('Confirm Password') }}</label>
+                                <input class="form-control form-control-solid mb-3 mb-lg-0" autocomplete="new-password" name="password_confirmation" type="password"/>
                             </div>
 
                             <div class="fv-row mb-7">
