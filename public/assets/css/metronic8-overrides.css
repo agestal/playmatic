@@ -1,11 +1,11 @@
 .app-sidebar .menu .menu-link.active {
-    background-color: rgba(54, 153, 255, 0.12);
-    color: #3699ff;
+    background-color: var(--bs-primary-light);
+    color: var(--bs-primary);
 }
 
 .app-sidebar .menu .menu-link.active .menu-title,
 .app-sidebar .menu .menu-link.active .menu-icon i {
-    color: #3699ff;
+    color: var(--bs-primary);
 }
 
 .pm-auth-hero {
@@ -49,9 +49,9 @@
 .kt-input textarea:focus {
     color: var(--bs-gray-700);
     background-color: var(--bs-body-bg);
-    border-color: #b5b5c3;
+    border-color: var(--pm-border-strong);
     outline: 0;
-    box-shadow: 0 0 0 0.25rem rgba(0, 158, 247, 0.25);
+    box-shadow: 0 0 0 0.25rem var(--bs-focus-ring-color);
 }
 
 .kt-input input,
@@ -77,15 +77,15 @@
 }
 
 .kt-alert-success {
-    border: 1px solid #50cd89;
-    background: #e8fff3;
-    color: #0f5132;
+    border: 1px solid var(--bs-success);
+    background: var(--bs-success-bg-subtle);
+    color: var(--bs-success-text-emphasis);
 }
 
 .kt-alert-destructive {
-    border: 1px solid #f1416c;
-    background: #fff5f8;
-    color: #842029;
+    border: 1px solid var(--bs-danger);
+    background: var(--bs-danger-bg-subtle);
+    color: var(--bs-danger-text-emphasis);
 }
 
 .kt-btn {
@@ -104,21 +104,21 @@
 }
 
 .kt-btn-primary {
-    color: #fff;
-    background-color: #009ef7;
-    border-color: #009ef7;
+    color: var(--bs-primary-inverse);
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
 }
 
 .kt-btn-light {
-    color: #7e8299;
-    background-color: #f5f8fa;
-    border-color: #f5f8fa;
+    color: var(--bs-gray-600);
+    background-color: var(--bs-gray-100);
+    border-color: var(--bs-gray-100);
 }
 
 .kt-btn-outline {
-    color: #7e8299;
+    color: var(--bs-gray-600);
     background-color: transparent;
-    border-color: #e4e6ef;
+    border-color: var(--pm-border-soft);
 }
 
 .kt-btn-sm {
@@ -135,7 +135,7 @@
     width: 1.35rem;
     height: 1.35rem;
     margin-top: 0.1rem;
-    border: 1px solid #b5b5c3;
+    border: 1px solid var(--pm-border-strong);
     border-radius: 0.45rem;
 }
 
@@ -149,11 +149,11 @@
 }
 
 .kt-badge-light {
-    color: #7e8299;
-    background-color: #f5f8fa;
+    color: var(--bs-gray-600);
+    background-color: var(--bs-gray-100);
 }
 
 .kt-badge-light-primary {
-    color: #009ef7;
-    background-color: #f1faff;
+    color: var(--bs-primary);
+    background-color: var(--bs-primary-light);
 }

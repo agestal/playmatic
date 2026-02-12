@@ -7,18 +7,21 @@
 @push('styles')
     <style>
         :root {
-            --dashboard-primary: #0d6efd;
-            --dashboard-primary-soft: #e8f1ff;
-            --dashboard-success: #17c653;
-            --dashboard-danger: #f1416c;
-            --dashboard-neutral: #7e8299;
-            --dashboard-gradient-start: #0b4ec2;
-            --dashboard-gradient-end: #35a6ff;
+            --dashboard-primary: var(--pm-primary);
+            --dashboard-primary-soft: var(--pm-primary-soft);
+            --dashboard-success: var(--bs-success);
+            --dashboard-danger: var(--bs-danger);
+            --dashboard-neutral: var(--pm-neutral);
+            --dashboard-gradient-start: var(--bs-primary-active);
+            --dashboard-gradient-end: var(--pm-gradient-end);
+            --dashboard-border-soft: var(--pm-border-soft);
+            --dashboard-border-strong: var(--pm-border-strong);
+            --dashboard-contrast: var(--bs-primary-inverse);
         }
 
         .dashboard-hero {
             background: linear-gradient(125deg, var(--dashboard-gradient-start) 0%, var(--dashboard-primary) 45%, var(--dashboard-gradient-end) 100%);
-            box-shadow: 0 20px 45px rgba(13, 110, 253, 0.25);
+            box-shadow: 0 20px 45px rgba(var(--pm-primary-rgb), 0.25);
             overflow: hidden;
             position: relative;
         }
@@ -36,18 +39,22 @@
             z-index: 1;
         }
 
+        .dashboard-hero-text {
+            color: var(--dashboard-contrast) !important;
+        }
+
         .dashboard-chip {
             backdrop-filter: blur(2px);
             background: rgba(255, 255, 255, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.18);
             border-radius: 12px;
-            color: #ffffff;
+            color: var(--dashboard-contrast);
             min-width: 150px;
             padding: 12px 14px;
         }
 
         .dashboard-stat-card {
-            border: 1px solid #f0f3ff;
+            border: 1px solid var(--dashboard-border-soft);
             box-shadow: 0 10px 24px rgba(28, 60, 109, 0.08);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
@@ -67,7 +74,7 @@
         }
 
         .dashboard-panel {
-            border: 1px solid #eef1f8;
+            border: 1px solid var(--dashboard-border-strong);
             box-shadow: 0 12px 26px rgba(28, 60, 109, 0.08);
         }
 
@@ -98,24 +105,24 @@
             <div class="d-flex flex-column flex-xl-row align-items-xl-center justify-content-between gap-6">
                 <div>
                     <span class="badge badge-light-primary fw-bold mb-4">{{ __('Statistics') }}</span>
-                    <h2 class="text-white fw-bolder mb-2">{{ __('User analytics summary') }}</h2>
-                    <p class="text-white opacity-75 fw-semibold mb-0">
+                    <h2 class="dashboard-hero-text fw-bolder mb-2">{{ __('User analytics summary') }}</h2>
+                    <p class="dashboard-hero-text opacity-75 fw-semibold mb-0">
                         {{ __('Updated in real time from the active company context.') }}
                     </p>
                 </div>
 
                 <div class="d-flex flex-wrap gap-3">
                     <div class="dashboard-chip">
-                        <div class="text-white opacity-75 fs-8 text-uppercase fw-bold mb-1">{{ __('Current context') }}</div>
-                        <div class="text-white fw-bold fs-5">{{ $tenantName }}</div>
+                        <div class="dashboard-hero-text opacity-75 fs-8 text-uppercase fw-bold mb-1">{{ __('Current context') }}</div>
+                        <div class="dashboard-hero-text fw-bold fs-5">{{ $tenantName }}</div>
                     </div>
                     <div class="dashboard-chip">
-                        <div class="text-white opacity-75 fs-8 text-uppercase fw-bold mb-1">{{ __('Activity rate') }}</div>
-                        <div class="text-white fw-bold fs-2">{{ number_format($activityRate, 1) }}%</div>
+                        <div class="dashboard-hero-text opacity-75 fs-8 text-uppercase fw-bold mb-1">{{ __('Activity rate') }}</div>
+                        <div class="dashboard-hero-text fw-bold fs-2">{{ number_format($activityRate, 1) }}%</div>
                     </div>
                     <div class="dashboard-chip">
-                        <div class="text-white opacity-75 fs-8 text-uppercase fw-bold mb-1">{{ __('Verification rate') }}</div>
-                        <div class="text-white fw-bold fs-2">{{ number_format($verificationRate, 1) }}%</div>
+                        <div class="dashboard-hero-text opacity-75 fs-8 text-uppercase fw-bold mb-1">{{ __('Verification rate') }}</div>
+                        <div class="dashboard-hero-text fw-bold fs-2">{{ number_format($verificationRate, 1) }}%</div>
                     </div>
                 </div>
             </div>
@@ -296,6 +303,18 @@
             const growthSeries = @json($monthlySeries);
             const statusSeries = @json([$activeUsers, $inactiveUsers]);
             const hasStatusData = statusSeries.some(value => Number(value) > 0);
+            const css = (variable, fallback = '') => {
+                const value = getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+
+                return value || fallback;
+            };
+            const primaryColor = css('--bs-primary', '#1B84FF');
+            const primaryLightColor = css('--bs-primary-light', '#D8E1F3');
+            const successColor = css('--bs-success', '#17C653');
+            const dangerColor = css('--bs-danger', '#F8285A');
+            const neutralColor = css('--pm-neutral', '#7E8299');
+            const headingColor = css('--bs-gray-900', '#181C32');
+            const borderSoftColor = css('--pm-border-soft', '#E4E6EF');
 
             if (growthElement) {
                 const growthChart = new ApexCharts(growthElement, {
@@ -313,7 +332,7 @@
                         categories: growthLabels,
                         labels: {
                             style: {
-                                colors: '#7E8299',
+                                colors: neutralColor,
                                 fontSize: '12px'
                             }
                         }
@@ -321,7 +340,7 @@
                     yaxis: {
                         labels: {
                             style: {
-                                colors: '#7E8299',
+                                colors: neutralColor,
                                 fontSize: '12px'
                             }
                         },
@@ -331,7 +350,7 @@
                     stroke: {
                         curve: 'smooth',
                         width: 3,
-                        colors: ['#0D6EFD']
+                        colors: [primaryColor]
                     },
                     fill: {
                         type: 'gradient',
@@ -343,7 +362,7 @@
                         }
                     },
                     grid: {
-                        borderColor: '#E4E6EF',
+                        borderColor: borderSoftColor,
                         strokeDashArray: 4
                     },
                     dataLabels: {enabled: false},
@@ -357,7 +376,7 @@
                     markers: {
                         size: 4,
                         strokeWidth: 0,
-                        colors: ['#0D6EFD'],
+                        colors: [primaryColor],
                         hover: {
                             size: 6
                         }
@@ -378,7 +397,7 @@
                     labels: hasStatusData
                         ? [@json(__('Active users')), @json(__('Inactive users'))]
                         : [@json(__('No users available'))],
-                    colors: hasStatusData ? ['#17C653', '#F1416C'] : ['#D8E1F3'],
+                    colors: hasStatusData ? [successColor, dangerColor] : [primaryLightColor],
                     legend: {
                         show: false
                     },
@@ -394,19 +413,19 @@
                                     name: {
                                         show: true,
                                         fontSize: '13px',
-                                        color: '#7E8299'
+                                        color: neutralColor
                                     },
                                     value: {
                                         show: true,
                                         fontSize: '28px',
                                         fontWeight: 700,
-                                        color: '#181C32'
+                                        color: headingColor
                                     },
                                     total: {
                                         show: true,
                                         label: @json(__('User statuses')),
                                         fontSize: '12px',
-                                        color: '#7E8299',
+                                        color: neutralColor,
                                         formatter: function () {
                                             if (!hasStatusData) {
                                                 return '0';

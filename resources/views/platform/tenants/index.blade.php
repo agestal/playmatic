@@ -141,6 +141,7 @@
 
                             $primaryColor = $tenant->primary_color;
                             $secondaryColor = $tenant->secondary_color;
+                            $primaryTextColor = \App\Support\Theme\TenantTheme::contrastTextColor($primaryColor);
                             $createdAt = $tenant->created_at ? $tenant->created_at->format('d M Y, g:i A') : '-';
                         @endphp
                         <tr>
@@ -150,9 +151,9 @@
                                         <div
                                             class="symbol-label fs-3 fw-bold"
                                             @if ($primaryColor)
-                                                style="background-color: {{ $primaryColor }}; color: #ffffff;"
+                                                style="background-color: {{ $primaryColor }}; color: {{ $primaryTextColor }};"
                                             @else
-                                                style="background-color: #f1f1f2; color: #0d6efd;"
+                                                style="background-color: var(--bs-secondary); color: var(--bs-primary);"
                                             @endif
                                         >
                                             @if ($logoUrl)

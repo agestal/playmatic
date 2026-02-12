@@ -3,7 +3,7 @@
 @section('title', __('Adivina el aforo'))
 
 @section('content')
-    <div class="d-flex flex-column min-vh-100 align-items-center justify-content-center p-4" style="background: linear-gradient(120deg, #f9fafb 0%, #eef4ff 100%);">
+    <div class="d-flex flex-column min-vh-100 align-items-center justify-content-center p-4" style="background: linear-gradient(120deg, var(--pm-surface-start) 0%, var(--pm-surface-end) 100%);">
         <div class="w-100" style="max-width: 760px;">
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-8 p-lg-12">
