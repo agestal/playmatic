@@ -16,9 +16,14 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RbacSeeder::class,
-            DevSeeder::class,
             GameCatalogSeeder::class,
-            UsersTableSeeder::class,
         ]);
+
+        if ((bool) config('playmatic.seed_demo_data')) {
+            $this->call([
+                DevSeeder::class,
+                UsersTableSeeder::class,
+            ]);
+        }
     }
 }

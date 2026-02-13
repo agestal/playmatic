@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureTenantMembership;
+use App\Http\Middleware\EnsureApplicationInstalled;
 use App\Http\Middleware\EnsureSuperadmin;
 use App\Http\Middleware\RequireTenantPermission;
 use App\Http\Middleware\ResolveTenantFromDomain;
@@ -17,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->prependToGroup('web', EnsureApplicationInstalled::class);
         $middleware->appendToGroup('web', ResolveTenantFromDomain::class);
 
         $middleware->alias([

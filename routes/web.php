@@ -11,6 +11,7 @@ use App\Http\Controllers\Games\GameWinnerController;
 use App\Http\Controllers\Games\PublicAttendanceGuessController;
 use App\Http\Controllers\Platform\TenantController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Setup\InstallationController;
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -37,6 +38,9 @@ Route::prefix('{locale}')
     ->whereIn('locale', $supportedLocales)
     ->middleware('set.locale')
     ->group(function () {
+        Route::get('/install', [InstallationController::class, 'show'])->name('install.show');
+        Route::post('/install', [InstallationController::class, 'store'])->name('install.store');
+
         Route::middleware(['auth', 'superadmin'])
             ->prefix('platform')
             ->name('platform.')

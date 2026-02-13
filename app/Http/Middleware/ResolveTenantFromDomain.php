@@ -68,7 +68,7 @@ class ResolveTenantFromDomain
 
     protected function canProceedWithoutTenant(Request $request): bool
     {
-        if ($request->routeIs('platform.*', 'login', 'logout', 'password.*', 'verification.*')) {
+        if ($request->routeIs('platform.*', 'install.*', 'login', 'logout', 'password.*', 'verification.*')) {
             return true;
         }
 
@@ -86,6 +86,8 @@ class ResolveTenantFromDomain
         return Str::is([
             'platform',
             'platform/*',
+            'install',
+            'install/*',
             'login',
             'logout',
             'forgot-password',
