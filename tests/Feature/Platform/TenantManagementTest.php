@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Platform;
 
+use App\Models\Game;
 use App\Models\Role;
 use App\Models\Tenant;
 use App\Models\User;
@@ -37,6 +38,13 @@ class TenantManagementTest extends TestCase
 
     public function test_superadmin_can_create_tenant_with_primary_domain_owner_and_default_roles(): void
     {
+        $game = Game::query()->create([
+            'slug' => 'adivina-el-aforo',
+            'name' => 'Adivina el aforo',
+            'game_type' => 'attendance_guess',
+            'is_active' => true,
+        ]);
+
         $superadmin = User::factory()->create([
             'is_superadmin' => true,
         ]);
@@ -91,6 +99,12 @@ class TenantManagementTest extends TestCase
             'user_id' => $owner->id,
             'role_id' => $adminRole->id,
             'status' => 'active',
+        ]);
+
+        $this->assertDatabaseHas('games_tenants', [
+            'tenant_id' => $tenant->id,
+            'game_id' => $game->id,
+            'is_visible' => 1,
         ]);
     }
 

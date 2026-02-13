@@ -2,6 +2,8 @@
 
 namespace App\Support\Tenancy;
 
+use App\Models\Game;
+use App\Models\GameTenant;
 use App\Models\Role;
 use App\Models\Tenant;
 use App\Models\TenantDomain;
@@ -99,5 +101,24 @@ class TenantProvisioningService
         $normalized = preg_replace('/:\\d+$/', '', $normalized) ?? $normalized;
 
         return rtrim($normalized, '.');
+    }
+
+    public function enableAllGamesForTenant(Tenant $tenant): void
+    {
+        $gameIds = Game::query()->pluck('id');
+
+        foreach ($gameIds as $gameId) {
+            GameTenant::query()->updateOrCreate(
+                [
+                    'game_id' => (int) $gameId,
+                    'tenant_id' => $tenant->id,
+                ],
+                [
+                    'is_visible' => true,
+                    'starts_at' => null,
+                    'ends_at' => null,
+                ]
+            );
+        }
     }
 }

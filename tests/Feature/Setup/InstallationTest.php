@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Setup;
 
+use App\Models\Game;
 use App\Models\Tenant;
 use App\Models\TenantUser;
 use App\Models\User;
@@ -24,6 +25,13 @@ class InstallationTest extends TestCase
 
     public function test_install_creates_superadmin_tenant_primary_domain_and_membership(): void
     {
+        $game = Game::query()->create([
+            'slug' => 'adivina-el-aforo',
+            'name' => 'Adivina el aforo',
+            'game_type' => 'attendance_guess',
+            'is_active' => true,
+        ]);
+
         $response = $this->post(route('install.store'), [
             'admin_name' => 'Root Admin',
             'admin_email' => 'root@example.com',
@@ -48,6 +56,12 @@ class InstallationTest extends TestCase
             'tenant_id' => $tenant->id,
             'domain' => 'app.example.com',
             'is_primary' => 1,
+        ]);
+
+        $this->assertDatabaseHas('games_tenants', [
+            'tenant_id' => $tenant->id,
+            'game_id' => $game->id,
+            'is_visible' => 1,
         ]);
 
         $membership = TenantUser::query()

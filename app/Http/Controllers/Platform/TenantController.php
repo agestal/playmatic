@@ -96,6 +96,7 @@ class TenantController extends Controller
                 ->firstOrFail();
 
             $this->provisioningService->assignOwner($tenant, $owner, $roles->get('tenant_admin'));
+            $this->provisioningService->enableAllGamesForTenant($tenant);
             $this->provisioningService->setPrimaryDomain($tenant, $validated['primary_domain']);
 
             return $tenant;

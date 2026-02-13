@@ -115,6 +115,7 @@ class InitialInstallationService
             }
 
             $this->tenantProvisioningService->assignOwner($tenant, $user, $adminRole);
+            $this->tenantProvisioningService->enableAllGamesForTenant($tenant);
             $domain = $this->tenantProvisioningService->setPrimaryDomain($tenant, $normalizedDomain);
 
             return [
