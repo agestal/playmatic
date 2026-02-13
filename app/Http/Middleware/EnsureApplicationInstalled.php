@@ -27,17 +27,17 @@ class EnsureApplicationInstalled
         $isInstallerRoute = $request->routeIs('install.*');
 
         if (! $isInstalled && ! $isInstallerRoute) {
-            return redirect()->route('install.show', [
+            return redirect()->to(route('install.show', [
                 'locale' => $request->route('locale') ?? config('app.locale'),
-            ], absolute: false);
+            ], absolute: false));
         }
 
         if ($isInstalled && $isInstallerRoute) {
             $target = $request->user() ? 'dashboard' : 'login';
 
-            return redirect()->route($target, [
+            return redirect()->to(route($target, [
                 'locale' => $request->route('locale') ?? config('app.locale'),
-            ], absolute: false);
+            ], absolute: false));
         }
 
         return $next($request);
