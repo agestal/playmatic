@@ -7,6 +7,42 @@
     $canAccessAttendanceRounds = auth()->user()?->can('games.view.entity') || auth()->user()?->can('games.edit.content');
     $canAccessGameEntries = auth()->user()?->can('participants.view.entity') || auth()->user()?->can('games.edit.content');
     $canAccessGameWinners = auth()->user()?->can('winners.view.entity') || auth()->user()?->can('games.edit.content');
+    $currentTenant = app(\App\Support\Tenancy\TenantContext::class)->tenant();
+    $now = now();
+
+    $enabledGameSlugs = [];
+
+    if ((bool) auth()->user()?->is_superadmin) {
+        $enabledGameSlugs = ['adivina-el-aforo', 'trivial'];
+    } elseif ($currentTenant) {
+        $enabledGameSlugs = \App\Models\Game::query()
+            ->whereIn('slug', ['adivina-el-aforo', 'trivial'])
+            ->where('is_active', true)
+            ->whereHas('tenantLinks', function ($query) use ($currentTenant, $now): void {
+                $query
+                    ->where('tenant_id', $currentTenant->id)
+                    ->where('is_visible', true)
+                    ->where(function ($dateQuery) use ($now): void {
+                        $dateQuery
+                            ->whereNull('starts_at')
+                            ->orWhere('starts_at', '<=', $now);
+                    })
+                    ->where(function ($dateQuery) use ($now): void {
+                        $dateQuery
+                            ->whereNull('ends_at')
+                            ->orWhere('ends_at', '>=', $now);
+                    });
+            })
+            ->pluck('slug')
+            ->all();
+    }
+
+    $hasAttendanceGuessAccess = in_array('adivina-el-aforo', $enabledGameSlugs, true);
+    $hasTrivialAccess = in_array('trivial', $enabledGameSlugs, true);
+
+    $canAccessAttendanceGuessGame = $hasAttendanceGuessAccess && $canAccessAttendanceRounds;
+    $canAccessQuizQuestions = $hasTrivialAccess && (auth()->user()?->can('games.view.content') || auth()->user()?->can('games.edit.content'));
+    $canAccessQuizAnswers = $canAccessQuizQuestions;
 
     $accessRoutesActive = request()->routeIs('users.*')
         || request()->routeIs('access.roles.*')
@@ -15,6 +51,9 @@
     $gamesRoutesActive = request()->routeIs('games.index', 'games.create', 'games.edit')
         || request()->routeIs('games.entries.*')
         || request()->routeIs('games.winners.*');
+    $attendanceRoutesActive = request()->routeIs('games.attendance-rounds.*');
+    $quizRoutesActive = request()->routeIs('games.quiz.questions.*')
+        || request()->routeIs('games.quiz.answers.*');
 @endphp
 
 <div
@@ -126,20 +165,6 @@
                     </div>
                 @endif
 
-                @if ($canAccessAttendanceRounds)
-                    <div class="menu-item">
-                        <a class="menu-link {{ request()->routeIs('games.attendance-rounds.*') ? 'active' : '' }}" href="{{ route('games.attendance-rounds.index') }}">
-                            <span class="menu-icon">
-                                <i class="ki-duotone ki-calendar fs-2">
-                                    <span class="path1"></span>
-                                    <span class="path2"></span>
-                                </i>
-                            </span>
-                            <span class="menu-title">{{ __('Adivina el aforo') }}</span>
-                        </a>
-                    </div>
-                @endif
-
                 @if ($canAccessGamesCatalog || $canAccessGameEntries || $canAccessGameWinners)
                     <div class="menu-item menu-accordion {{ $gamesRoutesActive ? 'show' : '' }}" data-kt-menu-trigger="click">
                         <span class="menu-link">
@@ -177,6 +202,55 @@
                                     <a class="menu-link {{ request()->routeIs('games.winners.*') ? 'active' : '' }}" href="{{ route('games.winners.index') }}">
                                         <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
                                         <span class="menu-title">{{ __('Winners') }}</span>
+                                    </a>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+
+                @if ($canAccessAttendanceGuessGame)
+                    <div class="menu-item">
+                        <a class="menu-link {{ $attendanceRoutesActive ? 'active' : '' }}" href="{{ route('games.attendance-rounds.index') }}">
+                            <span class="menu-icon">
+                                <i class="ki-duotone ki-calendar fs-2">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                </i>
+                            </span>
+                            <span class="menu-title">{{ __('Adivina el aforo') }}</span>
+                        </a>
+                    </div>
+                @endif
+
+                @if ($canAccessQuizQuestions || $canAccessQuizAnswers)
+                    <div class="menu-item menu-accordion {{ $quizRoutesActive ? 'show' : '' }}" data-kt-menu-trigger="click">
+                        <span class="menu-link">
+                            <span class="menu-icon">
+                                <i class="ki-duotone ki-abstract-41 fs-2">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                </i>
+                            </span>
+                            <span class="menu-title">{{ __('Trivial / Quiz') }}</span>
+                            <span class="menu-arrow"></span>
+                        </span>
+
+                        <div class="menu-sub menu-sub-accordion">
+                            @if ($canAccessQuizQuestions)
+                                <div class="menu-item">
+                                    <a class="menu-link {{ request()->routeIs('games.quiz.questions.*') ? 'active' : '' }}" href="{{ route('games.quiz.questions.index') }}">
+                                        <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                        <span class="menu-title">{{ __('Questions') }}</span>
+                                    </a>
+                                </div>
+                            @endif
+
+                            @if ($canAccessQuizAnswers)
+                                <div class="menu-item">
+                                    <a class="menu-link {{ request()->routeIs('games.quiz.answers.*') ? 'active' : '' }}" href="{{ route('games.quiz.answers.index') }}">
+                                        <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                        <span class="menu-title">{{ __('Answers') }}</span>
                                     </a>
                                 </div>
                             @endif

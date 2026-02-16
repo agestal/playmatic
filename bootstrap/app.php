@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureTenantMembership;
+use App\Http\Middleware\EnsureTenantGameAccess;
 use App\Http\Middleware\EnsureApplicationInstalled;
 use App\Http\Middleware\EnsureSuperadmin;
 use App\Http\Middleware\RequireTenantPermission;
@@ -24,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'set.locale' => SetLocaleFromRoute::class,
             'tenant.member' => EnsureTenantMembership::class,
+            'tenant.game' => EnsureTenantGameAccess::class,
             'tenant.permission' => RequireTenantPermission::class,
             'superadmin' => EnsureSuperadmin::class,
         ]);

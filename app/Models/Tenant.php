@@ -69,4 +69,14 @@ class Tenant extends Model
     {
         return $this->hasMany(GameWinner::class);
     }
+
+    public function quizQuestions(): HasMany
+    {
+        return $this->hasMany(GameQuizQuestion::class, 'tenant_id');
+    }
+
+    public function quizAnswers(): HasMany
+    {
+        return $this->hasMany(GameQuizAnswer::class, 'tenant_id');
+    }
 }

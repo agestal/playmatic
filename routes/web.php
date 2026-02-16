@@ -9,6 +9,8 @@ use App\Http\Controllers\Games\GameController;
 use App\Http\Controllers\Games\GameEntryController;
 use App\Http\Controllers\Games\GameWinnerController;
 use App\Http\Controllers\Games\PublicAttendanceGuessController;
+use App\Http\Controllers\Games\QuizAnswerController;
+use App\Http\Controllers\Games\QuizQuestionController;
 use App\Http\Controllers\Platform\TenantController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Setup\InstallationController;
@@ -166,6 +168,54 @@ Route::prefix('{locale}')
                         ->middleware('tenant.permission:games.edit.content')
                         ->name('destroy');
                 });
+
+                Route::prefix('quiz/questions')
+                    ->name('quiz.questions.')
+                    ->middleware('tenant.game:trivial')
+                    ->group(function () {
+                        Route::get('/', [QuizQuestionController::class, 'index'])
+                            ->middleware('tenant.permission:games.view.content')
+                            ->name('index');
+                        Route::get('/create', [QuizQuestionController::class, 'create'])
+                            ->middleware('tenant.permission:games.edit.content')
+                            ->name('create');
+                        Route::post('/', [QuizQuestionController::class, 'store'])
+                            ->middleware('tenant.permission:games.edit.content')
+                            ->name('store');
+                        Route::get('/{question}/edit', [QuizQuestionController::class, 'edit'])
+                            ->middleware('tenant.permission:games.edit.content')
+                            ->name('edit');
+                        Route::put('/{question}', [QuizQuestionController::class, 'update'])
+                            ->middleware('tenant.permission:games.edit.content')
+                            ->name('update');
+                        Route::delete('/{question}', [QuizQuestionController::class, 'destroy'])
+                            ->middleware('tenant.permission:games.edit.content')
+                            ->name('destroy');
+                    });
+
+                Route::prefix('quiz/answers')
+                    ->name('quiz.answers.')
+                    ->middleware('tenant.game:trivial')
+                    ->group(function () {
+                        Route::get('/', [QuizAnswerController::class, 'index'])
+                            ->middleware('tenant.permission:games.view.content')
+                            ->name('index');
+                        Route::get('/create', [QuizAnswerController::class, 'create'])
+                            ->middleware('tenant.permission:games.edit.content')
+                            ->name('create');
+                        Route::post('/', [QuizAnswerController::class, 'store'])
+                            ->middleware('tenant.permission:games.edit.content')
+                            ->name('store');
+                        Route::get('/{answer}/edit', [QuizAnswerController::class, 'edit'])
+                            ->middleware('tenant.permission:games.edit.content')
+                            ->name('edit');
+                        Route::put('/{answer}', [QuizAnswerController::class, 'update'])
+                            ->middleware('tenant.permission:games.edit.content')
+                            ->name('update');
+                        Route::delete('/{answer}', [QuizAnswerController::class, 'destroy'])
+                            ->middleware('tenant.permission:games.edit.content')
+                            ->name('destroy');
+                    });
             });
 
             Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
