@@ -3,7 +3,6 @@
 namespace App\Support\Tenancy;
 
 use App\Models\Game;
-use App\Models\GameTenant;
 use App\Models\Role;
 use App\Models\Tenant;
 use App\Models\TenantDomain;
@@ -105,20 +104,30 @@ class TenantProvisioningService
 
     public function enableAllGamesForTenant(Tenant $tenant): void
     {
-        $gameIds = Game::query()->pluck('id');
+        $this->syncGamesForTenant(
+            $tenant,
+            Game::query()->pluck('id')->map(fn ($id): int => (int) $id)->all()
+        );
+    }
 
-        foreach ($gameIds as $gameId) {
-            GameTenant::query()->updateOrCreate(
-                [
-                    'game_id' => (int) $gameId,
-                    'tenant_id' => $tenant->id,
-                ],
-                [
+    /**
+     * @param array<int, int|string> $gameIds
+     */
+    public function syncGamesForTenant(Tenant $tenant, array $gameIds): void
+    {
+        $syncData = collect($gameIds)
+            ->map(fn ($gameId): int => intval($gameId))
+            ->filter(fn (int $gameId): bool => $gameId > 0)
+            ->unique()
+            ->mapWithKeys(fn (int $gameId): array => [
+                $gameId => [
                     'is_visible' => true,
                     'starts_at' => null,
                     'ends_at' => null,
-                ]
-            );
-        }
+                ],
+            ])
+            ->all();
+
+        $tenant->games()->sync($syncData);
     }
 }

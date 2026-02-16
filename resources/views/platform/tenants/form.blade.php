@@ -8,7 +8,7 @@
             <div class="card-title flex-column align-items-start">
                 <h3 class="fw-bold mb-1">{{ $mode === 'create' ? __('New tenant') : __('Edit tenant') }}</h3>
                 <span class="text-muted fw-semibold fs-7">
-                    {{ __('Tenant base configuration: name, slug, primary domain, owner, and branding.') }}
+                    {{ __('Tenant base configuration: name, slug, primary domain, owner, branding, and enabled games.') }}
                 </span>
             </div>
 
@@ -25,6 +25,12 @@
             @if ($errors->any())
                 <div class="alert alert-danger mb-6">{{ $errors->first() }}</div>
             @endif
+
+            @php
+                $selectedGameIdsForForm = collect(old('game_ids', $selectedGameIds ?? []))
+                    ->map(static fn ($id): string => (string) $id)
+                    ->all();
+            @endphp
 
             <form
                 method="POST"
@@ -134,6 +140,38 @@
                         pattern="^#[0-9A-Fa-f]{6}$"
                     >
                     <div class="form-text">{{ __('Use HEX format, for example :example.', ['example' => '#20C997']) }}</div>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label fw-semibold fs-6">{{ __('Games') }}</label>
+                    <input type="hidden" name="game_ids_present" value="1">
+
+                    <div class="row g-3">
+                        @forelse ($gameOptions as $gameOption)
+                            <div class="col-12 col-lg-6">
+                                <label class="d-flex align-items-start gap-3 border rounded p-4 h-100 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        class="form-check-input mt-1"
+                                        name="game_ids[]"
+                                        value="{{ $gameOption['id'] }}"
+                                        @checked(in_array((string) $gameOption['id'], $selectedGameIdsForForm, true))
+                                    >
+
+                                    <span>
+                                        <span class="d-block fw-semibold text-gray-900">{{ $gameOption['name'] }}</span>
+                                        <span class="d-block text-muted fs-8">{{ $gameOption['slug'] }}</span>
+                                    </span>
+                                </label>
+                            </div>
+                        @empty
+                            <div class="col-12">
+                                <span class="text-muted">{{ __('No games available.') }}</span>
+                            </div>
+                        @endforelse
+                    </div>
+
+                    <div class="form-text">{{ __('Enable or disable game access for this tenant.') }}</div>
                 </div>
 
                 <div class="col-12 d-flex align-items-center gap-3">

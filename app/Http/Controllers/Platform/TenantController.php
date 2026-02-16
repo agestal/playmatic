@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Platform;
 
 use App\Http\Controllers\Controller;
+use App\Models\Game;
 use App\Models\Tenant;
 use App\Models\TenantDomain;
 use App\Models\TenantUser;
@@ -68,11 +69,15 @@ class TenantController extends Controller
 
     public function create(): View
     {
+        [$gameOptions, $defaultGameIds] = $this->gameOptionsWithDefaults();
+
         return view('platform.tenants.form', [
             'tenant' => null,
             'mode' => 'create',
             'primaryDomain' => '',
             'ownerEmail' => '',
+            'gameOptions' => $gameOptions,
+            'selectedGameIds' => $defaultGameIds,
         ]);
     }
 
@@ -96,7 +101,7 @@ class TenantController extends Controller
                 ->firstOrFail();
 
             $this->provisioningService->assignOwner($tenant, $owner, $roles->get('tenant_admin'));
-            $this->provisioningService->enableAllGamesForTenant($tenant);
+            $this->provisioningService->syncGamesForTenant($tenant, data_get($validated, 'game_ids', []));
             $this->provisioningService->setPrimaryDomain($tenant, $validated['primary_domain']);
 
             return $tenant;
@@ -130,11 +135,22 @@ class TenantController extends Controller
             ->orderBy('id')
             ->first()?->user?->email ?? '';
 
+        [$gameOptions] = $this->gameOptionsWithDefaults();
+
+        $selectedGameIds = $tenant->games()
+            ->select('games.id')
+            ->pluck('games.id')
+            ->map(fn ($id): int => (int) $id)
+            ->values()
+            ->all();
+
         return view('platform.tenants.form', [
             'tenant' => $tenant,
             'mode' => 'edit',
             'primaryDomain' => $primaryDomain,
             'ownerEmail' => $ownerEmail,
+            'gameOptions' => $gameOptions,
+            'selectedGameIds' => $selectedGameIds,
         ]);
     }
 
@@ -158,6 +174,7 @@ class TenantController extends Controller
                 ->firstOrFail();
 
             $this->provisioningService->assignOwner($tenant, $owner, $roles->get('tenant_admin'));
+            $this->provisioningService->syncGamesForTenant($tenant, data_get($validated, 'game_ids', []));
             $this->provisioningService->setPrimaryDomain($tenant, $validated['primary_domain']);
         });
 
@@ -178,7 +195,7 @@ class TenantController extends Controller
     }
 
     /**
-     * @return array{name:string,slug:string,owner_email:string,primary_domain:string,logo:?string,primary_color:?string,secondary_color:?string}
+     * @return array{name:string,slug:string,owner_email:string,primary_domain:string,logo:?string,primary_color:?string,secondary_color:?string,game_ids:array<int,int>}
      */
     protected function validatePayload(Request $request, ?Tenant $tenant = null): array
     {
@@ -196,6 +213,9 @@ class TenantController extends Controller
             'logo' => ['nullable', 'string', 'max:2048'],
             'primary_color' => ['nullable', 'regex:/^#[0-9a-fA-F]{6}$/'],
             'secondary_color' => ['nullable', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'game_ids_present' => ['nullable', 'boolean'],
+            'game_ids' => ['nullable', 'array'],
+            'game_ids.*' => ['integer', Rule::exists('games', 'id')],
         ]);
 
         $normalizedDomain = $this->provisioningService->normalizeDomain($validated['primary_domain']);
@@ -223,6 +243,7 @@ class TenantController extends Controller
         $validated['logo'] = $validated['logo'] ?? null;
         $validated['primary_color'] = isset($validated['primary_color']) ? strtoupper($validated['primary_color']) : null;
         $validated['secondary_color'] = isset($validated['secondary_color']) ? strtoupper($validated['secondary_color']) : null;
+        $validated['game_ids'] = $this->resolveSelectedGameIds($request, $validated);
 
         return $validated;
     }
@@ -238,5 +259,65 @@ class TenantController extends Controller
         }
 
         return (bool) preg_match('/^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9-]{2,63}$/i', $domain);
+    }
+
+    /**
+     * @return array{0:array<int,array{id:int,name:string,slug:string}>,1:array<int,int>}
+     */
+    protected function gameOptionsWithDefaults(): array
+    {
+        $games = Game::query()
+            ->orderBy('name')
+            ->get(['id', 'name', 'slug']);
+
+        $gameOptions = $games
+            ->map(fn (Game $game): array => [
+                'id' => (int) $game->id,
+                'name' => $game->name,
+                'slug' => $game->slug,
+            ])
+            ->all();
+
+        $defaultGameIds = $games
+            ->pluck('id')
+            ->map(fn ($id): int => (int) $id)
+            ->all();
+
+        return [$gameOptions, $defaultGameIds];
+    }
+
+    /**
+     * @param array{
+     *   game_ids_present?:bool|string|null,
+     *   game_ids?:array<int,int|string>
+     * } $validated
+     * @return array<int,int>
+     */
+    protected function resolveSelectedGameIds(Request $request, array $validated): array
+    {
+        $rawIds = data_get($validated, 'game_ids', []);
+
+        if (! is_array($rawIds)) {
+            $rawIds = [];
+        }
+
+        $selectedIds = collect($rawIds)
+            ->map(fn ($gameId): int => intval($gameId))
+            ->filter(fn (int $gameId): bool => $gameId > 0)
+            ->unique()
+            ->values();
+
+        if ($request->boolean('game_ids_present')) {
+            return $selectedIds->all();
+        }
+
+        if ($selectedIds->isNotEmpty()) {
+            return $selectedIds->all();
+        }
+
+        return Game::query()
+            ->pluck('id')
+            ->map(fn ($id): int => (int) $id)
+            ->all();
     }
 }

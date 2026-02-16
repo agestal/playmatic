@@ -178,4 +178,65 @@ class TenantManagementTest extends TestCase
             'status' => 'active',
         ]);
     }
+
+    public function test_superadmin_can_update_tenant_enabled_games_from_backoffice(): void
+    {
+        $superadmin = User::factory()->create([
+            'is_superadmin' => true,
+        ]);
+
+        $owner = User::factory()->create([
+            'email' => 'owner@games.local',
+        ]);
+
+        $tenant = Tenant::query()->create([
+            'name' => 'Games Tenant',
+            'slug' => 'games-tenant',
+        ]);
+
+        $provisioningService = app(TenantProvisioningService::class);
+        $roles = $provisioningService->ensureDefaultRoles($tenant);
+        $provisioningService->assignOwner($tenant, $owner, $roles->get('tenant_admin'));
+        $provisioningService->setPrimaryDomain($tenant, 'games.playmatic.local');
+
+        $gameOne = Game::query()->create([
+            'slug' => 'adivina-el-aforo',
+            'name' => 'Adivina el aforo',
+            'game_type' => 'attendance_guess',
+            'is_active' => true,
+        ]);
+
+        $gameTwo = Game::query()->create([
+            'slug' => 'trivial',
+            'name' => 'Trivial',
+            'game_type' => 'quiz',
+            'is_active' => true,
+        ]);
+
+        $provisioningService->enableAllGamesForTenant($tenant);
+
+        $response = $this
+            ->actingAs($superadmin)
+            ->put(route('platform.tenants.update', ['tenant' => $tenant]), [
+                'name' => 'Games Tenant',
+                'slug' => 'games-tenant',
+                'primary_domain' => 'games.playmatic.local',
+                'owner_email' => $owner->email,
+                'game_ids_present' => '1',
+                'game_ids' => [$gameTwo->id],
+            ]);
+
+        $response->assertRedirect(route('platform.tenants.edit', ['tenant' => $tenant]));
+
+        $this->assertDatabaseMissing('games_tenants', [
+            'tenant_id' => $tenant->id,
+            'game_id' => $gameOne->id,
+        ]);
+
+        $this->assertDatabaseHas('games_tenants', [
+            'tenant_id' => $tenant->id,
+            'game_id' => $gameTwo->id,
+            'is_visible' => 1,
+        ]);
+    }
 }
