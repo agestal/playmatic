@@ -10,6 +10,22 @@
     $currentTenant = app(\App\Support\Tenancy\TenantContext::class)->tenant();
     $now = now();
 
+    $menuLogoPath = 'assets/media/app/default-logo-dark.svg';
+    $customLogoDir = public_path('images');
+
+    if (is_dir($customLogoDir)) {
+        $allowedExtensions = ['svg', 'png', 'jpg', 'jpeg', 'webp', 'gif'];
+        $customLogoFile = collect(\Illuminate\Support\Facades\File::files($customLogoDir))
+            ->filter(fn ($file) => in_array(strtolower($file->getExtension()), $allowedExtensions, true))
+            ->sortBy(fn ($file) => $file->getFilename())
+            ->values()
+            ->first();
+
+        if ($customLogoFile) {
+            $menuLogoPath = 'images/'.$customLogoFile->getFilename();
+        }
+    }
+
     $enabledGameSlugs = [];
 
     if ((bool) auth()->user()?->is_superadmin) {
@@ -68,7 +84,7 @@
 >
     <div class="app-sidebar-logo px-6" id="kt_app_sidebar_logo">
         <a href="{{ route('dashboard') }}">
-            <img alt="{{ config('app.name') }}" class="h-25px app-sidebar-logo-default" src="{{ asset('assets/media/app/default-logo-dark.svg') }}"/>
+            <img alt="{{ config('app.name') }}" class="app-sidebar-logo-default app-sidebar-logo-custom" src="{{ asset($menuLogoPath) }}"/>
             <img alt="{{ config('app.name') }}" class="h-20px app-sidebar-logo-minimize" src="{{ asset('assets/media/app/mini-logo.svg') }}"/>
         </a>
 
