@@ -104,6 +104,9 @@ Route::prefix('{locale}')
                     Route::get('/', [AttendanceGuessRoundController::class, 'index'])
                         ->middleware('tenant.permission:games.view.entity')
                         ->name('index');
+                    Route::post('/settings', [AttendanceGuessRoundController::class, 'updateSettings'])
+                        ->middleware('tenant.permission:games.edit.content')
+                        ->name('settings.update');
                     Route::get('/create', [AttendanceGuessRoundController::class, 'create'])
                         ->middleware('tenant.permission:games.edit.content')
                         ->name('create');
@@ -122,6 +125,12 @@ Route::prefix('{locale}')
                     Route::post('/{round}/deactivate', [AttendanceGuessRoundController::class, 'deactivate'])
                         ->middleware('tenant.permission:games.edit.content')
                         ->name('deactivate');
+                    Route::post('/{round}/generate-winners', [AttendanceGuessRoundController::class, 'generateWinners'])
+                        ->middleware('tenant.permission:games.edit.content')
+                        ->name('generate-winners');
+                    Route::post('/{round}/reset-winners', [AttendanceGuessRoundController::class, 'resetWinners'])
+                        ->middleware('tenant.permission:games.edit.content')
+                        ->name('reset-winners');
                     Route::delete('/{round}', [AttendanceGuessRoundController::class, 'destroy'])
                         ->middleware('tenant.permission:games.edit.content')
                         ->name('destroy');

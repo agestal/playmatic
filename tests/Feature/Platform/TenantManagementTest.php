@@ -87,7 +87,7 @@ class TenantManagementTest extends TestCase
 
         $adminRole = Role::query()
             ->where('tenant_id', $tenant->id)
-            ->where('name', 'tenant_admin')
+            ->where('name', 'admin')
             ->where('guard_name', 'web')
             ->first();
 
@@ -129,7 +129,7 @@ class TenantManagementTest extends TestCase
 
         $provisioningService = app(TenantProvisioningService::class);
         $roles = $provisioningService->ensureDefaultRoles($tenant);
-        $provisioningService->assignOwner($tenant, $oldOwner, $roles->get('tenant_admin'));
+        $provisioningService->assignOwner($tenant, $oldOwner, $roles->get('admin'));
         $provisioningService->setPrimaryDomain($tenant, 'old.playmatic.local');
 
         $response = $this
@@ -167,7 +167,7 @@ class TenantManagementTest extends TestCase
 
         $adminRole = Role::query()
             ->where('tenant_id', $tenant->id)
-            ->where('name', 'tenant_admin')
+            ->where('name', 'admin')
             ->where('guard_name', 'web')
             ->firstOrFail();
 
@@ -196,7 +196,7 @@ class TenantManagementTest extends TestCase
 
         $provisioningService = app(TenantProvisioningService::class);
         $roles = $provisioningService->ensureDefaultRoles($tenant);
-        $provisioningService->assignOwner($tenant, $owner, $roles->get('tenant_admin'));
+        $provisioningService->assignOwner($tenant, $owner, $roles->get('admin'));
         $provisioningService->setPrimaryDomain($tenant, 'games.playmatic.local');
 
         $gameOne = Game::query()->create([

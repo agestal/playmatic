@@ -89,6 +89,11 @@
   "Forgot password?": "Forgot password?",
   "Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.": "Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.",
   "Games": "Games",
+  "Attendance guess configuration": "Attendance guess configuration",
+  "Number of winners": "Number of winners",
+  "Enable ranking": "Enable ranking",
+  "Ranking enabled": "Ranking enabled",
+  "These values apply when the game type is :type.": "These values apply when the game type is :type.",
   "Game Winners": "Game Winners",
   "Go to page :page": "Go to page :page",
   "Group": "Group",
@@ -294,5 +299,7 @@
   "pagination.previous": "pagination.previous",
   "primary": "primary",
   "results": "results",
-  "to": "to"
+  "to": "to",
+  "Controls how many participants will be marked as winners when the campaign runs.": "Controls how many participants will be marked as winners when the campaign runs.",
+  "When enabled, the leaderboard will be generated to display participant positions.": "When enabled, the leaderboard will be generated to display participant positions."
 }

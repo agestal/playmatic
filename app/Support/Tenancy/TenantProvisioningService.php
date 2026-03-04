@@ -26,7 +26,7 @@ class TenantProvisioningService
             Permission::findOrCreate($permissionName, 'web');
         }
 
-        $roles = collect(['tenant_admin', 'tenant_manager', 'tenant_viewer'])
+        $roles = collect(['admin', 'gestor'])
             ->mapWithKeys(function (string $roleName) use ($tenant): array {
                 $role = Role::query()->firstOrCreate([
                     'tenant_id' => $tenant->id,
@@ -50,7 +50,7 @@ class TenantProvisioningService
     {
         $adminRole ??= Role::query()
             ->where('tenant_id', $tenant->id)
-            ->where('name', 'tenant_admin')
+            ->where('name', 'admin')
             ->where('guard_name', 'web')
             ->firstOrFail();
 

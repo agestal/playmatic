@@ -108,7 +108,7 @@ class InitialInstallationService
             $user->save();
 
             $roles = $this->tenantProvisioningService->ensureDefaultRoles($tenant);
-            $adminRole = $roles->get('tenant_admin');
+            $adminRole = $roles->get('admin');
 
             if (! $adminRole instanceof Role) {
                 throw new RuntimeException('Unable to create tenant admin role during installation.');

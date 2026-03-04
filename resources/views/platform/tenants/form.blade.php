@@ -95,7 +95,7 @@
                         placeholder="owner@empresa.com"
                         required
                     >
-                    <div class="form-text">{{ __('The :role role and active status will be assigned in this tenant.', ['role' => 'tenant_admin']) }}</div>
+                    <div class="form-text">{{ __('The :role role and active status will be assigned in this tenant.', ['role' => 'admin']) }}</div>
                 </div>
 
                 <div class="col-12">

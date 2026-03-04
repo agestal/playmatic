@@ -140,7 +140,7 @@ class TenantUserAccessTest extends TestCase
         ]);
 
         $roles = app(TenantProvisioningService::class)->ensureDefaultRoles($tenant);
-        $adminRole = $roles->get('tenant_admin');
+        $adminRole = $roles->get('admin');
 
         $this->assertNotNull($adminRole);
 

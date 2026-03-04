@@ -20,6 +20,55 @@
         <span class="text-muted small">{{ __('Only one round can be active at a time for this tenant.') }}</span>
     </div>
 
+    @can('games.edit.content')
+        <div class="card mb-6">
+            <div class="card-header border-0 pt-6">
+                <div class="card-title flex-column align-items-start">
+                    <h3 class="fw-bold mb-1">{{ __('Attendance guess configuration') }}</h3>
+                    <span class="text-muted fw-semibold fs-7">{{ __('These values are configured independently for each tenant.') }}</span>
+                </div>
+            </div>
+            <div class="card-body pt-0">
+                <form method="POST" action="{{ route('games.attendance-rounds.settings.update') }}">
+                    @csrf
+                    <div class="row g-6">
+                        <div class="col-12 col-lg-4">
+                            <label class="form-label fw-semibold" for="winners_count">{{ __('Number of winners') }}</label>
+                            <input
+                                id="winners_count"
+                                name="winners_count"
+                                type="number"
+                                min="1"
+                                max="500"
+                                class="form-control form-control-solid"
+                                value="{{ old('winners_count', $attendanceSettings?->winners_count ?? 1) }}"
+                                required
+                            >
+                        </div>
+                        <div class="col-12 col-lg-4">
+                            <label class="form-label fw-semibold" for="ranking_enabled">{{ __('Enable ranking') }}</label>
+                            <div class="form-check form-switch form-check-custom form-check-solid mt-2">
+                                <input type="hidden" name="ranking_enabled" value="0">
+                                <input
+                                    class="form-check-input"
+                                    id="ranking_enabled"
+                                    name="ranking_enabled"
+                                    type="checkbox"
+                                    value="1"
+                                    @checked((bool) old('ranking_enabled', $attendanceSettings?->ranking_enabled ?? false))
+                                >
+                                <label class="form-check-label" for="ranking_enabled">{{ __('Ranking enabled') }}</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary">{{ __('Save changes') }}</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endcan
+
     <div class="card">
         <div class="card-header border-0 pt-6">
             <div class="card-title">
@@ -75,6 +124,7 @@
                         <th class="min-w-130px">{{ __('Mode') }}</th>
                         <th class="min-w-220px">{{ __('Window') }}</th>
                         <th class="min-w-90px">{{ __('Entries') }}</th>
+                        <th class="min-w-90px">{{ __('Winners') }}</th>
                         <th class="min-w-100px">{{ __('Result') }}</th>
                         <th class="min-w-120px">{{ __('Status') }}</th>
                         <th class="text-end min-w-220px">{{ __('Actions') }}</th>
@@ -120,6 +170,7 @@
                                 @endif
                             </td>
                             <td><span class="badge badge-light">{{ $round->entries_count }}</span></td>
+                            <td><span class="badge badge-light-success">{{ $round->winners_count }}</span></td>
                             <td>
                                 {{ $round->result_value !== null ? number_format((float) $round->result_value, 0, ',', '.') : '-' }}
                             </td>
@@ -150,6 +201,32 @@
                                         </form>
                                     @endif
 
+                                    @if ($round->result_value !== null && $round->entries_count > 0)
+                                        <form class="d-inline" method="POST" action="{{ route('games.attendance-rounds.generate-winners', ['round' => $round]) }}">
+                                            @csrf
+                                            <button
+                                                type="submit"
+                                                class="btn btn-sm btn-light-info"
+                                                onclick="return confirm('{{ __('Generate winners for this round? Existing round winners will be replaced.') }}')"
+                                            >
+                                                {{ __('Generate winners') }}
+                                            </button>
+                                        </form>
+                                    @endif
+
+                                    @if ($round->winners_count > 0)
+                                        <form class="d-inline" method="POST" action="{{ route('games.attendance-rounds.reset-winners', ['round' => $round]) }}">
+                                            @csrf
+                                            <button
+                                                type="submit"
+                                                class="btn btn-sm btn-light-dark"
+                                                onclick="return confirm('{{ __('Reset winners for this round? This will remove generated winners.') }}')"
+                                            >
+                                                {{ __('Reset winners') }}
+                                            </button>
+                                        </form>
+                                    @endif
+
                                     <form class="d-inline" method="POST" action="{{ route('games.attendance-rounds.destroy', ['round' => $round]) }}">
                                         @csrf
                                         @method('DELETE')
@@ -168,7 +245,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="text-center text-muted py-10">{{ __('No rounds found.') }}</td>
+                            <td colspan="9" class="text-center text-muted py-10">{{ __('No rounds found.') }}</td>
                         </tr>
                     @endforelse
                 </tbody>

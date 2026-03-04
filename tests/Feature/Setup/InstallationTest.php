@@ -72,7 +72,7 @@ class InstallationTest extends TestCase
 
         $this->assertNotNull($membership);
         $this->assertSame('active', $membership->status);
-        $this->assertSame('tenant_admin', $membership->role?->name);
+        $this->assertSame('admin', $membership->role?->name);
     }
 
     public function test_install_screen_redirects_when_application_is_already_installed(): void

@@ -100,7 +100,7 @@ class TenantController extends Controller
                 ->where('email', $validated['owner_email'])
                 ->firstOrFail();
 
-            $this->provisioningService->assignOwner($tenant, $owner, $roles->get('tenant_admin'));
+            $this->provisioningService->assignOwner($tenant, $owner, $roles->get('admin'));
             $this->provisioningService->syncGamesForTenant($tenant, data_get($validated, 'game_ids', []));
             $this->provisioningService->setPrimaryDomain($tenant, $validated['primary_domain']);
 
@@ -130,7 +130,7 @@ class TenantController extends Controller
             ->where('status', 'active')
             ->whereHas('role', fn ($query) => $query
                 ->where('tenant_id', $tenant->id)
-                ->where('name', 'tenant_admin'))
+                ->where('name', 'admin'))
             ->with('user:id,email')
             ->orderBy('id')
             ->first()?->user?->email ?? '';
@@ -173,7 +173,7 @@ class TenantController extends Controller
                 ->where('email', $validated['owner_email'])
                 ->firstOrFail();
 
-            $this->provisioningService->assignOwner($tenant, $owner, $roles->get('tenant_admin'));
+            $this->provisioningService->assignOwner($tenant, $owner, $roles->get('admin'));
             $this->provisioningService->syncGamesForTenant($tenant, data_get($validated, 'game_ids', []));
             $this->provisioningService->setPrimaryDomain($tenant, $validated['primary_domain']);
         });

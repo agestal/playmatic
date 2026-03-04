@@ -4,6 +4,66 @@
 @section('page_title', $mode === 'create' ? __('Create round') : __('Edit round'))
 
 @section('content')
+    @if ($mode === 'edit')
+        @php
+            $now = now();
+            $isActive = $round->isActiveAt($now);
+            $canDeactivate = $isActive || ($round->management_mode === 'scheduled' && $round->deactivated_at === null);
+        @endphp
+
+        <div class="card mb-6">
+            <div class="card-header border-0 pt-6">
+                <div class="card-title flex-column align-items-start">
+                    <h3 class="fw-bold mb-1">{{ __('Campaign actions') }}</h3>
+                    <span class="text-muted fw-semibold fs-7">{{ __('Apply actions directly to this round.') }}</span>
+                </div>
+            </div>
+            <div class="card-body pt-0">
+                <div class="d-flex flex-wrap gap-3">
+                    @if ($round->management_mode === 'manual' && ! $isActive)
+                        <form method="POST" action="{{ route('games.attendance-rounds.activate', ['round' => $round]) }}">
+                            @csrf
+                            <button type="submit" class="btn btn-light-success">{{ __('Activate') }}</button>
+                        </form>
+                    @endif
+
+                    @if ($canDeactivate)
+                        <form method="POST" action="{{ route('games.attendance-rounds.deactivate', ['round' => $round]) }}">
+                            @csrf
+                            <button type="submit" class="btn btn-light-warning">{{ __('Deactivate') }}</button>
+                        </form>
+                    @endif
+
+                    @if ($round->result_value !== null && $round->entries_count > 0)
+                        <form method="POST" action="{{ route('games.attendance-rounds.generate-winners', ['round' => $round]) }}">
+                            @csrf
+                            <button
+                                type="submit"
+                                class="btn btn-light-info"
+                                onclick="return confirm('{{ __('Generate winners for this round? Existing round winners will be replaced.') }}')"
+                            >
+                                {{ __('Generate winners') }}
+                            </button>
+                        </form>
+                    @endif
+
+                    @if ($round->winners_count > 0)
+                        <form method="POST" action="{{ route('games.attendance-rounds.reset-winners', ['round' => $round]) }}">
+                            @csrf
+                            <button
+                                type="submit"
+                                class="btn btn-light-dark"
+                                onclick="return confirm('{{ __('Reset winners for this round? This will remove generated winners.') }}')"
+                            >
+                                {{ __('Reset winners') }}
+                            </button>
+                        </form>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="card">
         <div class="card-header border-0 pt-6">
             <div class="card-title flex-column align-items-start">

@@ -110,8 +110,8 @@ final class PermissionCatalog
     public static function defaultsForRole(string $roleName): array
     {
         return match ($roleName) {
-            'tenant_admin' => self::names(),
-            'tenant_manager' => [
+            'admin' => self::names(),
+            'gestor' => [
                 'games.view.entity',
                 'games.edit.entity',
                 'games.view.content',
@@ -121,14 +121,6 @@ final class PermissionCatalog
                 'winners.view.entity',
                 'winners.view.content',
                 'exports.run.entity',
-            ],
-            'tenant_viewer' => [
-                'games.view.entity',
-                'games.view.content',
-                'participants.view.entity',
-                'participants.view.content',
-                'winners.view.entity',
-                'winners.view.content',
             ],
             default => [],
         };

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Games;
 
 use App\Http\Controllers\Controller;
 use App\Models\Game;
+use App\Models\GameAttendanceGuessSetting;
 use App\Models\GameEntry;
 use App\Models\GameRound;
 use App\Models\GameWinner;
@@ -41,7 +42,7 @@ class AttendanceGuessRoundController extends Controller
             ->withoutGlobalScopes()
             ->where('tenant_id', $tenant->id)
             ->where('game_id', $game->id)
-            ->withCount('entries')
+            ->withCount(['entries', 'winners'])
             ->when($search !== '', fn (Builder $query) => $query->where('name', 'like', '%'.$search.'%'))
             ->when($statusFilter !== '', fn (Builder $query) => $this->applyStatusFilter($query, $statusFilter, $now))
             ->orderByDesc('id')
@@ -55,7 +56,34 @@ class AttendanceGuessRoundController extends Controller
             'statusOptions' => $this->statusOptions(),
             'perPage' => $perPage,
             'publicUrl' => url('/adivina-aforo'),
+            'attendanceSettings' => $this->attendanceSettingsForTenantGame($tenant->id, $game->id),
         ]);
+    }
+
+    public function updateSettings(Request $request, string $locale, TenantContext $tenantContext): RedirectResponse
+    {
+        $tenant = $this->tenantOrFail($tenantContext);
+        $game = $this->attendanceGameOrFail($tenant);
+
+        $validated = $request->validate([
+            'winners_count' => ['required', 'integer', 'min:1', 'max:500'],
+            'ranking_enabled' => ['nullable', 'boolean'],
+        ]);
+
+        GameAttendanceGuessSetting::query()->updateOrCreate(
+            [
+                'tenant_id' => $tenant->id,
+                'game_id' => $game->id,
+            ],
+            [
+                'winners_count' => intval($validated['winners_count']),
+                'ranking_enabled' => $request->boolean('ranking_enabled'),
+            ]
+        );
+
+        return redirect()
+            ->route('games.attendance-rounds.index')
+            ->with('status', __('Attendance guess settings updated successfully.'));
     }
 
     public function create(TenantContext $tenantContext): View
@@ -115,6 +143,7 @@ class AttendanceGuessRoundController extends Controller
         $game = $this->attendanceGameOrFail($tenant);
 
         $this->assertRoundBelongsToTenantGame($round, $tenant->id, $game->id);
+        $round->loadCount(['entries', 'winners']);
 
         return view('games.attendance-rounds.form', [
             'mode' => 'edit',
@@ -250,6 +279,170 @@ class AttendanceGuessRoundController extends Controller
         return redirect()
             ->route('games.attendance-rounds.index')
             ->with('status', __('Round deleted successfully.'));
+    }
+
+    public function generateWinners(string $locale, GameRound $round, TenantContext $tenantContext): RedirectResponse
+    {
+        $tenant = $this->tenantOrFail($tenantContext);
+        $game = $this->attendanceGameOrFail($tenant);
+
+        $this->assertRoundBelongsToTenantGame($round, $tenant->id, $game->id);
+
+        if ($round->result_value === null) {
+            throw ValidationException::withMessages([
+                'round' => __('Set a final attendance result before generating winners.'),
+            ]);
+        }
+
+        $entries = GameEntry::query()
+            ->withoutGlobalScopes()
+            ->where('tenant_id', $tenant->id)
+            ->where('game_id', $game->id)
+            ->where('game_round_id', $round->id)
+            ->orderBy('created_at')
+            ->orderBy('id')
+            ->get();
+
+        $scoredEntries = $entries
+            ->map(function (GameEntry $entry) use ($round): ?array {
+                $guess = data_get($entry->answer_payload, 'attendance_guess');
+
+                if (! is_numeric($guess)) {
+                    return null;
+                }
+
+                $score = abs(intval($round->result_value) - intval($guess));
+
+                return [
+                    'entry' => $entry,
+                    'guess' => intval($guess),
+                    'score' => $score,
+                ];
+            })
+            ->filter()
+            ->sort(function (array $left, array $right): int {
+                if ($left['score'] !== $right['score']) {
+                    return $left['score'] <=> $right['score'];
+                }
+
+                $leftCreatedAt = $left['entry']->created_at?->getTimestamp() ?? PHP_INT_MAX;
+                $rightCreatedAt = $right['entry']->created_at?->getTimestamp() ?? PHP_INT_MAX;
+
+                if ($leftCreatedAt !== $rightCreatedAt) {
+                    return $leftCreatedAt <=> $rightCreatedAt;
+                }
+
+                return intval($left['entry']->id) <=> intval($right['entry']->id);
+            })
+            ->values();
+
+        if ($scoredEntries->isEmpty()) {
+            throw ValidationException::withMessages([
+                'round' => __('There are no valid entries to evaluate in this round.'),
+            ]);
+        }
+
+        $winnersCount = max(1, $this->winnersCountForTenantGame($tenant->id, $game->id));
+        $decidedAt = now();
+
+        DB::transaction(function () use ($tenant, $game, $round, $scoredEntries, $winnersCount, $decidedAt): void {
+            GameWinner::query()
+                ->withoutGlobalScopes()
+                ->where('tenant_id', $tenant->id)
+                ->where('game_id', $game->id)
+                ->where('game_round_id', $round->id)
+                ->delete();
+
+            foreach ($scoredEntries as $row) {
+                /** @var GameEntry $entry */
+                $entry = $row['entry'];
+                $entry->update([
+                    'score' => $row['score'],
+                    'status' => 'evaluated',
+                    'evaluated_at' => $decidedAt,
+                ]);
+            }
+
+            $selectedWinners = $scoredEntries->take($winnersCount)->values();
+
+            foreach ($selectedWinners as $index => $row) {
+                /** @var GameEntry $entry */
+                $entry = $row['entry'];
+                $position = $index + 1;
+
+                GameWinner::query()->withoutGlobalScopes()->create([
+                    'tenant_id' => $tenant->id,
+                    'game_id' => $game->id,
+                    'game_round_id' => $round->id,
+                    'game_entry_id' => $entry->id,
+                    'participant_user_id' => $entry->participant_user_id,
+                    'participant_name' => $entry->participant_name,
+                    'participant_email' => $entry->participant_email,
+                    'position' => $position,
+                    'winner_payload' => [
+                        'result_value' => intval($round->result_value),
+                        'attendance_guess' => intval($row['guess']),
+                        'score' => intval($row['score']),
+                        'tie_breaker_created_at' => $entry->created_at?->toISOString(),
+                    ],
+                    'decided_at' => $decidedAt,
+                ]);
+
+                $entry->update([
+                    'status' => 'winner',
+                ]);
+            }
+        });
+
+        return redirect()
+            ->route('games.attendance-rounds.index')
+            ->with('status', __('Winners generated successfully.'));
+    }
+
+    public function resetWinners(string $locale, GameRound $round, TenantContext $tenantContext): RedirectResponse
+    {
+        $tenant = $this->tenantOrFail($tenantContext);
+        $game = $this->attendanceGameOrFail($tenant);
+
+        $this->assertRoundBelongsToTenantGame($round, $tenant->id, $game->id);
+
+        DB::transaction(function () use ($tenant, $game, $round): void {
+            $winnerEntryIds = GameWinner::query()
+                ->withoutGlobalScopes()
+                ->where('tenant_id', $tenant->id)
+                ->where('game_id', $game->id)
+                ->where('game_round_id', $round->id)
+                ->whereNotNull('game_entry_id')
+                ->pluck('game_entry_id')
+                ->map(fn ($id): int => intval($id))
+                ->filter(fn (int $id): bool => $id > 0)
+                ->unique()
+                ->values()
+                ->all();
+
+            GameWinner::query()
+                ->withoutGlobalScopes()
+                ->where('tenant_id', $tenant->id)
+                ->where('game_id', $game->id)
+                ->where('game_round_id', $round->id)
+                ->delete();
+
+            if ($winnerEntryIds !== []) {
+                GameEntry::query()
+                    ->withoutGlobalScopes()
+                    ->where('tenant_id', $tenant->id)
+                    ->where('game_id', $game->id)
+                    ->where('game_round_id', $round->id)
+                    ->whereIn('id', $winnerEntryIds)
+                    ->update([
+                        'status' => 'evaluated',
+                    ]);
+            }
+        });
+
+        return redirect()
+            ->route('games.attendance-rounds.index')
+            ->with('status', __('Winners reset successfully.'));
     }
 
     /**
@@ -462,5 +655,20 @@ class AttendanceGuessRoundController extends Controller
         if ((int) $round->tenant_id !== $tenantId || (int) $round->game_id !== $gameId) {
             abort(404);
         }
+    }
+
+    protected function winnersCountForTenantGame(int $tenantId, int $gameId): int
+    {
+        $settings = $this->attendanceSettingsForTenantGame($tenantId, $gameId);
+
+        return $settings?->winners_count ?? 1;
+    }
+
+    protected function attendanceSettingsForTenantGame(int $tenantId, int $gameId): ?GameAttendanceGuessSetting
+    {
+        return GameAttendanceGuessSetting::query()
+            ->where('tenant_id', $tenantId)
+            ->where('game_id', $gameId)
+            ->first();
     }
 }
