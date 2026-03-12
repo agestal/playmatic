@@ -145,7 +145,10 @@ class QuizQuestionController extends Controller
         Request $request,
         TenantContext $tenantContext
     ): View {
-        $questionModel = $this->questionForUserOrFail($question, $request, $tenantContext);
+        $questionModel = $this->questionForUserOrFail($question, $request, $tenantContext)
+            ->load([
+                'answers' => fn ($query) => $query->withoutGlobalScopes()->orderByDesc('is_correct')->orderBy('id'),
+            ]);
         $user = $request->user();
 
         return view('games.quiz.questions.form', [

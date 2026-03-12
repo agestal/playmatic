@@ -96,6 +96,13 @@
                         {{ __('Add entry') }}
                     </a>
                 @endcan
+
+                @can('winners.view.entity')
+                    <a class="btn btn-light-primary" href="{{ route('games.winners.index', array_filter(['game_id' => $gameFilter > 0 ? $gameFilter : null])) }}">
+                        <i class="ki-duotone ki-award fs-2"></i>
+                        {{ __('Winners') }}
+                    </a>
+                @endcan
             </div>
         </div>
 
@@ -107,6 +114,7 @@
                         <th class="min-w-160px">{{ __('Game') }}</th>
                         <th class="min-w-210px">{{ __('Participant') }}</th>
                         <th class="min-w-100px">{{ __('Status') }}</th>
+                        <th class="min-w-130px">{{ __('Winner') }}</th>
                         <th class="min-w-90px">{{ __('Score') }}</th>
                         <th class="min-w-150px">{{ __('Submitted at') }}</th>
                         <th class="text-end min-w-90px">{{ __('Actions') }}</th>
@@ -140,6 +148,18 @@
                                 </div>
                             </td>
                             <td><span class="badge badge-light">{{ $statusOptions[$entry->status] ?? __('Unknown') }}</span></td>
+                            <td>
+                                @if ($entry->winner_id)
+                                    <div class="d-flex flex-column">
+                                        <span class="badge badge-light-success">{{ __('Winner') }} #{{ $entry->winner_position }}</span>
+                                        @if ($entry->winner_prize_name)
+                                            <span class="text-muted fs-7 mt-1">{{ $entry->winner_prize_name }}</span>
+                                        @endif
+                                    </div>
+                                @else
+                                    <span class="badge badge-light">{{ __('No') }}</span>
+                                @endif
+                            </td>
                             <td>{{ $entry->score !== null ? number_format((float) $entry->score, 2) : '-' }}</td>
                             <td>{{ $entry->submitted_at ? $entry->submitted_at->format('d/m/Y H:i') : '-' }}</td>
                             <td class="text-end">
@@ -164,7 +184,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center text-muted py-10">{{ __('No entries found.') }}</td>
+                            <td colspan="8" class="text-center text-muted py-10">{{ __('No entries found.') }}</td>
                         </tr>
                     @endforelse
                 </tbody>

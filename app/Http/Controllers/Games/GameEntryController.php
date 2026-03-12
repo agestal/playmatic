@@ -33,19 +33,30 @@ class GameEntryController extends Controller
 
         $entries = GameEntry::query()
             ->withoutGlobalScopes()
-            ->where('tenant_id', $tenant->id)
+            ->leftJoin('games_winners', function ($join): void {
+                $join
+                    ->on('games_winners.game_entry_id', '=', 'games_entries.id')
+                    ->whereColumn('games_winners.tenant_id', 'games_entries.tenant_id');
+            })
+            ->select([
+                'games_entries.*',
+                'games_winners.id as winner_id',
+                'games_winners.position as winner_position',
+                'games_winners.prize_name as winner_prize_name',
+                'games_winners.decided_at as winner_decided_at',
+            ])
+            ->where('games_entries.tenant_id', $tenant->id)
             ->with([
                 'game:id,name,slug',
                 'participantUser:id,name,email',
-                'winner:id,game_entry_id,position',
             ])
             ->when($search !== '', function (Builder $query) use ($search): void {
                 $like = '%'.$search.'%';
 
                 $query->where(function (Builder $searchQuery) use ($like): void {
                     $searchQuery
-                        ->where('participant_name', 'like', $like)
-                        ->orWhere('participant_email', 'like', $like)
+                        ->where('games_entries.participant_name', 'like', $like)
+                        ->orWhere('games_entries.participant_email', 'like', $like)
                         ->orWhereHas('participantUser', fn (Builder $userQuery) => $userQuery
                             ->where('name', 'like', $like)
                             ->orWhere('email', 'like', $like))
@@ -54,10 +65,10 @@ class GameEntryController extends Controller
                             ->orWhere('slug', 'like', $like));
                 });
             })
-            ->when($statusFilter !== '', fn (Builder $query) => $query->where('status', $statusFilter))
-            ->when($gameFilter > 0, fn (Builder $query) => $query->where('game_id', $gameFilter))
-            ->orderByDesc('submitted_at')
-            ->orderByDesc('id')
+            ->when($statusFilter !== '', fn (Builder $query) => $query->where('games_entries.status', $statusFilter))
+            ->when($gameFilter > 0, fn (Builder $query) => $query->where('games_entries.game_id', $gameFilter))
+            ->orderByDesc('games_entries.submitted_at')
+            ->orderByDesc('games_entries.id')
             ->paginate($perPage)
             ->withQueryString();
 

@@ -122,6 +122,13 @@
                         {{ __('Export') }}
                     </button>
 
+                    @if (auth()->user()?->can('tenant.roles.manage'))
+                        <a class="btn btn-light-primary me-3" href="{{ route('access.permissions.index') }}">
+                            <i class="ki-duotone ki-shield-search fs-2"></i>
+                            {{ __('Roles & Permissions') }}
+                        </a>
+                    @endif
+
                     <button class="btn btn-primary" data-bs-target="#kt_modal_add_user" data-bs-toggle="modal" type="button">
                         <i class="ki-duotone ki-plus fs-2"></i>
                         {{ __('Add User') }}

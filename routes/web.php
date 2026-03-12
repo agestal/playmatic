@@ -101,12 +101,18 @@ Route::prefix('{locale}')
                     ->name('destroy');
 
                 Route::prefix('attendance-guess/rounds')->name('attendance-rounds.')->group(function () {
+                    Route::get('/settings', [AttendanceGuessRoundController::class, 'settings'])
+                        ->middleware('tenant.permission:games.view.entity')
+                        ->name('settings.edit');
                     Route::get('/', [AttendanceGuessRoundController::class, 'index'])
                         ->middleware('tenant.permission:games.view.entity')
                         ->name('index');
                     Route::post('/settings', [AttendanceGuessRoundController::class, 'updateSettings'])
                         ->middleware('tenant.permission:games.edit.content')
                         ->name('settings.update');
+                    Route::get('/{round}/export', [AttendanceGuessRoundController::class, 'export'])
+                        ->middleware('tenant.permission:games.view.entity')
+                        ->name('export');
                     Route::get('/create', [AttendanceGuessRoundController::class, 'create'])
                         ->middleware('tenant.permission:games.edit.content')
                         ->name('create');

@@ -14,6 +14,7 @@ use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -23,20 +24,28 @@ class AttendanceGuessRoundController extends Controller
 {
     protected const GAME_SLUG = 'adivina-el-aforo';
 
+    public function settings(TenantContext $tenantContext): View
+    {
+        $tenant = $this->tenantOrFail($tenantContext);
+        $game = $this->attendanceGameOrFail($tenant);
+
+        return view('games.attendance-rounds.settings', [
+            'publicUrl' => url('/adivina-aforo'),
+            'attendanceSettings' => $this->attendanceSettingsForTenantGame($tenant->id, $game->id),
+        ]);
+    }
+
     public function index(Request $request, TenantContext $tenantContext): View
     {
         $tenant = $this->tenantOrFail($tenantContext);
         $game = $this->attendanceGameOrFail($tenant);
 
         $search = trim(strval($request->query('search', '')));
-        $statusFilter = trim(strval($request->query('status', '')));
         $perPage = intval($request->query('per_page', 10));
 
         if (! in_array($perPage, [10, 25, 50, 100], true)) {
             $perPage = 10;
         }
-
-        $now = now();
 
         $rounds = GameRound::query()
             ->withoutGlobalScopes()
@@ -44,7 +53,6 @@ class AttendanceGuessRoundController extends Controller
             ->where('game_id', $game->id)
             ->withCount(['entries', 'winners'])
             ->when($search !== '', fn (Builder $query) => $query->where('name', 'like', '%'.$search.'%'))
-            ->when($statusFilter !== '', fn (Builder $query) => $this->applyStatusFilter($query, $statusFilter, $now))
             ->orderByDesc('id')
             ->paginate($perPage)
             ->withQueryString();
@@ -52,11 +60,7 @@ class AttendanceGuessRoundController extends Controller
         return view('games.attendance-rounds.index', [
             'rounds' => $rounds,
             'search' => $search,
-            'statusFilter' => $statusFilter,
-            'statusOptions' => $this->statusOptions(),
             'perPage' => $perPage,
-            'publicUrl' => url('/adivina-aforo'),
-            'attendanceSettings' => $this->attendanceSettingsForTenantGame($tenant->id, $game->id),
         ]);
     }
 
@@ -82,7 +86,7 @@ class AttendanceGuessRoundController extends Controller
         );
 
         return redirect()
-            ->route('games.attendance-rounds.index')
+            ->route('games.attendance-rounds.settings.edit')
             ->with('status', __('Attendance guess settings updated successfully.'));
     }
 
@@ -443,6 +447,81 @@ class AttendanceGuessRoundController extends Controller
         return redirect()
             ->route('games.attendance-rounds.index')
             ->with('status', __('Winners reset successfully.'));
+    }
+
+    public function export(string $locale, GameRound $round, TenantContext $tenantContext): StreamedResponse
+    {
+        $tenant = $this->tenantOrFail($tenantContext);
+        $game = $this->attendanceGameOrFail($tenant);
+
+        $this->assertRoundBelongsToTenantGame($round, $tenant->id, $game->id);
+
+        $entries = GameEntry::query()
+            ->withoutGlobalScopes()
+            ->where('tenant_id', $tenant->id)
+            ->where('game_id', $game->id)
+            ->where('game_round_id', $round->id)
+            ->leftJoin('games_winners', function ($join): void {
+                $join
+                    ->on('games_winners.game_entry_id', '=', 'games_entries.id')
+                    ->whereColumn('games_winners.tenant_id', 'games_entries.tenant_id')
+                    ->whereColumn('games_winners.game_round_id', 'games_entries.game_round_id');
+            })
+            ->orderBy('games_entries.submitted_at')
+            ->orderBy('games_entries.id')
+            ->get([
+                'games_entries.id',
+                'games_entries.participant_name',
+                'games_entries.participant_email',
+                'games_entries.status',
+                'games_entries.score',
+                'games_entries.answer_payload',
+                'games_entries.submitted_at',
+                'games_winners.id as winner_id',
+                'games_winners.position as winner_position',
+            ]);
+
+        $filename = sprintf('attendance-round-%d-export-%s.csv', $round->id, now()->format('Ymd_His'));
+
+        return response()->streamDownload(function () use ($entries): void {
+            $handle = fopen('php://output', 'wb');
+
+            if (! $handle) {
+                return;
+            }
+
+            fputcsv($handle, [
+                'entry_id',
+                'participant_name',
+                'participant_email',
+                'attendance_guess',
+                'status',
+                'score',
+                'submitted_at',
+                'is_winner',
+                'winner_position',
+            ]);
+
+            foreach ($entries as $entry) {
+                $answerPayload = is_array($entry->answer_payload) ? $entry->answer_payload : [];
+
+                fputcsv($handle, [
+                    $entry->id,
+                    $entry->participant_name,
+                    $entry->participant_email,
+                    data_get($answerPayload, 'attendance_guess'),
+                    $entry->status,
+                    $entry->score,
+                    $entry->submitted_at,
+                    $entry->winner_id ? '1' : '0',
+                    $entry->winner_position,
+                ]);
+            }
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 
     /**

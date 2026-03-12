@@ -37,6 +37,13 @@
             </div>
 
             <div class="card-toolbar d-flex gap-3">
+                @can('participants.view.entity')
+                    <a class="btn btn-light-primary" href="{{ route('games.entries.index', array_filter(['game_id' => $gameFilter > 0 ? $gameFilter : null])) }}">
+                        <i class="ki-duotone ki-left fs-2"></i>
+                        {{ __('Back') }}
+                    </a>
+                @endcan
+
                 <button
                     type="button"
                     class="btn btn-light-primary"

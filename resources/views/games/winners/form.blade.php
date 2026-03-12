@@ -40,7 +40,7 @@
                             @foreach ($games as $gameOption)
                                 <option
                                     value="{{ $gameOption['id'] }}"
-                                    @selected((int) old('game_id', $winner?->game_id) === (int) $gameOption['id'])
+                                    @selected((int) old('game_id', $winner?->game_id ?? ($prefillGameId ?? 0)) === (int) $gameOption['id'])
                                 >
                                     {{ $gameOption['name'] }}
                                 </option>

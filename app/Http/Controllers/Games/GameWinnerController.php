@@ -79,16 +79,20 @@ class GameWinnerController extends Controller
         ]);
     }
 
-    public function create(TenantContext $tenantContext): View
+    public function create(Request $request, TenantContext $tenantContext): View
     {
         $tenant = $this->tenantOrFail($tenantContext);
+        $prefillGameId = max(0, intval($request->query('game_id', 0)));
+        $prefillRoundId = max(0, intval($request->query('game_round_id', 0)));
 
         return view('games.winners.form', [
             'mode' => 'create',
             'winner' => null,
             'games' => $this->availableGames($tenant->id),
-            'entries' => $this->entryOptions($tenant->id),
+            'entries' => $this->entryOptions($tenant->id, $prefillGameId, $prefillRoundId),
             'participants' => $this->participantOptions($tenant->id),
+            'prefillGameId' => $prefillGameId,
+            'prefillRoundId' => $prefillRoundId,
         ]);
     }
 
@@ -346,11 +350,13 @@ class GameWinnerController extends Controller
     /**
      * @return array<int, array{id:int,label:string}>
      */
-    protected function entryOptions(int $tenantId): array
+    protected function entryOptions(int $tenantId, int $gameId = 0, int $roundId = 0): array
     {
         return GameEntry::query()
             ->withoutGlobalScopes()
             ->where('tenant_id', $tenantId)
+            ->when($gameId > 0, fn (Builder $query) => $query->where('game_id', $gameId))
+            ->when($roundId > 0, fn (Builder $query) => $query->where('game_round_id', $roundId))
             ->with(['game:id,name'])
             ->orderByDesc('submitted_at')
             ->orderByDesc('id')

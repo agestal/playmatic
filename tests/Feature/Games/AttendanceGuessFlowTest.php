@@ -288,7 +288,7 @@ class AttendanceGuessFlowTest extends TestCase
             );
 
         $response->assertSessionHasNoErrors();
-        $response->assertRedirect(route('games.attendance-rounds.index', absolute: false));
+        $response->assertRedirect(route('games.attendance-rounds.settings.edit', absolute: false));
 
         $this->assertDatabaseHas('games_attendance_guess_settings', [
             'tenant_id' => $tenantA->id,

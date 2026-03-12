@@ -123,6 +123,10 @@
                         placeholder="#0D6EFD"
                         maxlength="7"
                         pattern="^#[0-9A-Fa-f]{6}$"
+                        data-kt-color-picker="true"
+                        data-kt-color-picker-input-mode="true"
+                        data-kt-color-picker-lock-opacity="true"
+                        data-kt-color-picker-default-representation="HEXA"
                     >
                     <div class="form-text">{{ __('Use HEX format, for example :example.', ['example' => '#0D6EFD']) }}</div>
                 </div>
@@ -138,6 +142,10 @@
                         placeholder="#20C997"
                         maxlength="7"
                         pattern="^#[0-9A-Fa-f]{6}$"
+                        data-kt-color-picker="true"
+                        data-kt-color-picker-input-mode="true"
+                        data-kt-color-picker-lock-opacity="true"
+                        data-kt-color-picker-default-representation="HEXA"
                     >
                     <div class="form-text">{{ __('Use HEX format, for example :example.', ['example' => '#20C997']) }}</div>
                 </div>
@@ -206,3 +214,102 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        (function () {
+            const form = document.querySelector('form[action*="platform.tenants"]') || document.querySelector('form');
+            const colorInputs = [
+                document.getElementById('primary_color'),
+                document.getElementById('secondary_color'),
+            ].filter(Boolean);
+
+            if (!form || colorInputs.length === 0) {
+                return;
+            }
+
+            window.KTColorPicker?.createInstances?.();
+
+            const colorToHex = (value) => {
+                const color = String(value || '').trim();
+
+                if (color === '') {
+                    return '';
+                }
+
+                const shortHexMatch = color.match(/^#([0-9a-fA-F]{3})$/);
+                if (shortHexMatch) {
+                    const expanded = shortHexMatch[1].split('').map((char) => char + char).join('');
+                    return `#${expanded.toUpperCase()}`;
+                }
+
+                const hexMatch = color.match(/^#([0-9a-fA-F]{6})$/);
+                if (hexMatch) {
+                    return `#${hexMatch[1].toUpperCase()}`;
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = 1;
+                canvas.height = 1;
+                const context = canvas.getContext('2d');
+
+                if (!context) {
+                    return null;
+                }
+
+                context.fillStyle = '#000000';
+                context.fillStyle = color;
+
+                const normalized = context.fillStyle;
+                const rgbMatch = normalized.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/i);
+
+                if (!rgbMatch) {
+                    return null;
+                }
+
+                const hex = [rgbMatch[1], rgbMatch[2], rgbMatch[3]]
+                    .map((part) => Number(part).toString(16).padStart(2, '0'))
+                    .join('')
+                    .toUpperCase();
+
+                return `#${hex}`;
+            };
+
+            const normalizeField = (input) => {
+                const hex = colorToHex(input.value);
+
+                if (hex !== null) {
+                    input.value = hex;
+                }
+            };
+
+            colorInputs.forEach((input) => {
+                input.addEventListener('input', () => normalizeField(input));
+                input.addEventListener('change', () => normalizeField(input));
+                normalizeField(input);
+            });
+
+            document.addEventListener('kt.color-picker.change', (event) => {
+                const element = event?.detail?.element;
+                if (!element || !colorInputs.includes(element)) {
+                    return;
+                }
+
+                normalizeField(element);
+            });
+
+            document.addEventListener('kt.color-picker.save', (event) => {
+                const element = event?.detail?.element;
+                if (!element || !colorInputs.includes(element)) {
+                    return;
+                }
+
+                normalizeField(element);
+            });
+
+            form.addEventListener('submit', () => {
+                colorInputs.forEach((input) => normalizeField(input));
+            });
+        })();
+    </script>
+@endpush

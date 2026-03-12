@@ -1,12 +1,9 @@
 @php
     $canAccessUsers = auth()->user()?->can('tenant.users.manage');
-    $canAccessRoles = auth()->user()?->can('tenant.roles.manage');
-    $canAccessPermissions = $canAccessRoles;
     $canAccessTenants = (bool) auth()->user()?->is_superadmin;
     $canAccessGamesCatalog = auth()->user()?->can('games.view.entity') || auth()->user()?->can('games.edit.entity');
     $canAccessAttendanceRounds = auth()->user()?->can('games.view.entity') || auth()->user()?->can('games.edit.content');
     $canAccessGameEntries = auth()->user()?->can('participants.view.entity') || auth()->user()?->can('games.edit.content');
-    $canAccessGameWinners = auth()->user()?->can('winners.view.entity') || auth()->user()?->can('games.edit.content');
     $currentTenant = app(\App\Support\Tenancy\TenantContext::class)->tenant();
     $now = now();
 
@@ -58,18 +55,22 @@
 
     $canAccessAttendanceGuessGame = $hasAttendanceGuessAccess && $canAccessAttendanceRounds;
     $canAccessQuizQuestions = $hasTrivialAccess && (auth()->user()?->can('games.view.content') || auth()->user()?->can('games.edit.content'));
-    $canAccessQuizAnswers = $canAccessQuizQuestions;
 
-    $accessRoutesActive = request()->routeIs('users.*')
+    $configurationRoutesActive = request()->routeIs('users.*')
         || request()->routeIs('access.roles.*')
         || request()->routeIs('access.permissions.*')
-        || request()->routeIs('platform.tenants.*');
-    $gamesRoutesActive = request()->routeIs('games.index', 'games.create', 'games.edit')
-        || request()->routeIs('games.entries.*')
-        || request()->routeIs('games.winners.*');
-    $attendanceRoutesActive = request()->routeIs('games.attendance-rounds.*');
-    $quizRoutesActive = request()->routeIs('games.quiz.questions.*')
+        || request()->routeIs('platform.tenants.*')
+        || request()->routeIs('games.index', 'games.create', 'games.edit')
+        || request()->routeIs('games.attendance-rounds.settings.*')
+        || request()->routeIs('games.quiz.questions.*')
         || request()->routeIs('games.quiz.answers.*');
+    $campaignRoutesActive = request()->routeIs(
+        'games.attendance-rounds.index',
+        'games.attendance-rounds.create',
+        'games.attendance-rounds.edit'
+    );
+    $participantsRoutesActive = request()->routeIs('games.entries.*')
+        || request()->routeIs('games.winners.*');
 @endphp
 
 <div
@@ -128,8 +129,8 @@
                     </a>
                 </div>
 
-                @if ($canAccessUsers || $canAccessRoles || $canAccessPermissions || $canAccessTenants)
-                    <div class="menu-item menu-accordion {{ $accessRoutesActive ? 'show' : '' }}" data-kt-menu-trigger="click">
+                @if ($canAccessUsers || $canAccessTenants || $canAccessGamesCatalog || $canAccessAttendanceGuessGame || $canAccessQuizQuestions)
+                    <div class="menu-item menu-accordion {{ $configurationRoutesActive ? 'show' : '' }}" data-kt-menu-trigger="click">
                         <span class="menu-link">
                             <span class="menu-icon">
                                 <i class="ki-duotone ki-shield-tick fs-2">
@@ -137,7 +138,7 @@
                                     <span class="path2"></span>
                                 </i>
                             </span>
-                            <span class="menu-title">{{ __('Access control') }}</span>
+                            <span class="menu-title">{{ __('Configuration') }}</span>
                             <span class="menu-arrow"></span>
                         </span>
 
@@ -151,24 +152,6 @@
                                 </div>
                             @endif
 
-                            @if ($canAccessRoles)
-                                <div class="menu-item">
-                                    <a class="menu-link {{ request()->routeIs('access.roles.*') ? 'active' : '' }}" href="{{ route('access.roles.index') }}">
-                                        <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
-                                        <span class="menu-title">{{ __('Roles') }}</span>
-                                    </a>
-                                </div>
-                            @endif
-
-                            @if ($canAccessPermissions)
-                                <div class="menu-item">
-                                    <a class="menu-link {{ request()->routeIs('access.permissions.*') ? 'active' : '' }}" href="{{ route('access.permissions.index') }}">
-                                        <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
-                                        <span class="menu-title">{{ __('Permissions') }}</span>
-                                    </a>
-                                </div>
-                            @endif
-
                             @if ($canAccessTenants)
                                 <div class="menu-item">
                                     <a class="menu-link {{ request()->routeIs('platform.tenants.*') ? 'active' : '' }}" href="{{ route('platform.tenants.index') }}">
@@ -177,24 +160,7 @@
                                     </a>
                                 </div>
                             @endif
-                        </div>
-                    </div>
-                @endif
 
-                @if ($canAccessGamesCatalog || $canAccessGameEntries || $canAccessGameWinners)
-                    <div class="menu-item menu-accordion {{ $gamesRoutesActive ? 'show' : '' }}" data-kt-menu-trigger="click">
-                        <span class="menu-link">
-                            <span class="menu-icon">
-                                <i class="ki-duotone ki-crown fs-2">
-                                    <span class="path1"></span>
-                                    <span class="path2"></span>
-                                </i>
-                            </span>
-                            <span class="menu-title">{{ __('Games') }}</span>
-                            <span class="menu-arrow"></span>
-                        </span>
-
-                        <div class="menu-sub menu-sub-accordion">
                             @if ($canAccessGamesCatalog)
                                 <div class="menu-item">
                                     <a class="menu-link {{ request()->routeIs('games.index', 'games.create', 'games.edit') ? 'active' : '' }}" href="{{ route('games.index') }}">
@@ -204,20 +170,20 @@
                                 </div>
                             @endif
 
-                            @if ($canAccessGameEntries)
+                            @if ($canAccessAttendanceGuessGame)
                                 <div class="menu-item">
-                                    <a class="menu-link {{ request()->routeIs('games.entries.*') ? 'active' : '' }}" href="{{ route('games.entries.index') }}">
+                                    <a class="menu-link {{ request()->routeIs('games.attendance-rounds.settings.*') ? 'active' : '' }}" href="{{ route('games.attendance-rounds.settings.edit') }}">
                                         <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
-                                        <span class="menu-title">{{ __('Entries') }}</span>
+                                        <span class="menu-title">{{ __('Adivina el aforo') }}</span>
                                     </a>
                                 </div>
                             @endif
 
-                            @if ($canAccessGameWinners)
+                            @if ($canAccessQuizQuestions)
                                 <div class="menu-item">
-                                    <a class="menu-link {{ request()->routeIs('games.winners.*') ? 'active' : '' }}" href="{{ route('games.winners.index') }}">
+                                    <a class="menu-link {{ request()->routeIs('games.quiz.questions.*', 'games.quiz.answers.*') ? 'active' : '' }}" href="{{ route('games.quiz.questions.index') }}">
                                         <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
-                                        <span class="menu-title">{{ __('Winners') }}</span>
+                                        <span class="menu-title">{{ __('Trivial / Quiz') }}</span>
                                     </a>
                                 </div>
                             @endif
@@ -227,46 +193,37 @@
 
                 @if ($canAccessAttendanceGuessGame)
                     <div class="menu-item">
-                        <a class="menu-link {{ $attendanceRoutesActive ? 'active' : '' }}" href="{{ route('games.attendance-rounds.index') }}">
+                        <a class="menu-link {{ $campaignRoutesActive ? 'active' : '' }}" href="{{ route('games.attendance-rounds.index') }}">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-calendar fs-2">
+                                <i class="ki-duotone ki-rocket fs-2">
                                     <span class="path1"></span>
                                     <span class="path2"></span>
                                 </i>
                             </span>
-                            <span class="menu-title">{{ __('Adivina el aforo') }}</span>
+                            <span class="menu-title">{{ __('Campaigns') }}</span>
                         </a>
                     </div>
                 @endif
 
-                @if ($canAccessQuizQuestions || $canAccessQuizAnswers)
-                    <div class="menu-item menu-accordion {{ $quizRoutesActive ? 'show' : '' }}" data-kt-menu-trigger="click">
+                @if ($canAccessGameEntries)
+                    <div class="menu-item menu-accordion {{ $participantsRoutesActive ? 'show' : '' }}" data-kt-menu-trigger="click">
                         <span class="menu-link">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-abstract-41 fs-2">
+                                <i class="ki-duotone ki-crown fs-2">
                                     <span class="path1"></span>
                                     <span class="path2"></span>
                                 </i>
                             </span>
-                            <span class="menu-title">{{ __('Trivial / Quiz') }}</span>
+                            <span class="menu-title">{{ __('Participants') }}</span>
                             <span class="menu-arrow"></span>
                         </span>
 
                         <div class="menu-sub menu-sub-accordion">
-                            @if ($canAccessQuizQuestions)
+                            @if ($canAccessGameEntries)
                                 <div class="menu-item">
-                                    <a class="menu-link {{ request()->routeIs('games.quiz.questions.*') ? 'active' : '' }}" href="{{ route('games.quiz.questions.index') }}">
+                                    <a class="menu-link {{ request()->routeIs('games.entries.*') ? 'active' : '' }}" href="{{ route('games.entries.index') }}">
                                         <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
-                                        <span class="menu-title">{{ __('Questions') }}</span>
-                                    </a>
-                                </div>
-                            @endif
-
-                            @if ($canAccessQuizAnswers)
-                                <div class="menu-item">
-                                    <a class="menu-link {{ request()->routeIs('games.quiz.answers.*') ? 'active' : '' }}" href="{{ route('games.quiz.answers.index') }}">
-                                        <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
-                                        <span class="menu-title">{{ __('Answers') }}</span>
+                                        <span class="menu-title">{{ __('Participants') }}</span>
                                     </a>
                                 </div>
                             @endif
