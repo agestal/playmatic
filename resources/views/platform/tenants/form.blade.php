@@ -126,7 +126,7 @@
                         data-kt-color-picker="true"
                         data-kt-color-picker-input-mode="true"
                         data-kt-color-picker-lock-opacity="true"
-                        data-kt-color-picker-default-representation="HEXA"
+                        data-kt-color-picker-default-representation="HEX"
                     >
                     <div class="form-text">{{ __('Use HEX format, for example :example.', ['example' => '#0D6EFD']) }}</div>
                 </div>
@@ -145,7 +145,7 @@
                         data-kt-color-picker="true"
                         data-kt-color-picker-input-mode="true"
                         data-kt-color-picker-lock-opacity="true"
-                        data-kt-color-picker-default-representation="HEXA"
+                        data-kt-color-picker-default-representation="HEX"
                     >
                     <div class="form-text">{{ __('Use HEX format, for example :example.', ['example' => '#20C997']) }}</div>
                 </div>
@@ -248,6 +248,11 @@
                     return `#${hexMatch[1].toUpperCase()}`;
                 }
 
+                const hexaMatch = color.match(/^#([0-9a-fA-F]{8})$/);
+                if (hexaMatch) {
+                    return `#${hexaMatch[1].slice(0, 6).toUpperCase()}`;
+                }
+
                 const canvas = document.createElement('canvas');
                 canvas.width = 1;
                 canvas.height = 1;
@@ -283,6 +288,42 @@
                 }
             };
 
+            const initNativeColorFallback = (input) => {
+                if (!input || input.dataset.nativeColorFallback === 'true') {
+                    return;
+                }
+
+                const nativePicker = document.createElement('input');
+                nativePicker.type = 'color';
+                nativePicker.className = 'form-control form-control-color';
+                nativePicker.style.width = '3rem';
+                nativePicker.style.minWidth = '3rem';
+                nativePicker.style.padding = '0.25rem';
+                nativePicker.style.cursor = 'pointer';
+                nativePicker.title = 'Open color picker';
+
+                const syncFromText = () => {
+                    const hex = colorToHex(input.value);
+                    if (hex) {
+                        nativePicker.value = hex;
+                    }
+                };
+
+                const syncFromPicker = () => {
+                    input.value = nativePicker.value.toUpperCase();
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                };
+
+                nativePicker.addEventListener('input', syncFromPicker);
+                input.addEventListener('input', syncFromText);
+                input.addEventListener('change', syncFromText);
+                syncFromText();
+
+                input.insertAdjacentElement('afterend', nativePicker);
+                input.dataset.nativeColorFallback = 'true';
+            };
+
             colorInputs.forEach((input) => {
                 input.addEventListener('input', () => normalizeField(input));
                 input.addEventListener('change', () => normalizeField(input));
@@ -306,6 +347,12 @@
 
                 normalizeField(element);
             });
+
+            const hasKtPicker = typeof window.KTColorPicker?.getInstance === 'function';
+            const ktPickerReady = hasKtPicker && colorInputs.every((input) => window.KTColorPicker.getInstance(input));
+            if (!ktPickerReady) {
+                colorInputs.forEach((input) => initNativeColorFallback(input));
+            }
 
             form.addEventListener('submit', () => {
                 colorInputs.forEach((input) => normalizeField(input));
