@@ -14,6 +14,7 @@ class GameAttendanceGuessSetting extends Model
         'game_id',
         'winners_count',
         'ranking_enabled',
+        'max_capacity',
     ];
 
     protected function casts(): array
@@ -23,6 +24,7 @@ class GameAttendanceGuessSetting extends Model
             'game_id' => 'integer',
             'winners_count' => 'integer',
             'ranking_enabled' => 'boolean',
+            'max_capacity' => 'integer',
         ];
     }
 

@@ -60,6 +60,20 @@
                                 <label class="form-check-label" for="ranking_enabled">{{ __('Ranking enabled') }}</label>
                             </div>
                         </div>
+                        <div class="col-12 col-lg-4">
+                            <label class="form-label fw-semibold" for="max_capacity">{{ __('Maximum stadium capacity') }}</label>
+                            <input
+                                id="max_capacity"
+                                name="max_capacity"
+                                type="number"
+                                min="1"
+                                max="2000000"
+                                class="form-control form-control-solid"
+                                value="{{ old('max_capacity', $attendanceSettings?->max_capacity) }}"
+                                placeholder="{{ __('Example: 45000') }}"
+                            >
+                            <div class="form-text">{{ __('This value is shared across all attendance rounds for this company.') }}</div>
+                        </div>
                         <div class="col-12 col-lg-4 d-flex align-items-end">
                             <button type="submit" class="btn btn-primary">{{ __('Save changes') }}</button>
                         </div>
@@ -75,6 +89,12 @@
                         <label class="form-label fw-semibold">{{ __('Ranking enabled') }}</label>
                         <div class="form-control form-control-solid">
                             {{ ($attendanceSettings?->ranking_enabled ?? false) ? __('Yes') : __('No') }}
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-4">
+                        <label class="form-label fw-semibold">{{ __('Maximum stadium capacity') }}</label>
+                        <div class="form-control form-control-solid">
+                            {{ $attendanceSettings?->max_capacity ? number_format($attendanceSettings->max_capacity, 0, ',', '.') : '—' }}
                         </div>
                     </div>
                 </div>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Games;
 
 use App\Http\Controllers\Controller;
 use App\Models\Game;
+use App\Models\GameAttendanceGuessSetting;
 use App\Models\GameEntry;
 use App\Models\GameRound;
 use App\Models\Tenant;
@@ -25,11 +26,15 @@ class PublicAttendanceGuessController extends Controller
         $activeRound = $game
             ? $this->activeRoundForTenantGame($tenant->id, $game->id)
             : null;
+        $attendanceSettings = $game
+            ? $this->attendanceSettingsForTenantGame($tenant->id, $game->id)
+            : null;
 
         return view('games.public.attendance-guess', [
             'tenant' => $tenant,
             'game' => $game,
             'activeRound' => $activeRound,
+            'maxCapacity' => $attendanceSettings?->max_capacity,
             'thirdConsentLabel' => '[PENDIENTE: texto del tercer consentimiento]',
         ]);
     }
@@ -46,6 +51,8 @@ class PublicAttendanceGuessController extends Controller
         }
 
         $activeRound = $this->activeRoundForTenantGame($tenant->id, $game->id);
+        $attendanceSettings = $this->attendanceSettingsForTenantGame($tenant->id, $game->id);
+        $maxCapacity = $attendanceSettings?->max_capacity;
 
         if (! $activeRound) {
             return redirect()
@@ -57,7 +64,7 @@ class PublicAttendanceGuessController extends Controller
             'participant_name' => ['required', 'string', 'max:120'],
             'participant_phone' => ['required', 'string', 'max:40'],
             'participant_email' => ['required', 'email', 'max:255'],
-            'attendance_guess' => ['required', 'integer', 'min:0', 'max:999999999'],
+            'attendance_guess' => ['required', 'integer', 'min:0', 'max:'.$this->attendanceGuessValidationMax($maxCapacity)],
             'accept_terms' => ['accepted'],
             'accept_marketing' => ['nullable', 'boolean'],
             'accept_third' => ['nullable', 'boolean'],
@@ -93,6 +100,15 @@ class PublicAttendanceGuessController extends Controller
             ->with('status', __('Your participation has been registered successfully.'));
     }
 
+    protected function attendanceSettingsForTenantGame(int $tenantId, int $gameId): ?GameAttendanceGuessSetting
+    {
+        return GameAttendanceGuessSetting::query()
+            ->withoutGlobalScopes()
+            ->where('tenant_id', $tenantId)
+            ->where('game_id', $gameId)
+            ->first();
+    }
+
     protected function activeRoundForTenantGame(int $tenantId, int $gameId): ?GameRound
     {
         return GameRound::query()
@@ -126,5 +142,12 @@ class PublicAttendanceGuessController extends Controller
         }
 
         return $tenant;
+    }
+
+    protected function attendanceGuessValidationMax(?int $maxCapacity): int
+    {
+        return $maxCapacity !== null && $maxCapacity > 0
+            ? $maxCapacity
+            : 999999999;
     }
 }

@@ -28,10 +28,11 @@ class AttendanceGuessRoundController extends Controller
     {
         $tenant = $this->tenantOrFail($tenantContext);
         $game = $this->attendanceGameOrFail($tenant);
+        $attendanceSettings = $this->attendanceSettingsForTenantGame($tenant->id, $game->id);
 
         return view('games.attendance-rounds.settings', [
             'publicUrl' => url('/adivina-aforo'),
-            'attendanceSettings' => $this->attendanceSettingsForTenantGame($tenant->id, $game->id),
+            'attendanceSettings' => $attendanceSettings,
         ]);
     }
 
@@ -72,6 +73,7 @@ class AttendanceGuessRoundController extends Controller
         $validated = $request->validate([
             'winners_count' => ['required', 'integer', 'min:1', 'max:500'],
             'ranking_enabled' => ['nullable', 'boolean'],
+            'max_capacity' => ['nullable', 'integer', 'min:1', 'max:2000000'],
         ]);
 
         GameAttendanceGuessSetting::query()->updateOrCreate(
@@ -82,6 +84,7 @@ class AttendanceGuessRoundController extends Controller
             [
                 'winners_count' => intval($validated['winners_count']),
                 'ranking_enabled' => $request->boolean('ranking_enabled'),
+                'max_capacity' => isset($validated['max_capacity']) ? intval($validated['max_capacity']) : null,
             ]
         );
 

@@ -151,6 +151,7 @@ class AttendanceGuessFlowTest extends TestCase
             'game_id' => $game->id,
             'winners_count' => 2,
             'ranking_enabled' => true,
+            'max_capacity' => 2000,
         ]);
 
         $bestEntry = GameEntry::query()->withoutGlobalScopes()->create([
@@ -284,6 +285,7 @@ class AttendanceGuessFlowTest extends TestCase
                 [
                     'winners_count' => 5,
                     'ranking_enabled' => '1',
+                    'max_capacity' => 45000,
                 ]
             );
 
@@ -295,6 +297,7 @@ class AttendanceGuessFlowTest extends TestCase
             'game_id' => $game->id,
             'winners_count' => 5,
             'ranking_enabled' => 1,
+            'max_capacity' => 45000,
         ]);
 
         $this->assertDatabaseMissing('games_attendance_guess_settings', [
@@ -361,14 +364,60 @@ class AttendanceGuessFlowTest extends TestCase
         $this->assertSame('evaluated', $entry->status);
     }
 
+    public function test_public_attendance_guess_cannot_exceed_company_max_capacity(): void
+    {
+        [$tenant, $domain] = $this->createTenantWithDomain();
+        $game = $this->createAttendanceGameForTenant($tenant);
+
+        GameAttendanceGuessSetting::query()->create([
+            'tenant_id' => $tenant->id,
+            'game_id' => $game->id,
+            'winners_count' => 1,
+            'ranking_enabled' => false,
+            'max_capacity' => 45000,
+        ]);
+
+        GameRound::query()->withoutGlobalScopes()->create([
+            'tenant_id' => $tenant->id,
+            'game_id' => $game->id,
+            'name' => 'Jornada activa',
+            'management_mode' => 'manual',
+            'activated_at' => now()->subMinutes(10),
+            'deactivated_at' => null,
+        ]);
+
+        $response = $this
+            ->from("http://{$domain}/adivina-aforo")
+            ->post("http://{$domain}/adivina-aforo", [
+                'participant_name' => 'Jane Doe',
+                'participant_phone' => '+34 600 111 222',
+                'participant_email' => 'jane@example.com',
+                'attendance_guess' => 45001,
+                'accept_terms' => '1',
+            ]);
+
+        $response->assertSessionHasErrors('attendance_guess');
+
+        $this->assertDatabaseMissing('games_entries', [
+            'tenant_id' => $tenant->id,
+            'game_id' => $game->id,
+            'participant_email' => 'jane@example.com',
+        ]);
+    }
+
     /**
      * @return array{Tenant,string}
      */
     protected function createTenantWithDomain(string $domain = 'acme.playmatic.test'): array
     {
+        $tenantSlug = str($domain)
+            ->before('.')
+            ->slug()
+            ->value();
+
         $tenant = Tenant::query()->create([
             'name' => 'Acme Corp',
-            'slug' => 'acme-corp',
+            'slug' => $tenantSlug !== '' ? $tenantSlug : 'acme-corp',
         ]);
 
         TenantDomain::query()->create([
