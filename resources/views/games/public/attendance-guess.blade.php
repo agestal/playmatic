@@ -42,7 +42,7 @@
         .attendance-stage {
             position: relative;
             z-index: 1;
-            width: min(1200px, calc(100vw - 2rem));
+            width: min(1320px, calc(100vw - 1.5rem));
             margin: 0 auto;
             padding: 2rem 0;
             opacity: 0;
@@ -123,7 +123,7 @@
 
         .attendance-stadium {
             position: relative;
-            min-height: 780px;
+            min-height: 900px;
             padding: 1.5rem;
             border-radius: 42px;
             background:
@@ -144,30 +144,158 @@
             pointer-events: none;
         }
 
+        .attendance-arena {
+            position: relative;
+            width: min(1040px, 100%);
+            min-height: 860px;
+            margin: 0 auto;
+        }
+
+        .attendance-architecture {
+            position: absolute;
+            inset: 0;
+            border-radius: 48% / 40%;
+            pointer-events: none;
+        }
+
+        .attendance-architecture::before,
+        .attendance-architecture::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+        }
+
+        .attendance-architecture::before {
+            background:
+                radial-gradient(ellipse at center, rgba(4, 11, 16, 0) 0 38%, rgba(4, 11, 16, 0.9) 63%, rgba(2, 8, 13, 0.98) 100%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 26%, transparent 74%, rgba(255, 255, 255, 0.04));
+            box-shadow:
+                inset 0 0 0 2px rgba(255, 255, 255, 0.06),
+                inset 0 20px 50px rgba(255, 255, 255, 0.04),
+                inset 0 -40px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .attendance-architecture::after {
+            inset: 6.5%;
+            border-radius: 46% / 38%;
+            box-shadow:
+                inset 0 0 0 18px rgba(255, 255, 255, 0.03),
+                inset 0 0 0 48px rgba(255, 255, 255, 0.018),
+                inset 0 0 0 82px rgba(255, 255, 255, 0.01);
+        }
+
+        .attendance-stand {
+            position: absolute;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow:
+                inset 0 14px 24px rgba(255, 255, 255, 0.05),
+                inset 0 -18px 30px rgba(0, 0, 0, 0.28),
+                0 18px 40px rgba(0, 0, 0, 0.14);
+            background:
+                linear-gradient(180deg, rgba(184, 198, 208, 0.14), rgba(34, 48, 56, 0.2) 24%, rgba(10, 20, 28, 0.5) 100%),
+                repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0 2px, transparent 2px 12px);
+        }
+
+        .attendance-stand::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            opacity: 0.45;
+        }
+
+        .attendance-stand.north,
+        .attendance-stand.south {
+            left: 14%;
+            right: 14%;
+            height: 18%;
+        }
+
+        .attendance-stand.north {
+            top: 7%;
+            border-radius: 48% 48% 16% 16% / 82% 82% 18% 18%;
+        }
+
+        .attendance-stand.south {
+            bottom: 7%;
+            border-radius: 16% 16% 48% 48% / 18% 18% 82% 82%;
+        }
+
+        .attendance-stand.north::after,
+        .attendance-stand.south::after {
+            background:
+                repeating-linear-gradient(90deg, transparent 0 12%, rgba(255, 255, 255, 0.08) 12% 12.6%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.07), transparent 30%, transparent 70%, rgba(0, 0, 0, 0.22));
+        }
+
+        .attendance-stand.west,
+        .attendance-stand.east {
+            top: 18%;
+            bottom: 18%;
+            width: 12%;
+        }
+
+        .attendance-stand.west {
+            left: 8.5%;
+            border-radius: 46% 16% 16% 46% / 22% 16% 16% 22%;
+        }
+
+        .attendance-stand.east {
+            right: 8.5%;
+            border-radius: 16% 46% 46% 16% / 16% 22% 22% 16%;
+        }
+
+        .attendance-stand.west::after,
+        .attendance-stand.east::after {
+            background:
+                repeating-linear-gradient(180deg, transparent 0 12%, rgba(255, 255, 255, 0.08) 12% 12.6%),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.07), transparent 30%, transparent 70%, rgba(0, 0, 0, 0.22));
+        }
+
         .attendance-seats {
             position: absolute;
-            inset: 2rem;
-            border-radius: 36px;
-            background:
-                radial-gradient(ellipse at center, rgba(255, 255, 255, 0.05) 0%, transparent 56%),
-                linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 18%, transparent 82%, rgba(255, 255, 255, 0.05));
+            inset: 5.5% 6.5%;
+            border-radius: 45% / 38%;
             overflow: hidden;
+        }
+
+        .attendance-seats::before,
+        .attendance-seats::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .attendance-seats::before {
+            background:
+                radial-gradient(ellipse at center, transparent 0 37%, rgba(255, 255, 255, 0.045) 37.6%, transparent 38.2%),
+                radial-gradient(ellipse at center, transparent 0 54%, rgba(255, 255, 255, 0.038) 54.6%, transparent 55.2%),
+                radial-gradient(ellipse at center, rgba(255, 255, 255, 0.03), transparent 74%);
+        }
+
+        .attendance-seats::after {
+            background:
+                linear-gradient(0deg, transparent 49.5%, rgba(255, 255, 255, 0.025) 50%, transparent 50.5%),
+                linear-gradient(90deg, transparent 49.5%, rgba(255, 255, 255, 0.025) 50%, transparent 50.5%);
+            opacity: 0.45;
         }
 
         .attendance-seat {
             position: absolute;
-            width: 8px;
-            height: 8px;
+            width: 3px;
+            height: 3px;
             border-radius: 50%;
-            background: rgba(203, 223, 216, 0.15);
-            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05);
+            background: rgba(185, 197, 209, 0.2);
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.015);
             transition: background-color 0.28s ease, transform 0.28s ease, box-shadow 0.28s ease;
         }
 
         .attendance-seat.is-filled {
             background: #f3f6ce;
-            box-shadow: 0 0 12px rgba(243, 246, 206, 0.45);
-            transform: scale(1.2);
+            box-shadow: 0 0 8px rgba(243, 246, 206, 0.45);
+            transform: scale(1.35);
         }
 
         .attendance-pitch-shell {
@@ -175,26 +303,35 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 740px;
+            min-height: 860px;
             z-index: 1;
         }
 
         .attendance-pitch {
-            position: relative;
-            width: min(760px, 100%);
-            min-height: 620px;
+            position: absolute;
+            inset: 17% 18%;
             padding: 2rem;
-            border-radius: 170px / 120px;
+            border-radius: 28px;
             background:
+                radial-gradient(circle at center, rgba(255, 255, 255, 0.05), transparent 38%),
                 linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px),
                 linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
-                linear-gradient(180deg, #2c8d48 0%, #267942 50%, #1f6136 100%);
-            background-size: 70px 70px, 70px 70px, cover;
+                repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.02) 0 38px, rgba(0, 0, 0, 0.02) 38px 76px),
+                linear-gradient(180deg, #349b52 0%, #2b8748 36%, #22713d 100%);
+            background-size: auto, 70px 70px, 70px 70px, auto, cover;
             box-shadow:
-                inset 0 0 0 8px rgba(255, 255, 255, 0.1),
-                inset 0 0 0 80px rgba(18, 70, 38, 0.18),
+                inset 0 0 0 3px rgba(255, 255, 255, 0.18),
+                inset 0 0 0 26px rgba(18, 70, 38, 0.16),
                 0 24px 70px rgba(0, 0, 0, 0.28);
             overflow: hidden;
+        }
+
+        .attendance-pitch-shadow {
+            position: absolute;
+            inset: 11% 12%;
+            border-radius: 18px;
+            background: radial-gradient(circle at center, rgba(0, 0, 0, 0.08), transparent 72%);
+            pointer-events: none;
         }
 
         .attendance-pitch::before,
@@ -208,10 +345,13 @@
         }
 
         .attendance-pitch::after {
-            inset: 50% 24% auto 24%;
-            height: 0;
+            top: 7.5%;
+            bottom: 7.5%;
+            left: 50%;
+            width: 0;
+            inset: 7.5% auto 7.5% 50%;
             border-width: 0;
-            border-top: 3px solid rgba(255, 255, 255, 0.72);
+            border-left: 3px solid rgba(255, 255, 255, 0.72);
             border-radius: 0;
         }
 
@@ -244,26 +384,26 @@
 
         .attendance-box {
             left: 50%;
-            width: 44%;
-            height: 92px;
+            width: 38%;
+            height: 86px;
             transform: translateX(-50%);
             border: 3px solid rgba(255, 255, 255, 0.72);
-            border-radius: 0 0 56px 56px;
-            border-top: 0;
         }
 
         .attendance-box.top {
             top: 7.5%;
-            transform: translateX(-50%) rotate(180deg);
+            border-bottom: 0;
         }
 
         .attendance-box.bottom {
             bottom: 7.5%;
+            border-top: 0;
         }
 
         .attendance-form-shell {
             position: relative;
-            width: min(560px, 100%);
+            z-index: 3;
+            width: min(620px, calc(100% - 3rem));
             padding: 1.5rem;
             border-radius: 34px;
             background: rgba(7, 20, 16, 0.22);
@@ -318,10 +458,8 @@
         }
 
         .attendance-progress-top {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            gap: 1rem;
+            display: grid;
+            gap: 0.45rem;
             margin-bottom: 0.75rem;
         }
 
@@ -340,6 +478,11 @@
             font-size: clamp(1.7rem, 4vw, 2.6rem);
             font-weight: 800;
             line-height: 1;
+        }
+
+        .attendance-progress-note {
+            color: #365142;
+            font-weight: 600;
         }
 
         .attendance-progress-track {
@@ -394,23 +537,25 @@
             }
 
             .attendance-pitch-shell {
-                min-height: auto;
-                padding: 1rem 0;
+                padding: 0.5rem 0 1rem;
+                min-height: 780px;
             }
 
-            .attendance-pitch {
-                min-height: auto;
-                padding: 5rem 1rem;
-                border-radius: 56px;
+            .attendance-arena {
+                min-height: 780px;
             }
 
             .attendance-pitch::before {
                 inset: 8%;
-                border-radius: 40px;
+                border-radius: 22px;
             }
 
             .attendance-box {
                 width: 58%;
+            }
+
+            .attendance-pitch {
+                inset: 18% 14%;
             }
         }
 
@@ -424,18 +569,31 @@
                 grid-template-columns: 1fr;
             }
 
-            .attendance-progress-top {
-                flex-direction: column;
-                align-items: flex-start;
+            .attendance-arena {
+                min-height: 760px;
             }
 
             .attendance-seat {
-                width: 7px;
-                height: 7px;
+                width: 2px;
+                height: 2px;
             }
 
             .attendance-pitch {
-                padding: 4.25rem 0.85rem;
+                inset: 19% 8%;
+                padding: 1.2rem 0.85rem;
+            }
+
+            .attendance-form-shell {
+                width: min(620px, calc(100% - 1rem));
+            }
+
+            .attendance-center-circle {
+                width: 100px;
+                height: 100px;
+            }
+
+            .attendance-box {
+                height: 64px;
             }
         }
     </style>
@@ -493,14 +651,23 @@
                 </div>
             @else
                 <div class="attendance-stadium">
-                    <div class="attendance-seats" id="attendance-seats" aria-hidden="true"></div>
+                    <div class="attendance-arena">
+                        <div class="attendance-architecture" aria-hidden="true">
+                            <span class="attendance-stand north"></span>
+                            <span class="attendance-stand south"></span>
+                            <span class="attendance-stand west"></span>
+                            <span class="attendance-stand east"></span>
+                        </div>
+                        <div class="attendance-seats" id="attendance-seats" aria-hidden="true"></div>
 
-                    <div class="attendance-pitch-shell">
-                        <div class="attendance-pitch">
-                            <div class="attendance-center-circle"></div>
-                            <div class="attendance-center-dot"></div>
-                            <div class="attendance-box top"></div>
-                            <div class="attendance-box bottom"></div>
+                        <div class="attendance-pitch-shell">
+                            <div class="attendance-pitch">
+                                <div class="attendance-center-circle"></div>
+                                <div class="attendance-center-dot"></div>
+                                <div class="attendance-pitch-shadow"></div>
+                                <div class="attendance-box top"></div>
+                                <div class="attendance-box bottom"></div>
+                            </div>
 
                             <div class="attendance-form-shell">
                                 <div class="attendance-form-panel">
@@ -579,12 +746,7 @@
                                                     <span class="attendance-progress-label">Ocupación estimada</span>
                                                     <div class="attendance-progress-value" id="attendance-progress-value">0%</div>
                                                 </div>
-                                                <div class="text-end">
-                                                    <span class="attendance-progress-label">Visualización</span>
-                                                    <div class="fw-semibold text-dark" id="attendance-progress-note">
-                                                        Esperando tu predicción
-                                                    </div>
-                                                </div>
+                                                <div class="attendance-progress-note" id="attendance-progress-note">Esperando tu predicción</div>
                                             </div>
                                             <div class="attendance-progress-track">
                                                 <div class="attendance-progress-bar" id="attendance-progress-bar"></div>
@@ -639,14 +801,13 @@
             const stageStatus = document.getElementById('attendance-stage-status');
 
             const maxCapacity = Number(form.dataset.maxCapacity || 0);
-            const totalSeats = window.innerWidth < 768 ? 180 : 260;
             const seats = [];
 
             const formatNumber = (value) => new Intl.NumberFormat('es-ES').format(value);
 
-            const seededIndex = (seed, index, length) => {
+            const seededValue = (seed, index) => {
                 const raw = Math.sin((seed + 1) * (index + 3) * 12.9898) * 43758.5453;
-                return Math.abs(Math.floor(raw)) % length;
+                return raw - Math.floor(raw);
             };
 
             const createSeat = (x, y) => {
@@ -658,22 +819,72 @@
                 seats.push(seat);
             };
 
-            const buildSeats = () => {
-                for (let i = 0; i < totalSeats; i += 1) {
-                    const ratio = i / totalSeats;
-                    const angle = ratio * Math.PI * 2;
-                    const xRadius = 44;
-                    const yRadius = 34;
-                    const ringOffset = i % 4;
-                    const x = 50 + Math.cos(angle) * (xRadius + ringOffset * 1.7);
-                    const y = 50 + Math.sin(angle) * (yRadius + ringOffset * 1.4);
+            const createStandGrid = ({ rows, cols, xStart, xEnd, yStart, yEnd, trimAxis }) => {
+                for (let row = 0; row < rows; row += 1) {
+                    const rowRatio = rows === 1 ? 0.5 : row / (rows - 1);
+                    const curveStrength = Math.abs(rowRatio - 0.5) * 2;
 
-                    if (x > 16 && x < 84 && y > 18 && y < 82) {
-                        continue;
+                    for (let col = 0; col < cols; col += 1) {
+                        const colRatio = cols === 1 ? 0.5 : col / (cols - 1);
+                        const crossCurve = Math.abs(colRatio - 0.5) * 2;
+                        let localXStart = xStart;
+                        let localXEnd = xEnd;
+                        let localYStart = yStart;
+                        let localYEnd = yEnd;
+
+                        if (trimAxis === 'x') {
+                            const trim = curveStrength * 6;
+                            localXStart += trim;
+                            localXEnd -= trim;
+                        } else {
+                            const trim = crossCurve * 4.5;
+                            localYStart += trim;
+                            localYEnd -= trim;
+                        }
+
+                        if (localXEnd <= localXStart || localYEnd <= localYStart) {
+                            continue;
+                        }
+
+                        const x = localXStart + ((localXEnd - localXStart) * colRatio);
+                        const y = localYStart + ((localYEnd - localYStart) * rowRatio);
+
+                        const isAisleColumn = cols > 10 && col > 0 && col < cols - 1 && col % Math.max(6, Math.round(cols / 5)) === 0;
+                        const isAisleRow = rows > 10 && row > 0 && row < rows - 1 && row % Math.max(5, Math.round(rows / 4)) === 0;
+
+                        if (isAisleColumn || isAisleRow) {
+                            continue;
+                        }
+
+                        createSeat(x, y);
                     }
-
-                    createSeat(x, y);
                 }
+            };
+
+            const buildSeats = () => {
+                if (window.innerWidth < 768) {
+                    createStandGrid({ rows: 8, cols: 28, xStart: 20, xEnd: 80, yStart: 8.5, yEnd: 18, trimAxis: 'x' });
+                    createStandGrid({ rows: 8, cols: 28, xStart: 20, xEnd: 80, yStart: 82, yEnd: 91.5, trimAxis: 'x' });
+                    createStandGrid({ rows: 20, cols: 8, xStart: 10, xEnd: 18.5, yStart: 21, yEnd: 79, trimAxis: 'y' });
+                    createStandGrid({ rows: 20, cols: 8, xStart: 81.5, xEnd: 90, yStart: 21, yEnd: 79, trimAxis: 'y' });
+
+                    return;
+                }
+
+                createStandGrid({ rows: 10, cols: 42, xStart: 18, xEnd: 82, yStart: 8.5, yEnd: 19.5, trimAxis: 'x' });
+                createStandGrid({ rows: 10, cols: 42, xStart: 18, xEnd: 82, yStart: 80.5, yEnd: 91.5, trimAxis: 'x' });
+                createStandGrid({ rows: 24, cols: 10, xStart: 8.5, xEnd: 18.5, yStart: 20, yEnd: 80, trimAxis: 'y' });
+                createStandGrid({ rows: 24, cols: 10, xStart: 81.5, xEnd: 91.5, yStart: 20, yEnd: 80, trimAxis: 'y' });
+            };
+
+            const orderedSeatIndexes = (guess) => {
+                return seats
+                    .map((_, index) => ({
+                        index,
+                        value: seededValue((guess || 1) + seats.length, index),
+                    }))
+                    .sort((a, b) => a.value - b.value)
+                    .map((entry) => entry.index);
             };
 
             const occupancyLabel = (ratio) => {
@@ -703,32 +914,50 @@
             const paintSeats = (guess) => {
                 const ratio = maxCapacity > 0 ? Math.max(0, Math.min(guess / maxCapacity, 1)) : 0;
                 const filledSeats = Math.round(seats.length * ratio);
-                const filledIndexes = new Set();
-
-                for (let i = 0; i < filledSeats; i += 1) {
-                    filledIndexes.add(seededIndex(guess || 1, i, seats.length));
-                }
+                const orderedIndexes = orderedSeatIndexes(guess);
+                const filledIndexes = new Set(orderedIndexes.slice(0, filledSeats));
 
                 seats.forEach((seat, index) => {
                     seat.classList.toggle('is-filled', filledIndexes.has(index));
                 });
 
-                progressValue.textContent = `${Math.round(ratio * 100)}%`;
-                progressBar.style.width = `${ratio * 100}%`;
+                const visualRatio = seats.length > 0 ? filledSeats / seats.length : ratio;
+
+                progressValue.textContent = `${Math.round(visualRatio * 100)}%`;
+                progressBar.style.width = `${visualRatio * 100}%`;
                 progressNote.textContent = maxCapacity > 0
                     ? `${formatNumber(Math.min(guess, maxCapacity))} / ${formatNumber(maxCapacity)} espectadores`
                     : 'Configura un aforo máximo para calibrar la simulación';
 
                 if (stageStatus) {
-                    stageStatus.textContent = occupancyLabel(ratio);
+                    stageStatus.textContent = occupancyLabel(visualRatio);
                 }
             };
 
+            const clampGuess = () => {
+                if (maxCapacity <= 0) {
+                    return Number(input.value || 0);
+                }
+
+                const nextGuess = Math.max(0, Math.min(Number(input.value || 0), maxCapacity));
+
+                if (String(nextGuess) !== input.value) {
+                    input.value = String(nextGuess);
+                }
+
+                return nextGuess;
+            };
+
             buildSeats();
-            paintSeats(Number(input.value || 0));
+            paintSeats(clampGuess());
 
             input.addEventListener('input', () => {
-                const guess = Math.max(0, Number(input.value || 0));
+                const guess = clampGuess();
+                paintSeats(guess);
+            });
+
+            input.addEventListener('blur', () => {
+                const guess = clampGuess();
                 paintSeats(guess);
             });
         })();
