@@ -149,6 +149,15 @@
             width: min(1040px, 100%);
             min-height: 860px;
             margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .attendance-visual {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
         }
 
         .attendance-architecture {
@@ -299,10 +308,8 @@
         }
 
         .attendance-pitch-shell {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: absolute;
+            inset: 0;
             min-height: 860px;
             z-index: 1;
         }
@@ -537,7 +544,6 @@
             }
 
             .attendance-pitch-shell {
-                padding: 0.5rem 0 1rem;
                 min-height: 780px;
             }
 
@@ -565,12 +571,29 @@
                 padding: 0.5rem 0 1.5rem;
             }
 
+            .attendance-stadium {
+                padding: 1rem;
+            }
+
             .attendance-fields {
                 grid-template-columns: 1fr;
             }
 
             .attendance-arena {
-                min-height: 760px;
+                display: grid;
+                grid-template-rows: 360px auto;
+                align-items: start;
+                gap: 0.5rem;
+                min-height: auto;
+            }
+
+            .attendance-visual {
+                position: relative;
+                min-height: 360px;
+            }
+
+            .attendance-pitch-shell {
+                min-height: 360px;
             }
 
             .attendance-seat {
@@ -584,7 +607,8 @@
             }
 
             .attendance-form-shell {
-                width: min(620px, calc(100% - 1rem));
+                width: min(620px, 100%);
+                margin-top: -0.5rem;
             }
 
             .attendance-center-circle {
@@ -652,129 +676,131 @@
             @else
                 <div class="attendance-stadium">
                     <div class="attendance-arena">
-                        <div class="attendance-architecture" aria-hidden="true">
-                            <span class="attendance-stand north"></span>
-                            <span class="attendance-stand south"></span>
-                            <span class="attendance-stand west"></span>
-                            <span class="attendance-stand east"></span>
-                        </div>
-                        <div class="attendance-seats" id="attendance-seats" aria-hidden="true"></div>
-
-                        <div class="attendance-pitch-shell">
-                            <div class="attendance-pitch">
-                                <div class="attendance-center-circle"></div>
-                                <div class="attendance-center-dot"></div>
-                                <div class="attendance-pitch-shadow"></div>
-                                <div class="attendance-box top"></div>
-                                <div class="attendance-box bottom"></div>
+                        <div class="attendance-visual">
+                            <div class="attendance-architecture" aria-hidden="true">
+                                <span class="attendance-stand north"></span>
+                                <span class="attendance-stand south"></span>
+                                <span class="attendance-stand west"></span>
+                                <span class="attendance-stand east"></span>
                             </div>
+                            <div class="attendance-seats" id="attendance-seats" aria-hidden="true"></div>
 
-                            <div class="attendance-form-shell">
-                                <div class="attendance-form-panel">
-                                    <form
-                                        method="POST"
-                                        action="{{ route('public.attendance-guess.store') }}"
-                                        data-attendance-form
-                                        data-max-capacity="{{ $maxCapacity ?? '' }}"
-                                        data-initial-guess="{{ $initialGuess ?? '' }}"
-                                    >
-                                        @csrf
-
-                                        <div class="attendance-fields">
-                                            <div>
-                                                <label class="form-label fw-semibold" for="participant_name">{{ __('Nombre') }}</label>
-                                                <input
-                                                    id="participant_name"
-                                                    name="participant_name"
-                                                    type="text"
-                                                    class="form-control form-control-solid"
-                                                    value="{{ old('participant_name') }}"
-                                                    required
-                                                >
-                                            </div>
-
-                                            <div>
-                                                <label class="form-label fw-semibold" for="participant_phone">{{ __('Teléfono') }}</label>
-                                                <input
-                                                    id="participant_phone"
-                                                    name="participant_phone"
-                                                    type="text"
-                                                    class="form-control form-control-solid"
-                                                    value="{{ old('participant_phone') }}"
-                                                    required
-                                                >
-                                            </div>
-
-                                            <div>
-                                                <label class="form-label fw-semibold" for="participant_email">{{ __('Email') }}</label>
-                                                <input
-                                                    id="participant_email"
-                                                    name="participant_email"
-                                                    type="email"
-                                                    class="form-control form-control-solid"
-                                                    value="{{ old('participant_email') }}"
-                                                    required
-                                                >
-                                            </div>
-
-                                            <div>
-                                                <label class="form-label fw-semibold" for="attendance_guess">{{ __('Tu predicción de aforo') }}</label>
-                                                <input
-                                                    id="attendance_guess"
-                                                    name="attendance_guess"
-                                                    type="number"
-                                                    min="0"
-                                                    @if ($maxCapacity) max="{{ $maxCapacity }}" @endif
-                                                    step="1"
-                                                    class="form-control form-control-solid attendance-capacity-input"
-                                                    value="{{ $initialGuess }}"
-                                                    required
-                                                >
-                                                <div class="attendance-capacity-note">
-                                                    @if ($maxCapacity)
-                                                        Máximo disponible: {{ $formattedMaxCapacity }} espectadores.
-                                                    @else
-                                                        Define el aforo máximo en configuración para activar la previsualización exacta de ocupación.
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="attendance-progress">
-                                            <div class="attendance-progress-top">
-                                                <div>
-                                                    <span class="attendance-progress-label">Ocupación estimada</span>
-                                                    <div class="attendance-progress-value" id="attendance-progress-value">0%</div>
-                                                </div>
-                                                <div class="attendance-progress-note" id="attendance-progress-note">Esperando tu predicción</div>
-                                            </div>
-                                            <div class="attendance-progress-track">
-                                                <div class="attendance-progress-bar" id="attendance-progress-bar"></div>
-                                            </div>
-                                        </div>
-
-                                        <div class="attendance-consents mt-5">
-                                            <label class="form-check form-check-custom form-check-solid">
-                                                <input class="form-check-input" type="checkbox" name="accept_terms" value="1" @checked(old('accept_terms')) required>
-                                                <span class="form-check-label">{{ __('Acepto términos y condiciones') }}</span>
-                                            </label>
-
-                                            <label class="form-check form-check-custom form-check-solid">
-                                                <input class="form-check-input" type="checkbox" name="accept_marketing" value="1" @checked(old('accept_marketing'))>
-                                                <span class="form-check-label">{{ __('Acepto recibir publicidad y comunicaciones comerciales') }}</span>
-                                            </label>
-
-                                            <label class="form-check form-check-custom form-check-solid">
-                                                <input class="form-check-input" type="checkbox" name="accept_third" value="1" @checked(old('accept_third'))>
-                                                <span class="form-check-label">{{ $thirdConsentLabel }}</span>
-                                            </label>
-                                        </div>
-
-                                        <div class="mt-5">
-                                            <button type="submit" class="btn btn-primary w-100 btn-lg">{{ __('Enviar participación') }}</button>
-                                        </div>
-                                    </form>
+                            <div class="attendance-pitch-shell">
+                                <div class="attendance-pitch">
+                                    <div class="attendance-center-circle"></div>
+                                    <div class="attendance-center-dot"></div>
+                                    <div class="attendance-pitch-shadow"></div>
+                                    <div class="attendance-box top"></div>
+                                    <div class="attendance-box bottom"></div>
                                 </div>
+                            </div>
+                        </div>
+
+                        <div class="attendance-form-shell">
+                            <div class="attendance-form-panel">
+                                <form
+                                    method="POST"
+                                    action="{{ route('public.attendance-guess.store') }}"
+                                    data-attendance-form
+                                    data-max-capacity="{{ $maxCapacity ?? '' }}"
+                                    data-initial-guess="{{ $initialGuess ?? '' }}"
+                                >
+                                    @csrf
+
+                                    <div class="attendance-fields">
+                                        <div>
+                                            <label class="form-label fw-semibold" for="participant_name">{{ __('Nombre') }}</label>
+                                            <input
+                                                id="participant_name"
+                                                name="participant_name"
+                                                type="text"
+                                                class="form-control form-control-solid"
+                                                value="{{ old('participant_name') }}"
+                                                required
+                                            >
+                                        </div>
+
+                                        <div>
+                                            <label class="form-label fw-semibold" for="participant_phone">{{ __('Teléfono') }}</label>
+                                            <input
+                                                id="participant_phone"
+                                                name="participant_phone"
+                                                type="text"
+                                                class="form-control form-control-solid"
+                                                value="{{ old('participant_phone') }}"
+                                                required
+                                            >
+                                        </div>
+
+                                        <div>
+                                            <label class="form-label fw-semibold" for="participant_email">{{ __('Email') }}</label>
+                                            <input
+                                                id="participant_email"
+                                                name="participant_email"
+                                                type="email"
+                                                class="form-control form-control-solid"
+                                                value="{{ old('participant_email') }}"
+                                                required
+                                            >
+                                        </div>
+
+                                        <div>
+                                            <label class="form-label fw-semibold" for="attendance_guess">{{ __('Tu predicción de aforo') }}</label>
+                                            <input
+                                                id="attendance_guess"
+                                                name="attendance_guess"
+                                                type="number"
+                                                min="0"
+                                                @if ($maxCapacity) max="{{ $maxCapacity }}" @endif
+                                                step="1"
+                                                class="form-control form-control-solid attendance-capacity-input"
+                                                value="{{ $initialGuess }}"
+                                                required
+                                            >
+                                            <div class="attendance-capacity-note">
+                                                @if ($maxCapacity)
+                                                    Máximo disponible: {{ $formattedMaxCapacity }} espectadores.
+                                                @else
+                                                    Define el aforo máximo en configuración para activar la previsualización exacta de ocupación.
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="attendance-progress">
+                                        <div class="attendance-progress-top">
+                                            <div>
+                                                <span class="attendance-progress-label">Ocupación estimada</span>
+                                                <div class="attendance-progress-value" id="attendance-progress-value">0%</div>
+                                            </div>
+                                            <div class="attendance-progress-note" id="attendance-progress-note">Esperando tu predicción</div>
+                                        </div>
+                                        <div class="attendance-progress-track">
+                                            <div class="attendance-progress-bar" id="attendance-progress-bar"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="attendance-consents mt-5">
+                                        <label class="form-check form-check-custom form-check-solid">
+                                            <input class="form-check-input" type="checkbox" name="accept_terms" value="1" @checked(old('accept_terms')) required>
+                                            <span class="form-check-label">{{ __('Acepto términos y condiciones') }}</span>
+                                        </label>
+
+                                        <label class="form-check form-check-custom form-check-solid">
+                                            <input class="form-check-input" type="checkbox" name="accept_marketing" value="1" @checked(old('accept_marketing'))>
+                                            <span class="form-check-label">{{ __('Acepto recibir publicidad y comunicaciones comerciales') }}</span>
+                                        </label>
+
+                                        <label class="form-check form-check-custom form-check-solid">
+                                            <input class="form-check-input" type="checkbox" name="accept_third" value="1" @checked(old('accept_third'))>
+                                            <span class="form-check-label">{{ $thirdConsentLabel }}</span>
+                                        </label>
+                                    </div>
+
+                                    <div class="mt-5">
+                                        <button type="submit" class="btn btn-primary w-100 btn-lg">{{ __('Enviar participación') }}</button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
