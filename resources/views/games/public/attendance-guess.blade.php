@@ -464,10 +464,21 @@
             background: linear-gradient(135deg, rgba(var(--pm-primary-rgb), 0.12), rgba(var(--pm-secondary-rgb), 0.08));
         }
 
+        .attendance-progress-shell {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 128px;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .attendance-progress-main {
+            display: grid;
+            gap: 0.75rem;
+        }
+
         .attendance-progress-top {
             display: grid;
             gap: 0.45rem;
-            margin-bottom: 0.75rem;
         }
 
         .attendance-progress-label {
@@ -507,6 +518,113 @@
             transition: width 0.3s ease;
         }
 
+        .attendance-progress-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .attendance-mini-stadium {
+            position: relative;
+            width: 128px;
+            aspect-ratio: 1.1 / 1;
+            border-radius: 30px;
+            background:
+                radial-gradient(circle at center, rgba(255, 255, 255, 0.08), transparent 58%),
+                linear-gradient(145deg, rgba(10, 25, 17, 0.92), rgba(19, 47, 33, 0.88));
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.12),
+                0 16px 30px rgba(8, 20, 13, 0.18);
+            overflow: hidden;
+        }
+
+        .attendance-mini-stadium::before {
+            content: "";
+            position: absolute;
+            inset: 0.45rem;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            pointer-events: none;
+        }
+
+        .attendance-mini-seats {
+            position: absolute;
+            inset: 0.5rem;
+            border-radius: 24px;
+        }
+
+        .attendance-mini-seat {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: rgba(196, 214, 202, 0.16);
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.03);
+            transition: background-color 0.28s ease, transform 0.28s ease, box-shadow 0.28s ease;
+        }
+
+        .attendance-mini-seat.is-filled {
+            background: #ffe699;
+            box-shadow: 0 0 8px rgba(255, 230, 153, 0.6);
+            transform: scale(1.18);
+        }
+
+        .attendance-mini-pitch {
+            position: absolute;
+            inset: 26% 20%;
+            border-radius: 16px;
+            background:
+                linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+                linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+                linear-gradient(180deg, #3ba95a 0%, #2c8c4b 55%, #22703d 100%);
+            background-size: 18px 18px, 18px 18px, cover;
+            box-shadow:
+                inset 0 0 0 2px rgba(255, 255, 255, 0.16),
+                0 8px 16px rgba(0, 0, 0, 0.18);
+            overflow: hidden;
+        }
+
+        .attendance-mini-pitch::before {
+            content: "";
+            position: absolute;
+            inset: 12%;
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            border-radius: 12px;
+        }
+
+        .attendance-mini-pitch::after {
+            content: "";
+            position: absolute;
+            top: 12%;
+            bottom: 12%;
+            left: 50%;
+            border-left: 2px solid rgba(255, 255, 255, 0.72);
+            transform: translateX(-50%);
+        }
+
+        .attendance-mini-center-circle,
+        .attendance-mini-center-dot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .attendance-mini-center-circle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.72);
+        }
+
+        .attendance-mini-center-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.92);
+        }
+
         .attendance-consents {
             display: grid;
             gap: 0.7rem;
@@ -520,6 +638,32 @@
             color: #fff;
         }
 
+        .attendance-mobile-step {
+            display: contents;
+        }
+
+        .attendance-mobile-step-indicator,
+        .attendance-mobile-nav {
+            display: none;
+        }
+
+        .attendance-mobile-step-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: rgba(17, 39, 28, 0.14);
+            transition: width 0.2s ease, background-color 0.2s ease;
+        }
+
+        .attendance-mobile-step-dot.is-active {
+            width: 24px;
+            background: var(--pm-primary);
+        }
+
+        .attendance-desktop-submit {
+            display: block;
+        }
+
         @keyframes attendance-stage-enter {
             to {
                 opacity: 1;
@@ -531,6 +675,18 @@
             to {
                 opacity: 1;
                 transform: translateY(0);
+            }
+        }
+
+        @keyframes attendance-mobile-step-enter {
+            from {
+                opacity: 0;
+                transform: translateX(18px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
             }
         }
 
@@ -566,34 +722,121 @@
         }
 
         @media (max-width: 767.98px) {
+            html,
+            body,
+            #kt_app_root {
+                height: 100%;
+                overflow: hidden;
+            }
+
+            .attendance-guess-page {
+                min-height: 100dvh;
+                height: 100dvh;
+                padding: 0.4rem !important;
+                align-items: stretch !important;
+            }
+
             .attendance-stage {
-                width: min(100vw - 1rem, 1200px);
-                padding: 0.5rem 0 1.5rem;
+                width: min(100vw - 0.8rem, 1200px);
+                height: calc(100dvh - 0.8rem);
+                padding: 0.1rem 0;
+                display: grid;
+                grid-template-rows: auto minmax(0, 1fr);
+                gap: 0.45rem;
+            }
+
+            .attendance-hero {
+                gap: 0.45rem;
+                margin-bottom: 0;
+                text-align: center;
+            }
+
+            .attendance-kicker {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 0.25rem 0.4rem;
+                padding: 0.3rem 0.7rem;
+                font-size: 0.62rem;
+            }
+
+            .attendance-hero h1 {
+                font-size: clamp(1.65rem, 7vw, 2.25rem);
+            }
+
+            .attendance-hero p {
+                display: none;
+            }
+
+            .attendance-board {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 0.4rem;
+            }
+
+            .attendance-chip {
+                min-height: 0;
+                padding: 0.55rem 0.5rem;
+                border-radius: 18px;
+            }
+
+            .attendance-chip-label {
+                margin-bottom: 0.2rem;
+                font-size: 0.55rem;
+                line-height: 1.15;
+            }
+
+            .attendance-chip-value {
+                font-size: clamp(0.8rem, 3.2vw, 1rem);
+                line-height: 1.1;
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 2;
+                overflow: hidden;
+            }
+
+            .attendance-alert {
+                position: fixed;
+                top: 0.6rem;
+                left: 0.6rem;
+                right: 0.6rem;
+                z-index: 20;
+                margin-bottom: 0 !important;
             }
 
             .attendance-stadium {
-                padding: 1rem;
+                min-height: 0;
+                height: 100%;
+                padding: 0.65rem;
+                border-radius: 28px;
             }
 
             .attendance-fields {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.55rem 0.45rem;
+            }
+
+            .attendance-fields .form-label {
+                margin-bottom: 0.22rem;
+                font-size: 0.78rem;
             }
 
             .attendance-arena {
-                display: grid;
-                grid-template-rows: 360px auto;
-                align-items: start;
-                gap: 0.5rem;
-                min-height: auto;
+                height: 100%;
+                min-height: 0;
+                grid-template-rows: minmax(120px, 0.62fr) minmax(0, 1fr);
+                align-items: stretch;
+                gap: 0.35rem;
             }
 
             .attendance-visual {
                 position: relative;
-                min-height: 360px;
+                min-height: 0;
+                height: 100%;
             }
 
             .attendance-pitch-shell {
-                min-height: 360px;
+                min-height: 0;
+                height: 100%;
             }
 
             .attendance-seat {
@@ -602,13 +845,16 @@
             }
 
             .attendance-pitch {
-                inset: 19% 8%;
-                padding: 1.2rem 0.85rem;
+                inset: 19% 10%;
+                padding: 0.9rem 0.7rem;
+                border-radius: 20px;
             }
 
             .attendance-form-shell {
                 width: min(620px, 100%);
-                margin-top: -0.5rem;
+                margin-top: 0;
+                padding: 0;
+                min-height: 0;
             }
 
             .attendance-center-circle {
@@ -618,6 +864,246 @@
 
             .attendance-box {
                 height: 64px;
+            }
+
+            .attendance-form-panel {
+                height: 100%;
+                padding: 0.9rem;
+                border-radius: 24px;
+            }
+
+            .attendance-form-panel form {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                gap: 0.65rem;
+            }
+
+            .attendance-form-panel .form-control {
+                min-height: 42px;
+                padding: 0.55rem 0.7rem;
+                font-size: 0.95rem;
+            }
+
+            .attendance-capacity-input {
+                font-size: 1rem;
+            }
+
+            .attendance-capacity-note {
+                margin-top: 0.28rem;
+                font-size: 0.72rem;
+                line-height: 1.25;
+            }
+
+            .attendance-progress {
+                margin-top: 0;
+                padding: 0.7rem 0.85rem;
+                border-radius: 18px;
+            }
+
+            .attendance-progress-shell {
+                grid-template-columns: minmax(0, 1fr) 96px;
+                gap: 0.7rem;
+            }
+
+            .attendance-progress-top {
+                gap: 0.2rem;
+            }
+
+            .attendance-progress-label {
+                margin-bottom: 0.15rem;
+                font-size: 0.62rem;
+            }
+
+            .attendance-progress-value {
+                font-size: clamp(1.2rem, 5.5vw, 1.5rem);
+            }
+
+            .attendance-progress-note {
+                font-size: 0.78rem;
+            }
+
+            .attendance-progress-track {
+                height: 10px;
+            }
+
+            .attendance-mini-stadium {
+                width: 96px;
+                border-radius: 22px;
+            }
+
+            .attendance-mini-stadium::before {
+                inset: 0.35rem;
+                border-radius: 18px;
+            }
+
+            .attendance-mini-seats {
+                inset: 0.38rem;
+            }
+
+            .attendance-mini-seat {
+                width: 3px;
+                height: 3px;
+            }
+
+            .attendance-mini-pitch {
+                inset: 27% 18%;
+                border-radius: 12px;
+            }
+
+            .attendance-mini-pitch::before,
+            .attendance-mini-pitch::after,
+            .attendance-mini-center-circle {
+                border-width: 1.5px;
+            }
+
+            .attendance-mini-center-circle {
+                width: 19px;
+                height: 19px;
+            }
+
+            .attendance-mini-center-dot {
+                width: 4px;
+                height: 4px;
+            }
+
+            .attendance-mobile-step-indicator {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.35rem;
+                margin-bottom: 0.1rem;
+            }
+
+            .attendance-mobile-step {
+                display: none;
+                min-height: 0;
+                flex: 1 1 auto;
+            }
+
+            .attendance-mobile-step.is-active {
+                display: flex;
+                flex-direction: column;
+                gap: 0.65rem;
+                animation: attendance-mobile-step-enter 0.25s ease;
+            }
+
+            .attendance-mobile-step[data-mobile-step-panel="2"].is-active {
+                justify-content: space-between;
+            }
+
+            .attendance-consents {
+                gap: 0.45rem;
+            }
+
+            .attendance-mobile-step .attendance-consents {
+                margin-top: 0 !important;
+            }
+
+            .attendance-consents .form-check {
+                margin: 0;
+            }
+
+            .attendance-consents .form-check-label {
+                font-size: 0.78rem;
+                line-height: 1.2;
+            }
+
+            .attendance-mobile-nav {
+                display: grid;
+                gap: 0.45rem;
+                margin-top: auto;
+            }
+
+            .attendance-mobile-nav-split {
+                grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+            }
+
+            .attendance-mobile-nav .btn {
+                min-height: 42px;
+                padding-top: 0.7rem;
+                padding-bottom: 0.7rem;
+                font-size: 0.92rem;
+            }
+
+            .attendance-desktop-submit {
+                display: none;
+            }
+
+            .attendance-stadium[data-mobile-step="2"] .attendance-arena {
+                grid-template-rows: minmax(0, 1fr);
+            }
+
+            .attendance-stadium[data-mobile-step="2"] .attendance-visual {
+                display: none;
+            }
+        }
+
+        @media (max-width: 767.98px) and (max-height: 780px) {
+            .attendance-stage {
+                gap: 0.35rem;
+            }
+
+            .attendance-kicker {
+                padding: 0.24rem 0.65rem;
+                font-size: 0.58rem;
+            }
+
+            .attendance-chip {
+                padding: 0.45rem 0.45rem;
+                border-radius: 16px;
+            }
+
+            .attendance-chip-label {
+                font-size: 0.5rem;
+            }
+
+            .attendance-chip-value {
+                font-size: 0.76rem;
+            }
+
+            .attendance-arena {
+                grid-template-rows: minmax(100px, 0.5fr) minmax(0, 1fr);
+            }
+
+            .attendance-form-panel {
+                padding: 0.75rem;
+            }
+
+            .attendance-form-panel .form-control {
+                min-height: 38px;
+                padding: 0.5rem 0.65rem;
+                font-size: 0.9rem;
+            }
+
+            .attendance-fields .form-label,
+            .attendance-consents .form-check-label,
+            .attendance-progress-note {
+                font-size: 0.72rem;
+            }
+
+            .attendance-progress {
+                padding: 0.6rem 0.75rem;
+            }
+
+            .attendance-progress-shell {
+                grid-template-columns: minmax(0, 1fr) 82px;
+                gap: 0.55rem;
+            }
+
+            .attendance-mini-stadium {
+                width: 82px;
+                border-radius: 18px;
+            }
+
+            .attendance-mini-pitch {
+                inset: 27% 17%;
+            }
+
+            .attendance-mobile-nav .btn {
+                min-height: 38px;
+                padding-top: 0.6rem;
+                padding-bottom: 0.6rem;
             }
         }
     </style>
@@ -674,7 +1160,7 @@
                     </div>
                 </div>
             @else
-                <div class="attendance-stadium">
+                <div class="attendance-stadium" data-mobile-step="1">
                     <div class="attendance-arena">
                         <div class="attendance-visual">
                             <div class="attendance-architecture" aria-hidden="true">
@@ -704,100 +1190,132 @@
                                     data-attendance-form
                                     data-max-capacity="{{ $maxCapacity ?? '' }}"
                                     data-initial-guess="{{ $initialGuess ?? '' }}"
+                                    data-mobile-step="1"
                                 >
                                     @csrf
 
-                                    <div class="attendance-fields">
-                                        <div>
-                                            <label class="form-label fw-semibold" for="participant_name">{{ __('Nombre') }}</label>
-                                            <input
-                                                id="participant_name"
-                                                name="participant_name"
-                                                type="text"
-                                                class="form-control form-control-solid"
-                                                value="{{ old('participant_name') }}"
-                                                required
-                                            >
-                                        </div>
-
-                                        <div>
-                                            <label class="form-label fw-semibold" for="participant_phone">{{ __('Teléfono') }}</label>
-                                            <input
-                                                id="participant_phone"
-                                                name="participant_phone"
-                                                type="text"
-                                                class="form-control form-control-solid"
-                                                value="{{ old('participant_phone') }}"
-                                                required
-                                            >
-                                        </div>
-
-                                        <div>
-                                            <label class="form-label fw-semibold" for="participant_email">{{ __('Email') }}</label>
-                                            <input
-                                                id="participant_email"
-                                                name="participant_email"
-                                                type="email"
-                                                class="form-control form-control-solid"
-                                                value="{{ old('participant_email') }}"
-                                                required
-                                            >
-                                        </div>
-
-                                        <div>
-                                            <label class="form-label fw-semibold" for="attendance_guess">{{ __('Tu predicción de aforo') }}</label>
-                                            <input
-                                                id="attendance_guess"
-                                                name="attendance_guess"
-                                                type="number"
-                                                min="0"
-                                                @if ($maxCapacity) max="{{ $maxCapacity }}" @endif
-                                                step="1"
-                                                class="form-control form-control-solid attendance-capacity-input"
-                                                value="{{ $initialGuess }}"
-                                                required
-                                            >
-                                            <div class="attendance-capacity-note">
-                                                @if ($maxCapacity)
-                                                    Máximo disponible: {{ $formattedMaxCapacity }} espectadores.
-                                                @else
-                                                    Define el aforo máximo en configuración para activar la previsualización exacta de ocupación.
-                                                @endif
-                                            </div>
-                                        </div>
+                                    <div class="attendance-mobile-step-indicator" aria-hidden="true">
+                                        <span class="attendance-mobile-step-dot is-active" data-mobile-step-dot="1"></span>
+                                        <span class="attendance-mobile-step-dot" data-mobile-step-dot="2"></span>
                                     </div>
 
-                                    <div class="attendance-progress">
-                                        <div class="attendance-progress-top">
+                                    <div class="attendance-mobile-step is-active" data-mobile-step-panel="1">
+                                        <div class="attendance-fields">
                                             <div>
-                                                <span class="attendance-progress-label">Ocupación estimada</span>
-                                                <div class="attendance-progress-value" id="attendance-progress-value">0%</div>
+                                                <label class="form-label fw-semibold" for="participant_name">{{ __('Nombre') }}</label>
+                                                <input
+                                                    id="participant_name"
+                                                    name="participant_name"
+                                                    type="text"
+                                                    class="form-control form-control-solid"
+                                                    value="{{ old('participant_name') }}"
+                                                    required
+                                                >
                                             </div>
-                                            <div class="attendance-progress-note" id="attendance-progress-note">Esperando tu predicción</div>
+
+                                            <div>
+                                                <label class="form-label fw-semibold" for="participant_phone">{{ __('Teléfono') }}</label>
+                                                <input
+                                                    id="participant_phone"
+                                                    name="participant_phone"
+                                                    type="text"
+                                                    class="form-control form-control-solid"
+                                                    value="{{ old('participant_phone') }}"
+                                                    required
+                                                >
+                                            </div>
+
+                                            <div>
+                                                <label class="form-label fw-semibold" for="participant_email">{{ __('Email') }}</label>
+                                                <input
+                                                    id="participant_email"
+                                                    name="participant_email"
+                                                    type="email"
+                                                    class="form-control form-control-solid"
+                                                    value="{{ old('participant_email') }}"
+                                                    required
+                                                >
+                                            </div>
+
+                                            <div>
+                                                <label class="form-label fw-semibold" for="attendance_guess">{{ __('Tu predicción de aforo') }}</label>
+                                                <input
+                                                    id="attendance_guess"
+                                                    name="attendance_guess"
+                                                    type="number"
+                                                    min="0"
+                                                    @if ($maxCapacity) max="{{ $maxCapacity }}" @endif
+                                                    step="1"
+                                                    class="form-control form-control-solid attendance-capacity-input"
+                                                    value="{{ $initialGuess }}"
+                                                    required
+                                                >
+                                                <div class="attendance-capacity-note">
+                                                    @if ($maxCapacity)
+                                                        Máximo disponible: {{ $formattedMaxCapacity }} espectadores.
+                                                    @else
+                                                        Define el aforo máximo en configuración para activar la previsualización exacta de ocupación.
+                                                    @endif
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="attendance-progress-track">
-                                            <div class="attendance-progress-bar" id="attendance-progress-bar"></div>
+
+                                        <div class="attendance-progress">
+                                            <div class="attendance-progress-shell">
+                                                <div class="attendance-progress-main">
+                                                    <div class="attendance-progress-top">
+                                                        <div>
+                                                            <span class="attendance-progress-label">Ocupación estimada</span>
+                                                            <div class="attendance-progress-value" id="attendance-progress-value">0%</div>
+                                                        </div>
+                                                        <div class="attendance-progress-note" id="attendance-progress-note">Esperando tu predicción</div>
+                                                    </div>
+                                                    <div class="attendance-progress-track">
+                                                        <div class="attendance-progress-bar" id="attendance-progress-bar"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="attendance-progress-visual" aria-hidden="true">
+                                                    <div class="attendance-mini-stadium">
+                                                        <div class="attendance-mini-seats" id="attendance-mini-seats"></div>
+                                                        <div class="attendance-mini-pitch">
+                                                            <div class="attendance-mini-center-circle"></div>
+                                                            <div class="attendance-mini-center-dot"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="attendance-mobile-nav">
+                                            <button type="button" class="btn btn-primary w-100" data-mobile-step-next>Continuar</button>
                                         </div>
                                     </div>
 
-                                    <div class="attendance-consents mt-5">
-                                        <label class="form-check form-check-custom form-check-solid">
-                                            <input class="form-check-input" type="checkbox" name="accept_terms" value="1" @checked(old('accept_terms')) required>
-                                            <span class="form-check-label">{{ __('Acepto términos y condiciones') }}</span>
-                                        </label>
+                                    <div class="attendance-mobile-step" data-mobile-step-panel="2">
+                                        <div class="attendance-consents mt-5">
+                                            <label class="form-check form-check-custom form-check-solid">
+                                                <input class="form-check-input" type="checkbox" name="accept_terms" value="1" @checked(old('accept_terms')) required>
+                                                <span class="form-check-label">{{ __('Acepto términos y condiciones') }}</span>
+                                            </label>
 
-                                        <label class="form-check form-check-custom form-check-solid">
-                                            <input class="form-check-input" type="checkbox" name="accept_marketing" value="1" @checked(old('accept_marketing'))>
-                                            <span class="form-check-label">{{ __('Acepto recibir publicidad y comunicaciones comerciales') }}</span>
-                                        </label>
+                                            <label class="form-check form-check-custom form-check-solid">
+                                                <input class="form-check-input" type="checkbox" name="accept_marketing" value="1" @checked(old('accept_marketing'))>
+                                                <span class="form-check-label">{{ __('Acepto recibir publicidad y comunicaciones comerciales') }}</span>
+                                            </label>
 
-                                        <label class="form-check form-check-custom form-check-solid">
-                                            <input class="form-check-input" type="checkbox" name="accept_third" value="1" @checked(old('accept_third'))>
-                                            <span class="form-check-label">{{ $thirdConsentLabel }}</span>
-                                        </label>
+                                            <label class="form-check form-check-custom form-check-solid">
+                                                <input class="form-check-input" type="checkbox" name="accept_third" value="1" @checked(old('accept_third'))>
+                                                <span class="form-check-label">{{ $thirdConsentLabel }}</span>
+                                            </label>
+                                        </div>
+
+                                        <div class="attendance-mobile-nav attendance-mobile-nav-split">
+                                            <button type="button" class="btn btn-light" data-mobile-step-prev>Volver</button>
+                                            <button type="submit" class="btn btn-primary">{{ __('Enviar participación') }}</button>
+                                        </div>
                                     </div>
 
-                                    <div class="mt-5">
+                                    <div class="attendance-desktop-submit mt-5">
                                         <button type="submit" class="btn btn-primary w-100 btn-lg">{{ __('Enviar participación') }}</button>
                                     </div>
                                 </form>
@@ -821,13 +1339,23 @@
 
             const input = form.querySelector('#attendance_guess');
             const seatsLayer = document.getElementById('attendance-seats');
+            const miniSeatsLayer = document.getElementById('attendance-mini-seats');
             const progressValue = document.getElementById('attendance-progress-value');
             const progressBar = document.getElementById('attendance-progress-bar');
             const progressNote = document.getElementById('attendance-progress-note');
             const stageStatus = document.getElementById('attendance-stage-status');
+            const stadium = form.closest('.attendance-stadium');
+            const mobileSteps = Array.from(form.querySelectorAll('[data-mobile-step-panel]'));
+            const mobileStepDots = Array.from(form.querySelectorAll('[data-mobile-step-dot]'));
+            const mobileNextButton = form.querySelector('[data-mobile-step-next]');
+            const mobilePrevButton = form.querySelector('[data-mobile-step-prev]');
+            const mobileMediaQuery = window.matchMedia('(max-width: 767.98px)');
 
             const maxCapacity = Number(form.dataset.maxCapacity || 0);
             const seats = [];
+            const miniSeats = [];
+            let currentMobileStep = Number(form.dataset.mobileStep || 1);
+            let isMobileSeatLayout = window.innerWidth < 768;
 
             const formatNumber = (value) => new Intl.NumberFormat('es-ES').format(value);
 
@@ -836,13 +1364,25 @@
                 return raw - Math.floor(raw);
             };
 
-            const createSeat = (x, y) => {
+            const createSeatElement = (layer, collection, className, x, y) => {
+                if (!layer) {
+                    return;
+                }
+
                 const seat = document.createElement('span');
-                seat.className = 'attendance-seat';
+                seat.className = className;
                 seat.style.left = `${x}%`;
                 seat.style.top = `${y}%`;
-                seatsLayer.appendChild(seat);
-                seats.push(seat);
+                layer.appendChild(seat);
+                collection.push(seat);
+            };
+
+            const createSeat = (x, y) => {
+                createSeatElement(seatsLayer, seats, 'attendance-seat', x, y);
+            };
+
+            const createMiniSeat = (x, y) => {
+                createSeatElement(miniSeatsLayer, miniSeats, 'attendance-mini-seat', x, y);
             };
 
             const createStandGrid = ({ rows, cols, xStart, xEnd, yStart, yEnd, trimAxis }) => {
@@ -903,11 +1443,55 @@
                 createStandGrid({ rows: 24, cols: 10, xStart: 81.5, xEnd: 91.5, yStart: 20, yEnd: 80, trimAxis: 'y' });
             };
 
-            const orderedSeatIndexes = (guess) => {
-                return seats
-                    .map((_, index) => ({
+            const buildMiniSeats = () => {
+                if (!miniSeatsLayer) {
+                    return;
+                }
+
+                const createMiniStandGrid = ({ rows, cols, xStart, xEnd, yStart, yEnd, trimAxis }) => {
+                    for (let row = 0; row < rows; row += 1) {
+                        const rowRatio = rows === 1 ? 0.5 : row / (rows - 1);
+                        const curveStrength = Math.abs(rowRatio - 0.5) * 2;
+
+                        for (let col = 0; col < cols; col += 1) {
+                            const colRatio = cols === 1 ? 0.5 : col / (cols - 1);
+                            const crossCurve = Math.abs(colRatio - 0.5) * 2;
+                            let localXStart = xStart;
+                            let localXEnd = xEnd;
+                            let localYStart = yStart;
+                            let localYEnd = yEnd;
+
+                            if (trimAxis === 'x') {
+                                const trim = curveStrength * 4.5;
+                                localXStart += trim;
+                                localXEnd -= trim;
+                            } else {
+                                const trim = crossCurve * 3.2;
+                                localYStart += trim;
+                                localYEnd -= trim;
+                            }
+
+                            if (localXEnd <= localXStart || localYEnd <= localYStart) {
+                                continue;
+                            }
+
+                            const x = localXStart + ((localXEnd - localXStart) * colRatio);
+                            const y = localYStart + ((localYEnd - localYStart) * rowRatio);
+                            createMiniSeat(x, y);
+                        }
+                    }
+                };
+
+                createMiniStandGrid({ rows: 4, cols: 16, xStart: 16, xEnd: 84, yStart: 9, yEnd: 22, trimAxis: 'x' });
+                createMiniStandGrid({ rows: 4, cols: 16, xStart: 16, xEnd: 84, yStart: 78, yEnd: 91, trimAxis: 'x' });
+                createMiniStandGrid({ rows: 11, cols: 4, xStart: 8, xEnd: 18, yStart: 24, yEnd: 76, trimAxis: 'y' });
+                createMiniStandGrid({ rows: 11, cols: 4, xStart: 82, xEnd: 92, yStart: 24, yEnd: 76, trimAxis: 'y' });
+            };
+
+            const orderedSeatIndexes = (guess, seatCount) => {
+                return Array.from({ length: seatCount }, (_, index) => ({
                         index,
-                        value: seededValue((guess || 1) + seats.length, index),
+                        value: seededValue((guess || 1) + seatCount, index),
                     }))
                     .sort((a, b) => a.value - b.value)
                     .map((entry) => entry.index);
@@ -939,15 +1523,20 @@
 
             const paintSeats = (guess) => {
                 const ratio = maxCapacity > 0 ? Math.max(0, Math.min(guess / maxCapacity, 1)) : 0;
-                const filledSeats = Math.round(seats.length * ratio);
-                const orderedIndexes = orderedSeatIndexes(guess);
-                const filledIndexes = new Set(orderedIndexes.slice(0, filledSeats));
+                const paintSeatCollection = (collection) => {
+                    const filledSeatCount = Math.round(collection.length * ratio);
+                    const orderedIndexes = orderedSeatIndexes(guess, collection.length);
+                    const filledIndexes = new Set(orderedIndexes.slice(0, filledSeatCount));
 
-                seats.forEach((seat, index) => {
-                    seat.classList.toggle('is-filled', filledIndexes.has(index));
-                });
+                    collection.forEach((seat, index) => {
+                        seat.classList.toggle('is-filled', filledIndexes.has(index));
+                    });
 
-                const visualRatio = seats.length > 0 ? filledSeats / seats.length : ratio;
+                    return collection.length > 0 ? filledSeatCount / collection.length : ratio;
+                };
+
+                const visualRatio = paintSeatCollection(seats);
+                paintSeatCollection(miniSeats);
 
                 progressValue.textContent = `${Math.round(visualRatio * 100)}%`;
                 progressBar.style.width = `${visualRatio * 100}%`;
@@ -974,7 +1563,60 @@
                 return nextGuess;
             };
 
+            const setMobileStep = (step) => {
+                currentMobileStep = step;
+                form.dataset.mobileStep = String(step);
+
+                if (stadium) {
+                    stadium.dataset.mobileStep = String(step);
+                }
+
+                mobileSteps.forEach((panel) => {
+                    panel.classList.toggle('is-active', Number(panel.dataset.mobileStepPanel) === step);
+                });
+
+                mobileStepDots.forEach((dot) => {
+                    dot.classList.toggle('is-active', Number(dot.dataset.mobileStepDot) === step);
+                });
+            };
+
+            const validateStep = (step) => {
+                const stepPanel = form.querySelector(`[data-mobile-step-panel="${step}"]`);
+
+                if (!stepPanel) {
+                    return true;
+                }
+
+                const fields = Array.from(stepPanel.querySelectorAll('input, select, textarea'))
+                    .filter((field) => !field.disabled && field.type !== 'hidden');
+
+                for (const field of fields) {
+                    if (!field.checkValidity()) {
+                        field.reportValidity();
+                        return false;
+                    }
+                }
+
+                return true;
+            };
+
+            const syncSeatLayout = () => {
+                const nextMobileSeatLayout = window.innerWidth < 768;
+
+                if (nextMobileSeatLayout === isMobileSeatLayout) {
+                    return;
+                }
+
+                isMobileSeatLayout = nextMobileSeatLayout;
+                seatsLayer.innerHTML = '';
+                seats.length = 0;
+                buildSeats();
+                paintSeats(clampGuess());
+            };
+
             buildSeats();
+            buildMiniSeats();
+            setMobileStep(currentMobileStep);
             paintSeats(clampGuess());
 
             input.addEventListener('input', () => {
@@ -986,6 +1628,32 @@
                 const guess = clampGuess();
                 paintSeats(guess);
             });
+
+            mobileNextButton?.addEventListener('click', () => {
+                if (!mobileMediaQuery.matches || validateStep(1)) {
+                    setMobileStep(2);
+                }
+            });
+
+            mobilePrevButton?.addEventListener('click', () => {
+                setMobileStep(1);
+            });
+
+            form.addEventListener('submit', (event) => {
+                if (!mobileMediaQuery.matches) {
+                    return;
+                }
+
+                if (currentMobileStep === 1) {
+                    event.preventDefault();
+
+                    if (validateStep(1)) {
+                        setMobileStep(2);
+                    }
+                }
+            });
+
+            window.addEventListener('resize', syncSeatLayout);
         })();
     </script>
 @endpush
